@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Bun
+bun.lockb
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+.aidev/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# OS
+Thumbs.db
+
+# Notes locales (opcional — descomentá si querés que notes/ no se suba)
+# notes/
