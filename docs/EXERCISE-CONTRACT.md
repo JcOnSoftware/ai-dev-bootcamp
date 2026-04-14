@@ -4,28 +4,46 @@ Every exercise in `code/packages/exercises/<track>/<id>/` MUST follow this contr
 
 ## Required files
 
-Each exercise directory contains exactly these five files:
+Each exercise directory contains exactly these files:
 
-| File | Purpose |
+| Path | Purpose |
 |---|---|
-| `exercise.md` | The learner-facing problem statement. Required sections below. |
-| `starter.ts` | TODO-template code the learner edits. Throws by default. |
-| `solution.ts` | Working reference implementation. Identical shape to starter. |
+| `<locale>/exercise.md` | Locale-scoped learner-facing problem statement. At minimum `es/exercise.md` MUST exist. Each declared locale gets its own subdir. |
+| `starter.ts` | TODO-template code the learner edits. Throws by default. Locale-neutral. |
+| `solution.ts` | Working reference implementation. Identical shape to starter. Locale-neutral. |
 | `tests.test.ts` | Assertions run by `aidev verify`. Uses `@aidev/runner`. |
 | `meta.json` | Machine-readable metadata (see schema). |
+
+Example directory layout:
+
+```
+01-first-call/
+├── es/
+│   └── exercise.md        ← Spanish problem statement (required)
+├── en/
+│   └── exercise.md        ← English problem statement (required before public flip)
+├── starter.ts
+├── solution.ts
+├── tests.test.ts
+└── meta.json
+```
+
+Root-level `exercise.md` MUST NOT exist. Any exercise with a root-level `exercise.md` is treated as non-migrated and will be rejected in CI.
 
 The `.test.ts` suffix is required — Bun's test discovery depends on it.
 
 ## `exercise.md` required sections
 
-In this exact order. Missing a section blocks merge.
+Each `<locale>/exercise.md` MUST contain all 6 sections in this exact order. Missing a section blocks merge. Translations may use the locale's natural phrasing for headings — English equivalents are noted below.
 
 1. **`# Exercise <NN> — <title>`** — H1 title matching `meta.json` `title`.
-2. **`## Concept`** — What the learner needs to understand BEFORE touching code. 2-4 short paragraphs. No code required here.
-3. **`## Docs & references`** — Official links only, numbered, with a one-line summary of what each link answers. URLs must resolve (canonical, not redirects). No third-party blog posts or YouTube videos in v1.
-4. **`## Tu tarea`** — Step-by-step of what the learner must implement in `starter.ts`.
-5. **`## Cómo verificar`** — The `aidev verify <id>` command + a bullet list of what the tests check.
-6. **`## Concepto extra (opcional)`** — Optional deepening. Nothing the tests rely on.
+2. **`## Concept`** (es: `## Concepto`) — What the learner needs to understand BEFORE touching code. 2-4 short paragraphs. No code required here.
+3. **`## Docs & references`** (es: `## Docs & referencias`) — Official links only, numbered, with a one-line summary of what each link answers. URLs must resolve (canonical, not redirects). No third-party blog posts or YouTube videos in v1.
+4. **`## Tu tarea`** (en: `## Your task`) — Step-by-step of what the learner must implement in `starter.ts`.
+5. **`## Cómo verificar`** (en: `## How to verify`) — The `aidev verify <id>` command + a bullet list of what the tests check.
+6. **`## Concepto extra (opcional)`** (en: `## Extra concept (optional)`) — Optional deepening. Nothing the tests rely on.
+
+Section order MUST be preserved across all locales. Heading text may be translated; heading semantics (what each section is for) MUST NOT change.
 
 ## `starter.ts` requirements
 
@@ -66,7 +84,8 @@ In this exact order. Missing a section blocks merge.
   "concepts": ["<tag>", "<tag>"],
   "estimated_minutes": <integer>,
   "requires": ["<other exercise id>"],
-  "model_cost_hint": "<optional: '~$X per verify run (Haiku)'>"
+  "model_cost_hint": "<optional: '~$X per verify run (Haiku)'>",
+  "locales": ["es"]
 }
 ```
 
@@ -75,6 +94,9 @@ Rules:
 - `track` MUST equal the parent directory name.
 - `valid_until` default: 6 months from creation. The weekly CI health check warns when this approaches.
 - Bump `version` major when the concept being taught changes — this resets learner progress for that exercise.
+- `locales` is **required**. Must be a non-empty array containing at minimum `"es"`. Supported values: `"es"`, `"en"`. Any other value is a contract violation.
+- Each value in `locales` MUST correspond to an existing `<locale>/exercise.md` file, and vice-versa: every `<locale>/` subdir MUST be declared in `locales`. Mismatches cause `aidev` discovery warnings and may exclude the exercise.
+- `"en"` is required before the repo flips to public.
 
 ## Cost discipline
 
@@ -85,10 +107,12 @@ Rules:
 
 Before opening a PR:
 
-- [ ] All 5 files present, correctly named.
-- [ ] `exercise.md` has all 6 required sections in order.
+- [ ] `starter.ts`, `solution.ts`, `tests.test.ts`, `meta.json` present at exercise root.
+- [ ] `meta.json.locales` declares every present `<locale>/` subdir, and vice-versa (no undeclared dirs, no declared-but-missing dirs).
+- [ ] Every declared locale has a complete `<locale>/exercise.md` with all 6 required sections in order.
+- [ ] `es/exercise.md` is present and complete (mandatory for every exercise).
 - [ ] `starter.ts` has the Docs comment header.
-- [ ] All doc URLs resolve and are canonical (no redirects).
+- [ ] All doc URLs in every locale's `exercise.md` resolve and are canonical (no redirects).
 - [ ] `aidev verify <id>` fails on `starter.ts` with a clean error.
 - [ ] `AIDEV_TARGET=solution aidev verify <id>` passes all tests.
 - [ ] `bunx tsc --noEmit` passes from `code/`.
