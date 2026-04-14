@@ -1,0 +1,19 @@
+{
+  "name": "@aidev/cli",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "aidev": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@aidev/runner": "workspace:*",
+    "@clack/prompts": "^0.9.0",
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.0"
+  }
+}

@@ -20,6 +20,7 @@
   },
   "include": [
     "packages/runner/src/**/*",
+    "packages/cli/src/**/*",
     "packages/exercises/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "**/node_modules"]
