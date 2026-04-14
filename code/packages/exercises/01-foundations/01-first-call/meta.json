@@ -8,5 +8,5 @@
   "estimated_minutes": 10,
   "requires": [],
   "model_cost_hint": "~$0.001 per verify run (Haiku)",
-  "locales": ["es"]
+  "locales": ["es", "en"]
 }
