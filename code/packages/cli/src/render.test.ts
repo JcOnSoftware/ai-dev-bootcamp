@@ -9,10 +9,21 @@ import {
   MAX_CHARS,
 } from "./render.ts";
 import type { HarnessResult, CapturedCall } from "@aidev/runner";
-import type { Message } from "@anthropic-ai/sdk/resources/messages/messages";
+
+// Minimal structural type matching Anthropic SDK Message
+interface FakeMessage {
+  id: string;
+  type: "message";
+  role: "assistant";
+  content: Array<{ type: string; [key: string]: unknown }>;
+  model: string;
+  stop_reason: string | null;
+  stop_sequence: string | null;
+  usage: { input_tokens: number; output_tokens: number };
+}
 
 // Helper to create a minimal Message object
-function makeMessage(text: string): Message {
+function makeMessage(text: string): FakeMessage {
   return {
     id: "msg_test_123",
     type: "message",
@@ -22,14 +33,14 @@ function makeMessage(text: string): Message {
     stop_reason: "end_turn",
     stop_sequence: null,
     usage: { input_tokens: 10, output_tokens: 20 },
-  } as unknown as Message;
+  };
 }
 
-// Helper to create a minimal CapturedCall
+// Helper to create a minimal CapturedCall (cast to CapturedCall since FakeMessage is structurally compatible)
 function makeCall(text: string, model = "claude-haiku-4-5"): CapturedCall {
   return {
     request: { model, messages: [{ role: "user", content: "hi" }], max_tokens: 100 },
-    response: makeMessage(text),
+    response: makeMessage(text) as unknown as CapturedCall["response"],
     durationMs: 42,
     streamed: false,
   };
@@ -131,7 +142,7 @@ describe("extractText", () => {
         { type: "text", text: "first" },
         { type: "text", text: "second" },
       ],
-    } as unknown as Message;
+    } as FakeMessage;
     expect(extractText(msg)).toBe("first\nsecond");
   });
 
@@ -142,7 +153,7 @@ describe("extractText", () => {
         { type: "tool_use", id: "tool_1", name: "calc", input: {} },
         { type: "text", text: "result" },
       ],
-    } as unknown as Message;
+    } as FakeMessage;
     expect(extractText(msg)).toBe("result");
   });
 });
@@ -234,7 +245,7 @@ describe("renderSummary", () => {
       response: {
         ...makeMessage("hello"),
         model: "unknown-model-xyz",
-      } as unknown as Message,
+      } as unknown as CapturedCall["response"],
     };
     const result = makeResult([call], makeMessage("hello"));
     const summary = renderSummary(result, fakeExercise, { full: false, target: "starter" });
