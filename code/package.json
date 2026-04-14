@@ -1,0 +1,23 @@
+{
+  "name": "ai-dev-bootcamp",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Interactive CLI to learn AI tools through progressive exercises with automated tests.",
+  "license": "MIT",
+  "author": "Juan Carlos Yovera Cruz <jcyovera@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcyovera/ai-dev-bootcamp.git"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "bun run --filter '*' typecheck"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.6.0"
+  }
+}

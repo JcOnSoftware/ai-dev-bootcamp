@@ -1,0 +1,13 @@
+{
+  "name": "@aidev/exercises",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aidev/runner": "workspace:*",
+    "@anthropic-ai/sdk": "^0.40.0"
+  }
+}
