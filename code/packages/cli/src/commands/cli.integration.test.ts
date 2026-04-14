@@ -80,3 +80,58 @@ describe("CLI smoke tests", () => {
     expect(stderr).toContain("Unsupported locale");
   });
 });
+
+describe("list command — locale-aware output", () => {
+  test("aidev list --locale es uses ES strings in hint", async () => {
+    const { exitCode, stdout } = await runCli(["list", "--locale", "es"]);
+    expect(exitCode).toBe(0);
+    // ES hint from es.json: "Ejecutá los tests de un ejercicio: aidev verify <id>"
+    expect(stdout).toContain("Ejecutá los tests");
+  });
+
+  test("aidev list --locale en uses EN strings in hint", async () => {
+    const { exitCode, stdout } = await runCli(["list", "--locale", "en"]);
+    expect(exitCode).toBe(0);
+    // EN hint from en.json: "Run an exercise's tests: aidev verify <id>"
+    expect(stdout).toContain("Run an exercise");
+  });
+});
+
+describe("progress command — locale-aware output", () => {
+  test("aidev progress --locale es uses ES total string", async () => {
+    const { exitCode, stdout } = await runCli(["progress", "--locale", "es"]);
+    expect(exitCode).toBe(0);
+    // ES total from es.json: "Total: {done}/{total} ejercicios completados."
+    expect(stdout).toContain("ejercicios completados");
+  });
+
+  test("aidev progress --locale en uses EN total string", async () => {
+    const { exitCode, stdout } = await runCli(["progress", "--locale", "en"]);
+    expect(exitCode).toBe(0);
+    // EN total from en.json: "Total: {done}/{total} exercises completed."
+    expect(stdout).toContain("exercises completed");
+  });
+});
+
+describe("verify command — exercise.md path line", () => {
+  test("aidev verify 01-first-call --locale en prints EN exercise doc path", async () => {
+    // No ANTHROPIC_API_KEY → verify will fail on API key check, but the doc path
+    // line is printed BEFORE the API key check per spec (Phase 7.3).
+    // We assert on the exercise doc path line only.
+    const { stdout, stderr } = await runCli(["verify", "01-first-call", "--locale", "en"], {
+      HOME: "/tmp/aidev-test-no-home",
+    });
+    const combined = stdout + stderr;
+    // Should print: "→ Exercise: <path>/en/exercise.md"
+    expect(combined).toContain("en/exercise.md");
+  });
+
+  test("aidev verify 01-first-call --locale es prints ES exercise doc path", async () => {
+    const { stdout, stderr } = await runCli(["verify", "01-first-call", "--locale", "es"], {
+      HOME: "/tmp/aidev-test-no-home",
+    });
+    const combined = stdout + stderr;
+    // Should print: "→ Ejercicio: <path>/es/exercise.md"
+    expect(combined).toContain("es/exercise.md");
+  });
+});
