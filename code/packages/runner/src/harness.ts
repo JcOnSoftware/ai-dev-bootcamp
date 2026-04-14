@@ -19,7 +19,11 @@
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
-import type { Message, MessageCreateParams } from "@anthropic-ai/sdk/resources/messages/messages";
+import type {
+  Message,
+  MessageCreateParams,
+  MessageStreamEvent,
+} from "@anthropic-ai/sdk/resources/messages/messages";
 
 export interface CapturedCall {
   request: MessageCreateParams;
@@ -38,6 +42,13 @@ export interface HarnessResult {
 export interface RunOptions {
   /** Function name to invoke on the exercise module. Defaults to the default export. */
   entry?: string;
+  /**
+   * Optional callback invoked for each MessageStreamEvent emitted by a
+   * streaming call. Uses the MessageStream's native EventEmitter API
+   * (`.on("streamEvent", cb)`) — does NOT consume the async iterator.
+   * When absent, behavior is byte-for-byte identical to pre-change baseline.
+   */
+  onStreamEvent?: (event: MessageStreamEvent) => void;
 }
 
 /**
@@ -53,7 +64,7 @@ export async function runUserCode(
 ): Promise<HarnessResult> {
   const calls: CapturedCall[] = [];
   const pendingCaptures: Promise<void>[] = [];
-  const restore = patchMessages(calls, pendingCaptures);
+  const restore = patchMessages(calls, pendingCaptures, options.onStreamEvent);
 
   try {
     const absolutePath = resolve(filePath);
@@ -114,6 +125,7 @@ export function resolveExerciseFile(
 function patchMessages(
   calls: CapturedCall[],
   pendingCaptures: Promise<void>[],
+  onStreamEvent?: (event: MessageStreamEvent) => void,
 ): () => void {
   const probe = new Anthropic({ apiKey: "probe-not-used" });
   const proto = probe.messages.constructor.prototype as {
@@ -163,6 +175,9 @@ function patchMessages(
 
     if (isStreamResponse(messageStream)) {
       pendingCaptures.push(captureStreamWhenDone(messageStream, request, start, calls));
+      if (onStreamEvent) {
+        teeStreamEvents(messageStream, onStreamEvent);
+      }
     }
 
     return messageStream;
@@ -172,6 +187,29 @@ function patchMessages(
     proto.create = originalCreate;
     proto.stream = originalStream;
   };
+}
+
+/**
+ * Subscribes to a MessageStream's native EventEmitter API to tee each
+ * MessageStreamEvent to `cb`. Uses `.on("streamEvent", cb)` — does NOT
+ * consume the async iterator or alter the APIPromise chain (see bugfix #89).
+ *
+ * Guard: if the object doesn't have `.on`, this is a no-op.
+ * Error safety: exceptions from `cb` are swallowed so user code never crashes.
+ */
+function teeStreamEvents(
+  stream: unknown,
+  cb: (event: MessageStreamEvent) => void,
+): void {
+  const s = stream as { on?: (name: string, fn: (e: unknown) => void) => void };
+  if (typeof s.on !== "function") return;
+  s.on("streamEvent", (e) => {
+    try {
+      cb(e as MessageStreamEvent);
+    } catch {
+      // Never crash user code due to a callback error.
+    }
+  });
 }
 
 function isMessage(value: unknown): value is Message {

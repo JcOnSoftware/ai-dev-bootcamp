@@ -5,10 +5,11 @@
  * and a fake MessageStream to verify the harness hook mechanic without
  * hitting the real Anthropic API.
  */
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import { describe, it, expect, afterEach } from "bun:test";
 import { writeFile, unlink } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import Anthropic from "@anthropic-ai/sdk";
 import { runUserCode } from "./harness.ts";
 import type { RunOptions } from "./harness.ts";
 
@@ -86,9 +87,16 @@ afterEach(async () => {
 });
 
 /**
- * Writes a temporary exercise module and returns its path.
- * The module monkey-patches the `messages.stream` method on the Anthropic
- * prototype to return the fake stream (simulating a real SDK call).
+ * Writes a temporary exercise module that calls client.messages.stream(...).
+ *
+ * The Anthropic prototype's .stream() method is pre-patched (via
+ * globalThis.__ORIGINAL_STREAM_REPLACED = true) BEFORE runUserCode, so that
+ * when the harness intercepts the call and runs our fake stream, teeStreamEvents
+ * gets the object with .on("streamEvent", ...).
+ *
+ * The actual mechanism: we inject our fake stream so the ORIGINAL proto.stream
+ * (called inside the harness's patchedStream) returns it. We do this by
+ * pre-setting the original method on the prototype BEFORE the harness patches.
  */
 async function writeFakeStreamExercise(
   _stream: ReturnType<typeof makeFakeMessageStream>,
@@ -96,20 +104,21 @@ async function writeFakeStreamExercise(
   // Write exercise into the runner src directory so @anthropic-ai/sdk resolves
   const path = join(HERE, `__tmp_exercise_stream_${Date.now()}.ts`);
   createdFiles.push(path);
-  // The exercise reads __FAKE_STREAM__ from globalThis (injected by the test)
-  // and calls .finalMessage() on it — simulating what user stream exercises do.
+  // This exercise calls client.messages.stream() — the harness will intercept it.
+  // The Anthropic proto.stream is pre-replaced before runUserCode is called,
+  // so the "original" stream method the harness captures returns our fake.
   await writeFile(
     path,
     `import Anthropic from "@anthropic-ai/sdk";
 export default async function run() {
-  // Suppress unused import warning
-  void Anthropic;
-  const fakeStream = (globalThis as Record<string, unknown>)["__FAKE_STREAM__"];
-  const stream = fakeStream as {
-    on: (name: string, fn: (e: unknown) => void) => unknown;
-    finalMessage: () => Promise<unknown>;
-    [Symbol.asyncIterator]: () => AsyncIterableIterator<unknown>;
-  };
+  const client = new Anthropic({ apiKey: "fake-key-no-real-call" });
+  // client.messages.stream() is intercepted by the harness; the underlying
+  // original method was replaced by the test to return __FAKE_STREAM__.
+  const stream = client.messages.stream({
+    model: "claude-haiku-4-5",
+    max_tokens: 10,
+    messages: [{ role: "user", content: "hi" }],
+  });
   const msg = await stream.finalMessage();
   return msg;
 }
@@ -131,6 +140,32 @@ export default async function run() {
 `,
   );
   return path;
+}
+
+// ─── Test infrastructure: proto injection ────────────────────────────────────
+
+/**
+ * Pre-patches Anthropic.Messages.prototype.stream to return our fake stream
+ * instead of making a real API call.
+ *
+ * The harness patches this prototype on entry to runUserCode — it saves
+ * the CURRENT proto.stream as "originalStream" and patches over it.
+ * If we pre-replace proto.stream here, the harness will use OUR fake as
+ * "originalStream", call it, get the fake stream back, then call
+ * teeStreamEvents on it — exactly what we want to test.
+ *
+ * Returns a restore function.
+ */
+function injectFakeStream(stream: ReturnType<typeof makeFakeMessageStream>): () => void {
+  const probe = new Anthropic({ apiKey: "probe" });
+  const proto = probe.messages.constructor.prototype as {
+    stream: (...args: unknown[]) => unknown;
+  };
+  const original = proto.stream;
+  proto.stream = function () {
+    return stream;
+  };
+  return () => { proto.stream = original; };
 }
 
 // ─── Phase 4.1 Tests ─────────────────────────────────────────────────────────
@@ -178,8 +213,10 @@ describe("RunOptions.onStreamEvent (Phase 4)", () => {
 
     const fakeStream = makeFakeMessageStream(events);
 
-    // Inject fake stream into globalThis so exercise can access it
-    (globalThis as Record<string, unknown>)["__FAKE_STREAM__"] = fakeStream;
+    // Pre-inject fake stream into the prototype BEFORE runUserCode patches it.
+    // The harness will capture proto.stream (= our fake-returner) as "originalStream"
+    // and call teeStreamEvents on the result.
+    const restore = injectFakeStream(fakeStream);
 
     const received: FakeStreamEvent[] = [];
     const opts: RunOptions = {
@@ -188,13 +225,13 @@ describe("RunOptions.onStreamEvent (Phase 4)", () => {
       },
     };
 
-    // Write exercise that uses globalThis.__FAKE_STREAM__
     const path = await writeFakeStreamExercise(fakeStream);
 
-    // Run exercise — onStreamEvent should be called via teeStreamEvents
-    // The fake stream's .on("streamEvent", cb) will fire callbacks when
-    // .finalMessage() is called
-    await runUserCode(path, opts);
+    try {
+      await runUserCode(path, opts);
+    } finally {
+      restore();
+    }
 
     // Verify all events were received in order
     expect(received).toHaveLength(events.length);
@@ -207,7 +244,8 @@ describe("RunOptions.onStreamEvent (Phase 4)", () => {
       { type: "message_stop" },
     ];
     const fakeStream = makeFakeMessageStream(events);
-    (globalThis as Record<string, unknown>)["__FAKE_STREAM__"] = fakeStream;
+
+    const restore = injectFakeStream(fakeStream);
 
     const opts: RunOptions = {
       onStreamEvent: (_e) => {
@@ -216,11 +254,19 @@ describe("RunOptions.onStreamEvent (Phase 4)", () => {
     };
 
     const path = await writeFakeStreamExercise(fakeStream);
-    const result = await runUserCode(path, opts);
+    let result;
+    try {
+      result = await runUserCode(path, opts);
+    } finally {
+      restore();
+    }
 
     // userReturn is the fake message from our exercise
-    expect(result.userReturn).not.toBeNull();
-    expect(result.userReturn).not.toBeUndefined();
+    expect(result!.userReturn).not.toBeNull();
+    expect(result!.userReturn).not.toBeUndefined();
+    // calls[] should have the captured streaming call
+    expect(result!.calls).toHaveLength(1);
+    expect(result!.calls[0]?.streamed).toBe(true);
   });
 
   it("runUserCode without onStreamEvent still works (no regression)", async () => {
@@ -247,7 +293,8 @@ describe("teeStreamEvents — direct harness integration", () => {
     const fakeStream = makeFakeMessageStream([
       { type: "content_block_delta", delta: { type: "text_delta", text: "X" } },
     ]);
-    (globalThis as Record<string, unknown>)["__FAKE_STREAM__"] = fakeStream;
+
+    const restore = injectFakeStream(fakeStream);
 
     let cbCalled = false;
     const opts: RunOptions = {
@@ -258,8 +305,15 @@ describe("teeStreamEvents — direct harness integration", () => {
     };
 
     const path = await writeFakeStreamExercise(fakeStream);
+    let didResolve = false;
+    try {
+      await runUserCode(path, opts);
+      didResolve = true;
+    } finally {
+      restore();
+    }
     // Should NOT throw even though the callback throws
-    await expect(runUserCode(path, opts)).resolves.toBeDefined();
+    expect(didResolve).toBe(true);
     expect(cbCalled).toBe(true);
   });
 });
