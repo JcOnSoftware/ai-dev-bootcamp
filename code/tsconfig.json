@@ -18,6 +18,9 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["packages/*/src/**/*", "packages/*/test/**/*"],
+  "include": [
+    "packages/runner/src/**/*",
+    "packages/exercises/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist", "**/node_modules"]
 }

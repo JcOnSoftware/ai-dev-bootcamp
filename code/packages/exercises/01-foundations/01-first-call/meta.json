@@ -1,0 +1,11 @@
+{
+  "id": "01-first-call",
+  "track": "01-foundations",
+  "title": "Your first Claude call",
+  "version": "1.0.0",
+  "valid_until": "2026-10-01",
+  "concepts": ["api-call", "messages-format", "model-selection"],
+  "estimated_minutes": 10,
+  "requires": [],
+  "model_cost_hint": "~$0.001 per verify run (Haiku)"
+}
