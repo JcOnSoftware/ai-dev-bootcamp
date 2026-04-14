@@ -103,6 +103,10 @@ Rules:
 - Default model in solutions: Haiku. If an exercise MUST use Sonnet/Opus, justify in `meta.json.model_cost_hint`.
 - Total v1 bootcamp should stay under ~$2 to complete end-to-end for a learner.
 
+## Playground (informational)
+
+Exercises can be executed for inspection (not validated) via `aidev run <id> [--solution] [--stream-live] [--full]`. Return shapes that are plain objects with labeled fields (like `{ deterministic, creative }`) render more cleanly than deep nested structures.
+
 ## Review checklist (for contributors)
 
 Before opening a PR:

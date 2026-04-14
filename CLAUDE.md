@@ -102,6 +102,7 @@ aidev list [--locale es|en]          # list exercises grouped by track (localize
 aidev verify <id> [--locale es|en]   # run tests; record progress on pass
 aidev verify <id> --solution [--locale es|en]  # run against solution.ts (no progress)
 aidev progress [--locale es|en]      # dashboard with per-track completion
+aidev run <id> [--solution] [--stream-live] [--full] [--locale es|en]  # execute for inspection (no progress recorded)
 ```
 
 `--locale` can be placed before or after the subcommand (`aidev --locale en list` OR `aidev list --locale en`).
