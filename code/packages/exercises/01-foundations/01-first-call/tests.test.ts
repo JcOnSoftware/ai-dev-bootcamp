@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll } from "bun:test";
-import { runUserCode, type HarnessResult } from "@aidev/runner";
+import { runUserCode, resolveExerciseFile, type HarnessResult } from "@aidev/runner";
 
-const EXERCISE_FILE = new URL("./starter.ts", import.meta.url).pathname;
+const EXERCISE_FILE = resolveExerciseFile(import.meta.url);
 
 describe("01-first-call", () => {
   let result: HarnessResult;

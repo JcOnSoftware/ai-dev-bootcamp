@@ -7,8 +7,8 @@
  * needing any awareness of the harness.
  */
 
-import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
 import type { Message, MessageCreateParams } from "@anthropic-ai/sdk/resources/messages/messages";
 
@@ -72,6 +72,29 @@ export async function runUserCode(
 
 export class HarnessError extends Error {
   override name = "HarnessError";
+}
+
+export type ExerciseTarget = "starter" | "solution";
+
+/**
+ * Resolves the exercise file to run, based on the `AIDEV_TARGET` env var
+ * (defaults to "starter"). Call from a test file passing `import.meta.url`.
+ *
+ * Lets the same test file validate either the user's in-progress `starter.ts`
+ * or the reference `solution.ts` without swapping files.
+ */
+export function resolveExerciseFile(
+  importMetaUrl: string,
+  override?: ExerciseTarget,
+): string {
+  const target = override ?? (process.env["AIDEV_TARGET"] as ExerciseTarget | undefined) ?? "starter";
+  if (target !== "starter" && target !== "solution") {
+    throw new HarnessError(
+      `Invalid AIDEV_TARGET '${target}'. Must be 'starter' or 'solution'.`,
+    );
+  }
+  const testDir = dirname(fileURLToPath(importMetaUrl));
+  return resolve(testDir, `${target}.ts`);
 }
 
 /**
