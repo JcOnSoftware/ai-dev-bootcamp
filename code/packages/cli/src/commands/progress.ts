@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import pc from "picocolors";
+import { t } from "../i18n/index.ts";
 import { listExercises } from "../exercises.ts";
 import { readProgress } from "../config.ts";
 
@@ -10,7 +11,7 @@ export const progressCommand = new Command("progress")
     const [exercises, progress] = await Promise.all([listExercises(), readProgress()]);
 
     if (exercises.length === 0) {
-      console.log(pc.yellow("No exercises found."));
+      console.log(pc.yellow(t("list.empty")));
       return;
     }
 
@@ -36,7 +37,7 @@ export const progressCommand = new Command("progress")
       }
     }
     console.log();
-    console.log(pc.dim(`Total: ${totalPassed}/${exercises.length} exercises completed.`));
+    console.log(pc.dim(t("progress.total", { done: String(totalPassed), total: String(exercises.length) })));
   });
 
 function renderBar(done: number, total: number, width = 16): string {

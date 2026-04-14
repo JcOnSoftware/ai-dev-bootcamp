@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import pc from "picocolors";
+import { t } from "../i18n/index.ts";
 import { isStale, listExercises } from "../exercises.ts";
 
 export const listCommand = new Command("list")
@@ -9,7 +10,7 @@ export const listCommand = new Command("list")
   .action(async () => {
     const exercises = await listExercises();
     if (exercises.length === 0) {
-      console.log(pc.yellow("No exercises found."));
+      console.log(pc.yellow(t("list.empty")));
       return;
     }
 
@@ -24,7 +25,7 @@ export const listCommand = new Command("list")
       console.log();
       console.log(pc.bold(pc.cyan(`▸ ${track}`)));
       for (const ex of items) {
-        const stale = isStale(ex.meta) ? pc.yellow(" ⚠ stale") : "";
+        const stale = isStale(ex.meta) ? pc.yellow(t("common.stale")) : "";
         console.log(
           `  ${pc.dim(ex.meta.id.padEnd(20))}  ${ex.meta.title}${stale}`,
         );
@@ -36,5 +37,5 @@ export const listCommand = new Command("list")
       }
     }
     console.log();
-    console.log(pc.dim(`Run an exercise's tests: aidev verify <id>`));
+    console.log(pc.dim(t("list.hint")));
   });

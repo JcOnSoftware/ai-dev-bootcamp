@@ -4,6 +4,26 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { SupportedLocale } from "./i18n/types.ts";
 import { SUPPORTED_LOCALES } from "./i18n/types.ts";
+import { t as _t } from "./i18n/index.ts";
+
+/**
+ * Defensive wrapper around `t()`. If `initI18n` has not been called yet (e.g.
+ * in unit tests that exercise the `exercises.ts` module directly), falls back
+ * to the raw `fallback` string instead of throwing a programmer-error.
+ * In production code, `initI18n` is always called in the preAction hook before
+ * any command action runs, so `_t` is always safe there.
+ */
+function safeT(key: string, vars?: Record<string, string>, fallback?: string): string {
+  try {
+    return _t(key, vars);
+  } catch {
+    // i18n not initialized — fall back to raw message.
+    if (fallback !== undefined) return fallback;
+    // Build a basic interpolation from vars for the raw fallback.
+    if (!vars) return key;
+    return key.replace(/\{(\w+)\}/g, (_, k: string) => vars[k] ?? "");
+  }
+}
 
 export interface ExerciseMeta {
   id: string;
@@ -158,10 +178,12 @@ export function exerciseDocPath(exercise: Exercise, locale: SupportedLocale): st
     const warnKey = `${exercise.meta.id}:${locale}`;
     if (!warnedMissingContent.has(warnKey)) {
       warnedMissingContent.add(warnKey);
-      // Use raw message here — t() may not be initialized in all call contexts.
-      // Phase 7 will replace with t("errors.locale_fallback", ...).
       process.stderr.write(
-        `Exercise ${exercise.meta.id}: no "${locale}" content; showing "es".\n`,
+        safeT(
+          "errors.locale_fallback",
+          { id: exercise.meta.id, requested: locale },
+          `Exercise ${exercise.meta.id}: no "${locale}" content; showing "es".`,
+        ) + "\n",
       );
     }
     const fallback = join(exercise.dir, "es", "exercise.md");
