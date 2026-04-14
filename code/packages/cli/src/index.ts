@@ -6,6 +6,7 @@ import { initCommand } from "./commands/init.ts";
 import { listCommand } from "./commands/list.ts";
 import { progressCommand } from "./commands/progress.ts";
 import { verifyCommand } from "./commands/verify.ts";
+import { runCommand } from "./commands/run.ts";
 
 const program = new Command();
 
@@ -30,6 +31,7 @@ program.addCommand(initCommand);
 program.addCommand(listCommand);
 program.addCommand(verifyCommand);
 program.addCommand(progressCommand);
+program.addCommand(runCommand);
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error(err);
