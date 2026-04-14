@@ -15,5 +15,12 @@
 
 ## Testing contract
 
-- Decide naming: `tests.ts` vs `test.ts` vs `*.test.ts`. Bun discovers `*.test.ts` by default — might be worth aligning to convention.
-- Add a `runSolution()` helper in the harness so contributors can dogfood without file swapping.
+- ~~Decide naming: `tests.ts` vs `test.ts` vs `*.test.ts`. Bun discovers `*.test.ts` by default — might be worth aligning to convention.~~ DONE (M2).
+- ~~Add a `runSolution()` helper in the harness so contributors can dogfood without file swapping.~~ DONE (M2 via `AIDEV_TARGET` + `resolveExerciseFile`).
+
+## Exercise contract (formalized)
+
+See `docs/EXERCISE-CONTRACT.md`. Every new exercise MUST include:
+- `## Docs & references` section in `exercise.md` with canonical official URLs.
+- Docs comment header in `starter.ts` with same links visible in the IDE.
+Reason: first user feedback on `01-first-call` — "no había link a la doc para saber cómo instanciar Anthropic". Fixed for that exercise; applies to ALL future exercises.
