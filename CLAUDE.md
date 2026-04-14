@@ -15,6 +15,9 @@ License: MIT.
 - **Language**: TypeScript 5.9 (strict, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, `allowImportingTsExtensions`)
 - **AI SDK**: `@anthropic-ai/sdk ^0.40` (Claude-first; multi-provider later)
 - **CLI**: `commander` + `@clack/prompts` + `picocolors`
+  - `@clack/prompts` used in `aidev init` for API key input and locale select (interactive setup).
+- **i18n**: zero-dependency module at `packages/cli/src/i18n/`. Locale resolved once per process in commander's `preAction` hook via `initI18n(locale)`. All CLI strings use `t(key, vars?)`. Supported locales: `es` (default), `en`. Static JSON dictionaries — no runtime JSON loading.
+- **Locale resolution order**: `--locale <flag>` → `AIDEV_LOCALE` env var → `~/.aidev/config.json` → default `"es"`.
 - **Monorepo**: Bun workspaces (no Nx/Turbo — YAGNI)
 - **Tests**: `bun:test` built-in, convention `*.test.ts`
 
@@ -30,13 +33,26 @@ ai-dev-bootcamp/
 │       │   └── src/harness.ts     # monkey-patches Messages.prototype.create
 │       ├── cli/                   # @aidev/cli — `aidev` binary
 │       │   └── src/
-│       │       ├── index.ts       # commander entry
+│       │       ├── index.ts       # commander entry (--locale root option + preAction hook)
 │       │       ├── commands/      # init, list, verify, progress
-│       │       ├── exercises.ts   # discovery of exercises
-│       │       └── config.ts      # ~/.aidev/ persistence
+│       │       ├── exercises.ts   # discovery of exercises (locale-aware)
+│       │       ├── config.ts      # ~/.aidev/ persistence (locale field)
+│       │       └── i18n/          # i18n module
+│       │           ├── index.ts   # initI18n(), t(), getActiveLocale()
+│       │           ├── types.ts   # SupportedLocale = "es" | "en"
+│       │           ├── es.json    # Spanish dictionary (default locale)
+│       │           └── en.json    # English dictionary
 │       └── exercises/             # @aidev/exercises — content
 │           └── 01-foundations/
 │               └── 01-first-call/ # reference exercise (M1)
+│                   ├── es/
+│                   │   └── exercise.md   # Spanish problem statement
+│                   ├── en/
+│                   │   └── exercise.md   # English problem statement
+│                   ├── starter.ts
+│                   ├── solution.ts
+│                   ├── tests.test.ts
+│                   └── meta.json
 ├── docs/
 │   ├── PLAN.md                    # original M1 plan (historical)
 │   └── EXERCISE-CONTRACT.md       # REQUIRED READING before touching exercises
@@ -56,15 +72,17 @@ ai-dev-bootcamp/
 
 ## Exercise contract (see `docs/EXERCISE-CONTRACT.md`)
 
-Every exercise has exactly 5 files:
+Every exercise has these files at its root plus one `exercise.md` per declared locale:
 
 | File | Purpose |
 |---|---|
-| `exercise.md` | Learner-facing statement. 6 required sections (Concept, Docs & references, Tu tarea, Cómo verificar, Concepto extra) |
-| `starter.ts` | TODO template. MUST have a `// Docs:` comment header with canonical URLs |
-| `solution.ts` | Reference implementation |
+| `<locale>/exercise.md` | Learner-facing statement, per locale. At least `es/` required. 6 required sections per locale. |
+| `starter.ts` | TODO template. MUST have a `// Docs:` comment header with canonical URLs. Locale-neutral. |
+| `solution.ts` | Reference implementation. Locale-neutral. |
 | `tests.test.ts` | Uses `resolveExerciseFile(import.meta.url)` + `AIDEV_TARGET` env |
-| `meta.json` | `{ id, track, title, version, valid_until, concepts, estimated_minutes, requires }` |
+| `meta.json` | `{ id, track, title, version, valid_until, concepts, estimated_minutes, requires, locales }` |
+
+**`locales` field** (required in `meta.json`): non-empty array of `"es" | "en"`. At minimum `["es"]`. Must match the locale subdirs present on disk.
 
 **Canonical doc URLs**: `platform.claude.com/...` — NOT `docs.anthropic.com` (301-redirects).
 **Default model in solutions**: Haiku (cost discipline — bootcamp should total ~$2 end-to-end).
@@ -79,12 +97,16 @@ Every exercise has exactly 5 files:
 ## CLI (`aidev`)
 
 ```
-aidev init               # setup API key + locale → ~/.aidev/config.json
-aidev list               # list exercises grouped by track
-aidev verify <id>        # run tests; record progress on pass
-aidev verify <id> --solution   # run tests against solution.ts (no progress recorded)
-aidev progress           # dashboard with per-track completion
+aidev init                           # setup API key + locale → ~/.aidev/config.json
+aidev list [--locale es|en]          # list exercises grouped by track (localized strings)
+aidev verify <id> [--locale es|en]   # run tests; record progress on pass
+aidev verify <id> --solution [--locale es|en]  # run against solution.ts (no progress)
+aidev progress [--locale es|en]      # dashboard with per-track completion
 ```
+
+`--locale` can be placed before or after the subcommand (`aidev --locale en list` OR `aidev list --locale en`).
+
+**Locale env var**: `AIDEV_LOCALE=en aidev list` — overridden by `--locale` flag if both supplied.
 
 **API key resolution**: `process.env.ANTHROPIC_API_KEY` → `~/.aidev/config.json`.
 
@@ -98,9 +120,12 @@ aidev progress           # dashboard with per-track completion
 ## State of play
 
 - **M1 + M2 complete**: harness, first exercise, CLI (init/list/verify/progress), exercise contract.
-- **M3 in progress**: i18n (subdirs per locale, CLI string dicts, **default locale `es`** for LATAM), SDD init done.
-- Active SDD change: `sdd/add-i18n-support/*` in engram (proposal stage).
-- 3 remaining Foundations exercises (params, streaming, tokens/cost, error handling) land after M3.
+- **M3**: i18n runtime + content layer landed; 1 exercise (`01-first-call`) migrated to locale subdirs.
+  - `packages/cli/src/i18n/` module complete (types, dictionaries, `initI18n`/`t`/`getActiveLocale`).
+  - All CLI commands (`init`, `list`, `verify`, `progress`) use `t()` for user-facing strings.
+  - `01-first-call` has `es/exercise.md` + `en/exercise.md`; `meta.json` declares `"locales": ["es", "en"]`.
+  - Active SDD change: `sdd/add-i18n-support/*` in engram (implementation complete, pending verify).
+- **Next**: remaining Foundations exercises (params, streaming, tokens/cost, error handling) + public flip after `en` locale content complete.
 
 ## Persistence references
 
@@ -114,7 +139,11 @@ Engram is the memory backend. Key topics for this project (`project: "new-tool"`
 | `ai-dev-bootcamp/overview` | Project overview memory |
 | `ai-dev-bootcamp/milestone-1`, `milestone-2` | Completed milestones |
 | `ai-dev-bootcamp/exercise-contract` | Pattern for exercise authoring |
-| `sdd/add-i18n-support/*` | Active SDD change (proposal now, specs next) |
+| `sdd/add-i18n-support/proposal` | Change proposal and intent |
+| `sdd/add-i18n-support/spec` | Spec index + runtime/contract delta specs |
+| `sdd/add-i18n-support/design` | Technical design (ADRs, component diagram, module API) |
+| `sdd/add-i18n-support/tasks` | Full task checklist (Phases 1-9) |
+| `sdd/add-i18n-support/apply-progress` | Implementation progress (Batches 1-3) |
 
 Retrieve full content with `mem_search(query: "<topic>", project: "new-tool")` → `mem_get_observation(id)`.
 
