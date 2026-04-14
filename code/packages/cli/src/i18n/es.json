@@ -17,5 +17,19 @@
   "progress.total": "Total: {done}/{total} ejercicios completados.",
   "errors.unsupported_locale": "Locale no soportado \"{value}\". Soportados: {list}",
   "errors.locale_fallback": "Ejercicio {id}: no hay contenido \"{requested}\"; mostrando \"es\".",
-  "common.stale": " ⚠ desactualizado"
+  "common.stale": " ⚠ desactualizado",
+  "run.title": "▶ Ejecución de {id} ({target})",
+  "run.running": "→ Ejecutando {id} contra {target}.ts",
+  "run.summary.model": "Modelo: {model}",
+  "run.summary.tokens": "Tokens: entrada {input} · salida {output}",
+  "run.summary.cost": "Costo: {cost}",
+  "run.summary.duration": "Duración: {ms}ms",
+  "run.cost_unknown": "costo ~ revisá los precios del modelo",
+  "run.truncated": "[... truncado {n} caracteres, usá --full para ver todo]",
+  "run.return_value_label": "Valor de retorno",
+  "run.not_found": "Ejercicio '{id}' no encontrado. Probá: aidev list",
+  "run.no_key": "No se encontró API key de Anthropic.",
+  "run.no_key_hint": "  Corré 'aidev init' o exportá ANTHROPIC_API_KEY.",
+  "run.error.message": "Error al ejecutar: {message}",
+  "run.error.hint": "  Revisá el código del ejercicio y volvé a intentar."
 }

@@ -17,5 +17,19 @@
   "progress.total": "Total: {done}/{total} exercises completed.",
   "errors.unsupported_locale": "Unsupported locale \"{value}\". Supported: {list}",
   "errors.locale_fallback": "Exercise {id}: no \"{requested}\" content; showing \"es\".",
-  "common.stale": " ⚠ stale"
+  "common.stale": " ⚠ stale",
+  "run.title": "▶ Running {id} ({target})",
+  "run.running": "→ Running {id} against {target}.ts",
+  "run.summary.model": "Model: {model}",
+  "run.summary.tokens": "Tokens: input {input} · output {output}",
+  "run.summary.cost": "Cost: {cost}",
+  "run.summary.duration": "Duration: {ms}ms",
+  "run.cost_unknown": "cost ~ check model pricing",
+  "run.truncated": "[... truncated {n} chars, use --full to see all]",
+  "run.return_value_label": "Return value",
+  "run.not_found": "Exercise '{id}' not found. Try: aidev list",
+  "run.no_key": "No Anthropic API key found.",
+  "run.no_key_hint": "  Run 'aidev init' or export ANTHROPIC_API_KEY.",
+  "run.error.message": "Execution error: {message}",
+  "run.error.hint": "  Check the exercise code and retry."
 }
