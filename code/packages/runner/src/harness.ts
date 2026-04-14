@@ -1,17 +1,19 @@
 /**
  * Runner harness.
  *
- * Intercepts Anthropic SDK calls (monkey-patches Messages.prototype.create)
- * before loading the user's exercise code, so tests can assert on both the
- * request the user made AND the response they got — without the user code
- * needing any awareness of the harness.
+ * Intercepts Anthropic SDK calls so tests can assert on both the request the
+ * user made AND the response they got, without the user code needing any
+ * awareness of the harness.
  *
- * Both non-streaming and streaming calls are captured:
- *  - Non-streaming: response is a Message — pushed immediately.
- *  - Streaming: response is a MessageStream — we await its .finalMessage()
- *    in the background and push when it resolves. `runUserCode()` waits for
- *    all in-flight stream captures before returning, so tests see a stable
- *    `calls[]` array.
+ * Two methods are monkey-patched on `Messages.prototype`:
+ *  - `create`: captures non-streaming responses (plain Message).
+ *  - `stream`: captures MessageStream via its `.finalMessage()` helper.
+ *
+ * Critical: `create` returns an `APIPromise` (a thenable with extra methods
+ * like `.withResponse()`). We MUST preserve that return value as-is — the
+ * SDK's own `.stream()` helper chains `.withResponse()` on it. Wrapping the
+ * patched `create` in `async function` breaks those methods and crashes the
+ * stream helper. We attach capture as a side-effect via `.then()` instead.
  */
 
 import { resolve, dirname } from "node:path";
@@ -23,7 +25,7 @@ export interface CapturedCall {
   request: MessageCreateParams;
   response: Message;
   durationMs: number;
-  /** True if the call used streaming (request.stream === true). */
+  /** True if the call used streaming (via `.stream()` or `{ stream: true }`). */
   streamed: boolean;
 }
 
@@ -42,7 +44,7 @@ export interface RunOptions {
  * Runs the user's exercise file and returns captured API interactions.
  *
  * The exercise module must export (default) an async function that performs
- * the work. Any Anthropic `messages.create` call (streaming or not) is
+ * the work. Any Anthropic `messages.create` or `messages.stream` call is
  * captured.
  */
 export async function runUserCode(
@@ -51,11 +53,10 @@ export async function runUserCode(
 ): Promise<HarnessResult> {
   const calls: CapturedCall[] = [];
   const pendingCaptures: Promise<void>[] = [];
-  const restore = patchMessagesCreate(calls, pendingCaptures);
+  const restore = patchMessages(calls, pendingCaptures);
 
   try {
     const absolutePath = resolve(filePath);
-    // Cache-bust so repeated runs (e.g. in a test suite) don't reuse a stale module.
     const moduleUrl = `${pathToFileURL(absolutePath).href}?t=${Date.now()}`;
     const mod = (await import(moduleUrl)) as Record<string, unknown>;
 
@@ -71,8 +72,6 @@ export async function runUserCode(
 
     const userReturn = await (entry as () => unknown | Promise<unknown>)();
 
-    // Wait for any background stream captures to complete before returning.
-    // Without this, tests would race against async stream finalization.
     if (pendingCaptures.length > 0) {
       await Promise.all(pendingCaptures);
     }
@@ -93,13 +92,6 @@ export class HarnessError extends Error {
 
 export type ExerciseTarget = "starter" | "solution";
 
-/**
- * Resolves the exercise file to run, based on the `AIDEV_TARGET` env var
- * (defaults to "starter"). Call from a test file passing `import.meta.url`.
- *
- * Lets the same test file validate either the user's in-progress `starter.ts`
- * or the reference `solution.ts` without swapping files.
- */
 export function resolveExerciseFile(
   importMetaUrl: string,
   override?: ExerciseTarget,
@@ -115,48 +107,70 @@ export function resolveExerciseFile(
 }
 
 /**
- * Monkey-patches Anthropic's Messages.prototype.create.
+ * Patches `Messages.prototype.create` and `Messages.prototype.stream`.
  *
- * We grab the Messages class from a throwaway client instance because it's not
- * exported at the top level of the SDK. Returns a restore function so callers
- * can always undo the patch (even if the user's code throws).
+ * Returns a restore function that undoes both patches.
  */
-function patchMessagesCreate(
+function patchMessages(
   calls: CapturedCall[],
   pendingCaptures: Promise<void>[],
 ): () => void {
   const probe = new Anthropic({ apiKey: "probe-not-used" });
-  const MessagesCtor = probe.messages.constructor as {
-    prototype: { create: (...args: unknown[]) => Promise<unknown> };
+  const proto = probe.messages.constructor.prototype as {
+    create: (...args: unknown[]) => unknown;
+    stream: (...args: unknown[]) => unknown;
   };
-  const proto = MessagesCtor.prototype;
-  const original = proto.create;
+  const originalCreate = proto.create;
+  const originalStream = proto.stream;
 
-  proto.create = async function patched(
-    this: unknown,
-    ...args: unknown[]
-  ): Promise<unknown> {
+  // Patch create: preserve the APIPromise return value. Attach capture as
+  // a side-effect via .then() so we don't break the SDK's chainable methods.
+  proto.create = function patchedCreate(this: unknown, ...args: unknown[]): unknown {
     const request = args[0] as MessageCreateParams;
     const start = performance.now();
-    const response = await original.apply(this, args);
+    const apiPromise = originalCreate.apply(this, args);
 
-    if (isStreamResponse(response)) {
-      // Streaming: don't block — capture in background while the user's
-      // iterator consumes events. runUserCode() awaits pendingCaptures.
-      pendingCaptures.push(captureStreamWhenDone(response, request, start, calls));
-      return response;
+    if (apiPromise && typeof (apiPromise as PromiseLike<unknown>).then === "function") {
+      (apiPromise as PromiseLike<unknown>).then(
+        (response) => {
+          // Only capture non-streaming Message here. Streaming (`.stream()`)
+          // is handled by the stream patch below, so we don't double-count.
+          if (isMessage(response)) {
+            calls.push({
+              request,
+              response,
+              durationMs: performance.now() - start,
+              streamed: Boolean((request as { stream?: unknown }).stream),
+            });
+          }
+        },
+        () => {
+          // Error surfaces through the user's await — nothing to capture.
+        },
+      );
     }
 
-    if (isMessage(response)) {
-      const durationMs = performance.now() - start;
-      calls.push({ request, response, durationMs, streamed: false });
+    return apiPromise;
+  };
+
+  // Patch stream: MessageStream returns synchronously. We register a capture
+  // promise that awaits `.finalMessage()` — runUserCode awaits all pending
+  // captures before returning.
+  proto.stream = function patchedStream(this: unknown, ...args: unknown[]): unknown {
+    const request = args[0] as MessageCreateParams;
+    const start = performance.now();
+    const messageStream = originalStream.apply(this, args);
+
+    if (isStreamResponse(messageStream)) {
+      pendingCaptures.push(captureStreamWhenDone(messageStream, request, start, calls));
     }
 
-    return response;
+    return messageStream;
   };
 
   return () => {
-    proto.create = original;
+    proto.create = originalCreate;
+    proto.stream = originalStream;
   };
 }
 
@@ -169,11 +183,6 @@ function isMessage(value: unknown): value is Message {
   );
 }
 
-/**
- * A MessageStream exposes `.finalMessage()` to await the accumulated result.
- * That signature is our structural marker — no need to import the internal
- * class (which is not a top-level SDK export).
- */
 interface StreamLike {
   finalMessage(): Promise<Message>;
 }
@@ -194,11 +203,14 @@ async function captureStreamWhenDone(
 ): Promise<void> {
   try {
     const finalMessage = await stream.finalMessage();
-    const durationMs = performance.now() - startTime;
-    calls.push({ request, response: finalMessage, durationMs, streamed: true });
+    calls.push({
+      request: { ...request, stream: true } as MessageCreateParams,
+      response: finalMessage,
+      durationMs: performance.now() - startTime,
+      streamed: true,
+    });
   } catch {
-    // Stream errored. The user's iteration will surface the error itself —
-    // we just skip capture. Swallow so the pendingCaptures promise doesn't
-    // reject and blow up unrelated assertions.
+    // Stream errored. The user's iteration will surface the error —
+    // swallow here so pendingCaptures doesn't reject.
   }
 }
