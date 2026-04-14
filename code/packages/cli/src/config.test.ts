@@ -1,14 +1,11 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import type { SupportedLocale } from "./i18n/types.ts";
 
-// We need to stub process.exit and console.error for the invalid-locale path.
-// We also need to control HOME so readConfig() reads from a temp dir.
+// NOTE: homedir() on macOS reads from getpwuid() NOT $HOME env, so we cannot
+// override the config file path via process.env.HOME. Instead we test the core
+// locale resolution logic via resolveLocaleFromConfig() which accepts an already-
+// loaded Config, and test resolveLocale() for env-var and flag scenarios only.
 
 describe("validateLocale", () => {
-  // We import inline so the module isn't polluted across describe blocks.
   test("accepts 'es'", async () => {
     const { validateLocale } = await import("./config.ts");
     expect(validateLocale("es")).toBe("es");
@@ -25,8 +22,7 @@ describe("validateLocale", () => {
       throw new Error("process.exit called");
     });
     const origExit = process.exit;
-    // @ts-expect-error — mock replaces exit for test
-    process.exit = exitMock;
+    process.exit = exitMock as typeof process.exit;
     try {
       expect(() => validateLocale("fr")).toThrow("process.exit called");
       expect(exitMock).toHaveBeenCalledWith(1);
@@ -41,8 +37,7 @@ describe("validateLocale", () => {
       throw new Error("process.exit called");
     });
     const origExit = process.exit;
-    // @ts-expect-error — mock
-    process.exit = exitMock;
+    process.exit = exitMock as typeof process.exit;
     try {
       expect(() => validateLocale("")).toThrow("process.exit called");
     } finally {
@@ -51,38 +46,67 @@ describe("validateLocale", () => {
   });
 });
 
-describe("resolveLocale", () => {
-  let tmpDir: string;
-  let origEnvLocale: string | undefined;
-  let origEnvHome: string | undefined;
+describe("resolveLocaleFromConfig", () => {
+  // Tests the pure resolution logic given a pre-loaded Config object.
 
-  beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "aidev-config-test-"));
-    origEnvLocale = process.env["AIDEV_LOCALE"];
-    origEnvHome = process.env["HOME"];
-    delete process.env["AIDEV_LOCALE"];
-    // Point HOME to tmpDir so readConfig reads from tmpDir/.aidev/config.json
-    process.env["HOME"] = tmpDir;
+  test("returns default 'es' when no flag, no env, no config.locale", async () => {
+    const { resolveLocaleFromConfig } = await import("./config.ts");
+    const locale = resolveLocaleFromConfig({}, undefined, undefined);
+    expect(locale).toBe("es");
   });
 
-  afterEach(async () => {
+  test("returns config.locale when no flag or env override", async () => {
+    const { resolveLocaleFromConfig } = await import("./config.ts");
+    const locale = resolveLocaleFromConfig({ locale: "en" }, undefined, undefined);
+    expect(locale).toBe("en");
+  });
+
+  test("env takes precedence over config.locale", async () => {
+    const { resolveLocaleFromConfig } = await import("./config.ts");
+    const locale = resolveLocaleFromConfig({ locale: "es" }, undefined, "en");
+    expect(locale).toBe("en");
+  });
+
+  test("flag takes precedence over env and config.locale", async () => {
+    const { resolveLocaleFromConfig } = await import("./config.ts");
+    const locale = resolveLocaleFromConfig({ locale: "es" }, "en", "es");
+    expect(locale).toBe("en");
+  });
+
+  test("invalid config.locale value calls process.exit(1)", async () => {
+    const { resolveLocaleFromConfig } = await import("./config.ts");
+    const exitMock = mock(() => {
+      throw new Error("process.exit called");
+    });
+    const origExit = process.exit;
+    process.exit = exitMock as typeof process.exit;
+    try {
+      expect(() =>
+        resolveLocaleFromConfig({ locale: "zz" as "es" }, undefined, undefined),
+      ).toThrow(
+        "process.exit called",
+      );
+      expect(exitMock).toHaveBeenCalledWith(1);
+    } finally {
+      process.exit = origExit;
+    }
+  });
+});
+
+describe("resolveLocale (async — env var path)", () => {
+  let origEnvLocale: string | undefined;
+
+  beforeEach(() => {
+    origEnvLocale = process.env["AIDEV_LOCALE"];
+    delete process.env["AIDEV_LOCALE"];
+  });
+
+  afterEach(() => {
     if (origEnvLocale !== undefined) {
       process.env["AIDEV_LOCALE"] = origEnvLocale;
     } else {
       delete process.env["AIDEV_LOCALE"];
     }
-    if (origEnvHome !== undefined) {
-      process.env["HOME"] = origEnvHome;
-    } else {
-      delete process.env["HOME"];
-    }
-    await rm(tmpDir, { recursive: true, force: true });
-  });
-
-  test("returns default 'es' when no flag, no env, no config", async () => {
-    const { resolveLocale } = await import("./config.ts");
-    const locale = await resolveLocale();
-    expect(locale).toBe("es");
   });
 
   test("returns env AIDEV_LOCALE when set (no flag)", async () => {
@@ -99,26 +123,13 @@ describe("resolveLocale", () => {
     expect(locale).toBe("en");
   });
 
-  test("returns config file locale when no flag or env", async () => {
-    const configDir = join(tmpDir, ".aidev");
-    const configFile = join(configDir, "config.json");
-    await import("node:fs/promises").then(async (fs) => {
-      await fs.mkdir(configDir, { recursive: true });
-      await fs.writeFile(configFile, JSON.stringify({ locale: "en" }), "utf-8");
-    });
-    const { resolveLocale } = await import("./config.ts");
-    const locale = await resolveLocale();
-    expect(locale).toBe("en");
-  });
-
   test("invalid flag value calls process.exit(1)", async () => {
     const { resolveLocale } = await import("./config.ts");
     const exitMock = mock(() => {
       throw new Error("process.exit called");
     });
     const origExit = process.exit;
-    // @ts-expect-error — mock
-    process.exit = exitMock;
+    process.exit = exitMock as typeof process.exit;
     try {
       await expect(resolveLocale("zz")).rejects.toThrow("process.exit called");
       expect(exitMock).toHaveBeenCalledWith(1);
