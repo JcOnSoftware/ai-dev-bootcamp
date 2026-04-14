@@ -5,6 +5,7 @@ import { isStale, listExercises } from "../exercises.ts";
 export const listCommand = new Command("list")
   .alias("ls")
   .description("List all available exercises, grouped by track.")
+  .option("--locale <code>", "Locale override for this invocation (es|en)")
   .action(async () => {
     const exercises = await listExercises();
     if (exercises.length === 0) {

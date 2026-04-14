@@ -5,6 +5,7 @@ import { paths, readConfig, writeConfig } from "../config.ts";
 
 export const initCommand = new Command("init")
   .description("Configure aidev (API key, preferences).")
+  .option("--locale <code>", "Locale override for this invocation (es|en)")
   .action(async () => {
     p.intro(pc.bgCyan(pc.black(" ai-dev-bootcamp · init ")));
 

@@ -9,6 +9,7 @@ export const verifyCommand = new Command("verify")
   .description("Run the tests for a given exercise.")
   .argument("<id>", "Exercise id (e.g. 01-first-call)")
   .option("--solution", "Run tests against solution.ts instead of starter.ts")
+  .option("--locale <code>", "Locale override for this invocation (es|en)")
   .action(async (id: string, opts: { solution?: boolean }) => {
     const exercise = await findExercise(id);
     if (!exercise) {

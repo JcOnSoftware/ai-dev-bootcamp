@@ -5,6 +5,7 @@ import { readProgress } from "../config.ts";
 
 export const progressCommand = new Command("progress")
   .description("Show how many exercises you've completed, grouped by track.")
+  .option("--locale <code>", "Locale override for this invocation (es|en)")
   .action(async () => {
     const [exercises, progress] = await Promise.all([listExercises(), readProgress()]);
 
