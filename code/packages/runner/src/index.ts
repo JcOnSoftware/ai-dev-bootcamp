@@ -1,1 +1,7 @@
-export { runUserCode, type HarnessResult } from "./harness.ts";
+export {
+  runUserCode,
+  HarnessError,
+  type HarnessResult,
+  type CapturedCall,
+  type RunOptions,
+} from "./harness.ts";
