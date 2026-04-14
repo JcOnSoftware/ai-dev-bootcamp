@@ -262,9 +262,9 @@ describe("Warning dedup via _resetWarnedSet", () => {
     // Capture stderr
     const stderrMessages: string[] = [];
     const origStderrWrite = process.stderr.write.bind(process.stderr);
-    process.stderr.write = ((chunk: string | Uint8Array, ...rest: unknown[]) => {
+    process.stderr.write = ((chunk: string | Uint8Array) => {
       stderrMessages.push(typeof chunk === "string" ? chunk : chunk.toString());
-      return origStderrWrite(chunk, ...(rest as Parameters<typeof origStderrWrite>).slice(1));
+      return true;
     }) as typeof process.stderr.write;
 
     try {
@@ -307,9 +307,9 @@ describe("Warning dedup via _resetWarnedSet", () => {
 
     const stderrMessages: string[] = [];
     const origStderrWrite = process.stderr.write.bind(process.stderr);
-    process.stderr.write = ((chunk: string | Uint8Array, ...rest: unknown[]) => {
+    process.stderr.write = ((chunk: string | Uint8Array) => {
       stderrMessages.push(typeof chunk === "string" ? chunk : chunk.toString());
-      return origStderrWrite(chunk, ...(rest as Parameters<typeof origStderrWrite>).slice(1));
+      return true;
     }) as typeof process.stderr.write;
 
     try {

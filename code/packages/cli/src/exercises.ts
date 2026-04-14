@@ -1,6 +1,9 @@
+import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { SupportedLocale } from "./i18n/types.ts";
+import { SUPPORTED_LOCALES } from "./i18n/types.ts";
 
 export interface ExerciseMeta {
   id: string;
@@ -12,6 +15,7 @@ export interface ExerciseMeta {
   estimated_minutes: number;
   requires: string[];
   model_cost_hint?: string;
+  locales: SupportedLocale[];
 }
 
 export interface Exercise {
@@ -19,6 +23,21 @@ export interface Exercise {
   dir: string;
   trackSlug: string;
   idSlug: string;
+}
+
+/**
+ * Module-level Set for deduplicating discovery and runtime warnings.
+ * Keyed as `${exerciseId}:${locale}`. Shared by listExercises() and exerciseDocPath().
+ * Testing-only reset via _resetWarnedSet().
+ */
+let warnedMissingContent: Set<string> = new Set();
+
+/**
+ * Testing-only escape hatch — clears the dedup Set so tests can re-exercise
+ * the warning path. Do NOT call in production code.
+ */
+export function _resetWarnedSet(): void {
+  warnedMissingContent = new Set();
 }
 
 /** Locates the exercises root relative to this file. Works in dev and in an installed copy. */
@@ -47,10 +66,54 @@ export async function listExercises(): Promise<Exercise[]> {
       } catch {
         continue;
       }
+
       const raw = await readFile(metaPath, "utf-8");
-      const meta = JSON.parse(raw) as ExerciseMeta;
+      const meta = JSON.parse(raw) as Partial<ExerciseMeta> & Record<string, unknown>;
+
+      // Contract validation: locales field is required.
+      if (!Array.isArray(meta["locales"]) || (meta["locales"] as unknown[]).length === 0) {
+        process.stderr.write(
+          `Exercise ${exEntry.name}: meta.json missing required "locales" field — excluded from results.\n`,
+        );
+        continue;
+      }
+
+      // Validate each declared locale is supported.
+      const validLocales: SupportedLocale[] = [];
+      let hasInvalidLocale = false;
+      for (const loc of meta["locales"] as unknown[]) {
+        if (
+          typeof loc === "string" &&
+          (SUPPORTED_LOCALES as readonly string[]).includes(loc)
+        ) {
+          validLocales.push(loc as SupportedLocale);
+        } else {
+          process.stderr.write(
+            `Exercise ${exEntry.name}: unsupported locale "${String(loc)}" in meta.json — excluded from results.\n`,
+          );
+          hasInvalidLocale = true;
+          break;
+        }
+      }
+      if (hasInvalidLocale) continue;
+
+      // Warn once per (id, locale) pair if the declared locale's file is missing.
+      // Keep the exercise in results (partial availability — spec §localized-exercise-content).
+      for (const locale of validLocales) {
+        const candidate = join(exDir, locale, "exercise.md");
+        if (!existsSync(candidate)) {
+          const warnKey = `${exEntry.name}:${locale}`;
+          if (!warnedMissingContent.has(warnKey)) {
+            warnedMissingContent.add(warnKey);
+            process.stderr.write(
+              `Exercise ${exEntry.name}: declared locale "${locale}" but ${locale}/exercise.md is missing.\n`,
+            );
+          }
+        }
+      }
+
       exercises.push({
-        meta,
+        meta: meta as ExerciseMeta,
         dir: exDir,
         trackSlug: trackEntry.name,
         idSlug: exEntry.name,
@@ -74,4 +137,44 @@ export function isStale(meta: ExerciseMeta, now: Date = new Date()): boolean {
   const validUntil = new Date(meta.valid_until);
   if (Number.isNaN(validUntil.getTime())) return false;
   return now > validUntil;
+}
+
+/**
+ * Resolves the path to `exercise.md` for the given locale.
+ *
+ * 1. If `<exercise-dir>/<locale>/exercise.md` exists → return it.
+ * 2. If not, and locale !== "es" → fallback to `es/exercise.md` with a
+ *    stderr warning (deduped by the module-level Set).
+ * 3. If `es/exercise.md` also doesn't exist → throw (critically malformed).
+ */
+export function exerciseDocPath(exercise: Exercise, locale: SupportedLocale): string {
+  const candidate = join(exercise.dir, locale, "exercise.md");
+  if (existsSync(candidate)) {
+    return candidate;
+  }
+
+  if (locale !== "es") {
+    // Warn once per (id, locale) — reuse the discovery Set.
+    const warnKey = `${exercise.meta.id}:${locale}`;
+    if (!warnedMissingContent.has(warnKey)) {
+      warnedMissingContent.add(warnKey);
+      // Use raw message here — t() may not be initialized in all call contexts.
+      // Phase 7 will replace with t("errors.locale_fallback", ...).
+      process.stderr.write(
+        `Exercise ${exercise.meta.id}: no "${locale}" content; showing "es".\n`,
+      );
+    }
+    const fallback = join(exercise.dir, "es", "exercise.md");
+    if (existsSync(fallback)) {
+      return fallback;
+    }
+    throw new Error(
+      `Exercise ${exercise.meta.id}: es/exercise.md is missing (critically malformed exercise).`,
+    );
+  }
+
+  // locale === "es" and candidate didn't exist
+  throw new Error(
+    `Exercise ${exercise.meta.id}: es/exercise.md is missing (critically malformed exercise).`,
+  );
 }
