@@ -1,0 +1,21 @@
+{
+  "init.intro": " ai-dev-bootcamp · init ",
+  "init.key_prompt": "Pegá tu API key de Anthropic (empieza con sk-ant-)",
+  "init.locale_prompt": "Elegí el idioma para la CLI y los ejercicios",
+  "init.saved": "Guardado en {path}. Siguiente: {nextCmd}",
+  "init.key_exists": "Ya hay una API key guardada. ¿Sobreescribir?",
+  "init.locale_exists": "Ya hay un idioma guardado: {locale}. ¿Sobreescribir?",
+  "init.cancelled": "Cancelado.",
+  "list.empty": "No se encontraron ejercicios.",
+  "list.hint": "Ejecutá los tests de un ejercicio: aidev verify <id>",
+  "verify.running": "→ {id} contra {target}.ts",
+  "verify.exercise_doc": "→ Ejercicio: {path}",
+  "verify.progress_saved": "✓ Progreso guardado para {id}.",
+  "verify.not_found": "Ejercicio '{id}' no encontrado. Probá: aidev list",
+  "verify.no_key": "No se encontró API key de Anthropic.",
+  "verify.no_key_hint": "  Corré 'aidev init' o exportá ANTHROPIC_API_KEY.",
+  "progress.total": "Total: {done}/{total} ejercicios completados.",
+  "errors.unsupported_locale": "Locale no soportado \"{value}\". Soportados: {list}",
+  "errors.locale_fallback": "Ejercicio {id}: no hay contenido \"{requested}\"; mostrando \"es\".",
+  "common.stale": " ⚠ desactualizado"
+}
