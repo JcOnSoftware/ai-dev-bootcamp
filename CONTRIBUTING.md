@@ -7,13 +7,19 @@ Thanks for considering a contribution. This project is small and the review bar 
 Requirements:
 - [Bun](https://bun.com) 1.3+
 - An Anthropic API key — get one at <https://console.claude.com/settings/keys>
+- A Voyage AI API key for the `04-rag` track (embeddings) — get one at <https://dash.voyageai.com/api-keys>. The Voyage free tier covers 200M tokens/month; learners pay $0.
 
 ```bash
 gh repo clone JcOnSoftware/ai-dev-bootcamp
 cd ai-dev-bootcamp/code
 bun install
-echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
+cat > .env <<EOF
+ANTHROPIC_API_KEY=sk-ant-...
+VOYAGE_API_KEY=pa-...
+EOF
 ```
+
+> **Rate limits on Voyage free tier**: 3 requests per minute without a payment method. Running the full `04-rag` track integration suite in parallel will 429. Run exercises one at a time (`bun test packages/exercises/04-rag/01-embeddings-basics/`, wait ~40s, next one). Adding a payment method unlocks standard limits and costs $0 as long as you stay under the 200M free-tier tokens.
 
 > All `bun` / `bunx` commands MUST run from `code/` — not the repo root. Otherwise `bunx tsc` prints help instead of typechecking.
 
@@ -31,7 +37,7 @@ Integration tests hit the real Anthropic API (Haiku, costs ~$0.001 per run). Run
 Two workflows live in `.github/workflows/`:
 
 - **`ci.yml`** — runs on every push/PR. Typecheck + `bun test packages/cli packages/runner` (no API key, no secrets). Integration tests skip automatically when `ANTHROPIC_API_KEY` is absent.
-- **`health-check.yml`** — weekly cron (Monday 12:00 UTC) + manual dispatch. Runs the full suite including exercise integration tests against the real API. Requires the repo secret `ANTHROPIC_API_KEY` to be set (Settings → Secrets and variables → Actions). Catches SDK drift or model changes before users do.
+- **`health-check.yml`** — weekly cron (Monday 12:00 UTC) + manual dispatch. Runs the full suite including exercise integration tests against the real API. Requires two repo secrets (Settings → Secrets and variables → Actions): `ANTHROPIC_API_KEY` and `VOYAGE_API_KEY` (the latter for the `04-rag` track). Catches SDK drift or model changes before users do.
 
 ## Try the CLI locally
 

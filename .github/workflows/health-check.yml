@@ -32,5 +32,6 @@ jobs:
       - name: Run full test suite (includes exercises against real API)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
           AIDEV_TARGET: solution
         run: bun test
