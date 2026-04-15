@@ -1,0 +1,12 @@
+{
+  "id": "02-tool-loop",
+  "track": "03-tool-use",
+  "title": "Tool Loop",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": ["multi-turn", "tool-result", "tool-loop"],
+  "estimated_minutes": 25,
+  "requires": ["01-basic-tool"],
+  "locales": ["es", "en"],
+  "model_cost_hint": "haiku"
+}
