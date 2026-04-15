@@ -16,10 +16,10 @@ export interface CacheCreation {
 export interface Usage {
   input_tokens: number;
   output_tokens: number;
-  /** Tokens written to cache (any tier) on this request. */
-  cache_creation_input_tokens?: number;
-  /** Tokens read from cache on this request. */
-  cache_read_input_tokens?: number;
+  /** Tokens written to cache (any tier) on this request. SDK may return null. */
+  cache_creation_input_tokens?: number | null;
+  /** Tokens read from cache on this request. SDK may return null. */
+  cache_read_input_tokens?: number | null;
   /** Granular breakdown by cache tier — only present on newer SDK responses. */
   cache_creation?: CacheCreation;
 }
@@ -79,7 +79,7 @@ export function estimateCost(model: string, usage: Usage): string | null {
   // after subtracting cache tokens.
   const regularInput = usage.input_tokens;
 
-  // Cache-read tokens (0.1× input price).
+  // Cache-read tokens (0.1× input price). Treat null as 0 (SDK may return null).
   const cacheRead = usage.cache_read_input_tokens ?? 0;
 
   // Cache-write tokens — split by tier when granular breakdown is available.
@@ -90,7 +90,7 @@ export function estimateCost(model: string, usage: Usage): string | null {
     write5m = usage.cache_creation.ephemeral_5m_input_tokens ?? 0;
     write1h = usage.cache_creation.ephemeral_1h_input_tokens ?? 0;
   } else if ((usage.cache_creation_input_tokens ?? 0) > 0) {
-    // Fallback: attribute all created tokens to 5m tier.
+    // Fallback: attribute all created tokens to 5m tier. Treat null as 0.
     write5m = usage.cache_creation_input_tokens ?? 0;
   }
 
