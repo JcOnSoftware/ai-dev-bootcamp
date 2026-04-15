@@ -65,6 +65,37 @@ El comportamiento real es no determinista — Haiku puede decidir llamar la herr
 
 ---
 
+## Estrategia de prompt: cómo elicitar tool use paralelo en Haiku 4.5
+
+**Observación empírica** (validada durante el desarrollo de este ejercicio): Haiku 4.5 **no paraleliza de forma confiable** sin una instrucción explícita en el prompt. Un prompt natural como:
+
+> "What's the weather in Buenos Aires and Tokyo?"
+
+muchas veces genera **una sola** `tool_use` block (con `location: "Buenos Aires"` primero, luego el loop se ejecuta dos veces secuencialmente en vez de paralelo). El modelo "entiende" la pregunta pero optimiza por parsimonia.
+
+El prompt que **sí** elicita paralelismo de forma consistente:
+
+```
+"I need the weather in Buenos Aires AND Tokyo, both in celsius.
+Please call the tool twice, once per city, in parallel."
+```
+
+Las palabras clave que movés la aguja:
+- **"twice"** o **"two calls"** — cuenta explícita.
+- **"in parallel"** — le dice al modelo que SÍ puede emitir múltiples `tool_use` blocks en un mismo turn.
+
+### ¿Por qué los tests aceptan `>= 1` bloques?
+
+A pesar de un prompt cuidadoso, Haiku puede elegir serializar. Los tests aceptan `>= 1` `tool_use` blocks para **no ser flake-prone por no-determinismo del modelo**. El concepto (tool loop que maneja N results) queda ejercitado igual, ya sea N=1 o N=2.
+
+En producción real: siempre diseñá tu código asumiendo que el response puede tener 1, 2 o N `tool_use` blocks. Nunca codees asumiendo paralelismo obligatorio.
+
+### `disable_parallel_tool_use` — el camino inverso
+
+Para el caso opuesto (forzar serialización), podés setear `tool_choice: { type: "auto", disable_parallel_tool_use: true }`. Útil cuando tu sistema de ejecución de tools tiene efectos secundarios que se rompen si corren en paralelo (ej: escribir a la misma DB row).
+
+---
+
 ## Recursos
 
 - [Tool use — Overview](https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview)
