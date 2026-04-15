@@ -18,6 +18,7 @@
   "errors.unsupported_locale": "Unsupported locale \"{value}\". Supported: {list}",
   "errors.locale_fallback": "Exercise {id}: no \"{requested}\" content; showing \"es\".",
   "common.stale": " ⚠ stale",
+  "common.stale_warning": "⚠ Exercise is stale (valid_until: {valid_until}). Pricing, models, or APIs may have changed. Continuing anyway…",
   "run.title": "▶ Running {id} ({target})",
   "run.running": "→ Running {id} against {target}.ts",
   "run.summary.model": "Model: {model}",

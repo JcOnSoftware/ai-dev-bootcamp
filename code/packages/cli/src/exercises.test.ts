@@ -231,6 +231,45 @@ describe("listExercises", () => {
   });
 });
 
+// ─── isStale ──────────────────────────────────────────────────────────────────
+
+describe("isStale", () => {
+  const makeMeta = (validUntil: string): ExerciseMeta => ({
+    id: "test",
+    track: "test-track",
+    title: "Test",
+    version: "1.0.0",
+    valid_until: validUntil,
+    concepts: [],
+    estimated_minutes: 5,
+    requires: [],
+    locales: ["es"] as SupportedLocale[],
+  });
+
+  test("returns true when valid_until is in the past", async () => {
+    const { isStale } = await import("./exercises.ts");
+    const now = new Date("2026-04-15");
+    expect(isStale(makeMeta("2026-01-01"), now)).toBe(true);
+  });
+
+  test("returns false when valid_until is in the future", async () => {
+    const { isStale } = await import("./exercises.ts");
+    const now = new Date("2026-04-15");
+    expect(isStale(makeMeta("2026-10-15"), now)).toBe(false);
+  });
+
+  test("returns false when valid_until equals today", async () => {
+    const { isStale } = await import("./exercises.ts");
+    const now = new Date("2026-04-15T12:00:00Z");
+    expect(isStale(makeMeta("2026-04-15"), now)).toBe(false);
+  });
+
+  test("returns false for malformed valid_until (fail-open)", async () => {
+    const { isStale } = await import("./exercises.ts");
+    expect(isStale(makeMeta("not-a-date"))).toBe(false);
+  });
+});
+
 // ─── Warning dedup Set ────────────────────────────────────────────────────────
 
 describe("Warning dedup via _resetWarnedSet", () => {

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { Command } from "commander";
 import pc from "picocolors";
 import { t, getActiveLocale } from "../i18n/index.ts";
-import { findExercise, exerciseDocPath } from "../exercises.ts";
+import { findExercise, exerciseDocPath, isStale } from "../exercises.ts";
 import { recordPass, resolveApiKey } from "../config.ts";
 
 export const verifyCommand = new Command("verify")
@@ -16,6 +16,14 @@ export const verifyCommand = new Command("verify")
     if (!exercise) {
       console.error(pc.red(t("verify.not_found", { id })));
       process.exit(1);
+    }
+
+    if (isStale(exercise.meta)) {
+      console.warn(
+        pc.yellow(
+          t("common.stale_warning", { valid_until: exercise.meta.valid_until }),
+        ),
+      );
     }
 
     // Print the active-locale exercise.md path before anything else.

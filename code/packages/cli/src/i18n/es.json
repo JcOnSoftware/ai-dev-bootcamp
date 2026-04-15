@@ -18,6 +18,7 @@
   "errors.unsupported_locale": "Locale no soportado \"{value}\". Soportados: {list}",
   "errors.locale_fallback": "Ejercicio {id}: no hay contenido \"{requested}\"; mostrando \"es\".",
   "common.stale": " ⚠ desactualizado",
+  "common.stale_warning": "⚠ Ejercicio desactualizado (valid_until: {valid_until}). Precios, modelos o APIs pueden haber cambiado. Continuando igual…",
   "run.title": "▶ Ejecución de {id} ({target})",
   "run.running": "→ Ejecutando {id} contra {target}.ts",
   "run.summary.model": "Modelo: {model}",

@@ -156,7 +156,10 @@ export async function findExercise(id: string): Promise<Exercise | undefined> {
 export function isStale(meta: ExerciseMeta, now: Date = new Date()): boolean {
   const validUntil = new Date(meta.valid_until);
   if (Number.isNaN(validUntil.getTime())) return false;
-  return now > validUntil;
+  // A date-only string (YYYY-MM-DD) parses to midnight UTC. Treat valid_until
+  // as the full day: the exercise is still valid through end-of-day UTC.
+  const endOfDay = validUntil.getTime() + 24 * 60 * 60 * 1000 - 1;
+  return now.getTime() > endOfDay;
 }
 
 /**

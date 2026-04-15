@@ -3,7 +3,7 @@ import { Command } from "commander";
 import pc from "picocolors";
 import { runUserCode, type MessageStreamEvent } from "@aidev/runner";
 import { t } from "../i18n/index.ts";
-import { findExercise } from "../exercises.ts";
+import { findExercise, isStale } from "../exercises.ts";
 import { resolveApiKey } from "../config.ts";
 import { renderSummary } from "../render.ts";
 
@@ -23,6 +23,14 @@ export const runCommand = new Command("run")
       if (!exercise) {
         console.error(pc.red(t("run.not_found", { id })));
         process.exit(1);
+      }
+
+      if (isStale(exercise.meta)) {
+        console.warn(
+          pc.yellow(
+            t("common.stale_warning", { valid_until: exercise.meta.valid_until }),
+          ),
+        );
       }
 
       const apiKey = await resolveApiKey();
