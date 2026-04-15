@@ -9,6 +9,7 @@ import type { Message } from "@anthropic-ai/sdk/resources/messages/messages";
 export interface RetryOptions {
   maxAttempts?: number;
   baseDelayMs?: number;
+  jitter?: boolean; // Opcional — ver "Concepto extra" en exercise.md
 }
 
 /**

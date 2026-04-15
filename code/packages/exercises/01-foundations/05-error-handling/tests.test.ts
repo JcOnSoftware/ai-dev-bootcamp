@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll } from "bun:test";
+import { describe, test, expect, beforeAll, spyOn } from "bun:test";
 import { runUserCode, resolveExerciseFile, type HarnessResult } from "@aidev/runner";
 
 const EXERCISE_FILE = resolveExerciseFile(import.meta.url);
@@ -17,7 +17,7 @@ class FakeApiError extends Error {
 describe("05-error-handling", () => {
   let withRetry: <T>(
     fn: () => Promise<T>,
-    options?: { maxAttempts?: number; baseDelayMs?: number },
+    options?: { maxAttempts?: number; baseDelayMs?: number; jitter?: boolean },
   ) => Promise<T>;
 
   beforeAll(async () => {
@@ -98,6 +98,29 @@ describe("05-error-handling", () => {
         ),
       ).rejects.toBeInstanceOf(FakeApiError);
       expect(calls).toBe(3);
+    });
+
+    test("applies jitter when option is true", async () => {
+      const randomSpy = spyOn(Math, "random").mockReturnValue(0.5);
+      try {
+        let calls = 0;
+        const started = performance.now();
+        await withRetry(
+          async () => {
+            calls++;
+            if (calls === 1) throw new FakeApiError("RateLimitError", 429);
+            return "ok";
+          },
+          { maxAttempts: 2, baseDelayMs: 100, jitter: true },
+        );
+        const elapsed = performance.now() - started;
+        // Without jitter: 100ms. With jitter (Math.random = 0.5): 100 + 0.5*100 = 150ms.
+        expect(calls).toBe(2);
+        expect(elapsed).toBeGreaterThanOrEqual(140);
+        expect(randomSpy).toHaveBeenCalled();
+      } finally {
+        randomSpy.mockRestore();
+      }
     });
 
     test("delay grows exponentially between retries", async () => {

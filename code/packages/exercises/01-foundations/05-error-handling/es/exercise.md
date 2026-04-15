@@ -28,7 +28,7 @@ attempt 3 → error 429 → throw (te diste por vencido)
 
 Cada reintento duplica el delay (`baseDelayMs * 2^attempt`). La razón: si el servidor está sobrecargado, esperar MÁS le da más tiempo a recuperarse. Si todos tus clientes reintentan INMEDIATAMENTE después de un 429, empeorás el problema — eso se llama *thundering herd*.
 
-**Jitter** (opcional, bonus) — agregar aleatoriedad al delay para que múltiples clientes no reintenten sincronizados. Lo dejamos para más adelante.
+**Jitter** (opcional, bonus) — agregar aleatoriedad al delay para que múltiples clientes no reintenten sincronizados. Implementado como flag opcional en la solución (ver "Concepto extra" al final).
 
 ## Docs & references
 
@@ -93,7 +93,25 @@ Los tests validan DOS cosas:
 
 ## Concepto extra (opcional)
 
-1. **Jitter**: agregá `Math.random() * baseDelayMs` al delay para evitar thundering herd. Mejora real en producción con muchos clientes.
+1. **Jitter** — ya disponible en la solución como flag opcional:
+
+   ```ts
+   // Firma extendida
+   interface RetryOptions {
+     maxAttempts?: number;
+     baseDelayMs?: number;
+     jitter?: boolean; // default false
+   }
+
+   // Uso
+   await withRetry(() => client.messages.create(...), { jitter: true });
+   ```
+
+   Implementación: `delay = baseDelayMs * 2^attempt + Math.random() * baseDelayMs`.
+
+   **Por qué importa**: si 100 clientes se comen un 429 al mismo tiempo y todos usan backoff determinístico, reintentan en el mismo milisegundo — burst sincronizado que vuelve a saturar el servidor (thundering herd). Con jitter, cada cliente espera un tiempo ligeramente distinto y las retries se distribuyen.
+
+   El flag es opcional (default `false`) para mantener backward-compat con los tests deterministicos del ejercicio. En producción real, **siempre prendelo**.
 2. **Observabilidad**: loguea cada reintento con attempt count + último error. En producción querés saber CUÁNTAS veces el sistema tuvo que reintentar — es una métrica de health.
 3. **Deadline global**: además de `maxAttempts`, un `maxTotalDelayMs` que corta si el tiempo acumulado supera X. Para UX: un usuario esperando 30 segundos en un chat ya se fue.
 

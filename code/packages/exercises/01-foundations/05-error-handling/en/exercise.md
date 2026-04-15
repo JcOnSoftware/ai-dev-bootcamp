@@ -28,7 +28,7 @@ attempt 3 → error 429 → throw (you give up)
 
 Each retry doubles the delay (`baseDelayMs * 2^attempt`). Reason: if the server is overloaded, waiting LONGER gives it more time to recover. If all your clients retry IMMEDIATELY after a 429, you make things worse — that's called *thundering herd*.
 
-**Jitter** (optional, bonus) — add randomness to the delay so multiple clients don't retry in sync. Defer for later.
+**Jitter** (optional, bonus) — add randomness to the delay so multiple clients don't retry in sync. Available in the solution as an opt-in flag (see "Extra concept" below).
 
 ## Docs & references
 
@@ -93,7 +93,25 @@ Tests check TWO things:
 
 ## Extra concept (optional)
 
-1. **Jitter**: add `Math.random() * baseDelayMs` to the delay to avoid thundering herd. Real improvement in production with many clients.
+1. **Jitter** — already available in the solution as an opt-in flag:
+
+   ```ts
+   // Extended signature
+   interface RetryOptions {
+     maxAttempts?: number;
+     baseDelayMs?: number;
+     jitter?: boolean; // default false
+   }
+
+   // Usage
+   await withRetry(() => client.messages.create(...), { jitter: true });
+   ```
+
+   Implementation: `delay = baseDelayMs * 2^attempt + Math.random() * baseDelayMs`.
+
+   **Why it matters**: if 100 clients hit a 429 at the same time and all use deterministic backoff, they retry in the same millisecond — a synchronized burst that overloads the server again (thundering herd). With jitter, each client waits a slightly different amount and retries spread out.
+
+   The flag is opt-in (default `false`) to keep the exercise's deterministic timing tests stable. In real production, **always turn it on**.
 2. **Observability**: log each retry with attempt count + last error. In production you want to know HOW MANY times the system had to retry — it's a health metric.
 3. **Global deadline**: besides `maxAttempts`, a `maxTotalDelayMs` that cuts off when accumulated time exceeds X. UX-wise: a user waiting 30 seconds in a chat already left.
 

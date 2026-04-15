@@ -4,6 +4,7 @@ import type { Message } from "@anthropic-ai/sdk/resources/messages/messages";
 export interface RetryOptions {
   maxAttempts?: number;
   baseDelayMs?: number;
+  jitter?: boolean;
 }
 
 function isRetryable(err: unknown): boolean {
@@ -24,6 +25,7 @@ export async function withRetry<T>(
 ): Promise<T> {
   const maxAttempts = options.maxAttempts ?? 3;
   const baseDelayMs = options.baseDelayMs ?? 500;
+  const jitter = options.jitter ?? false;
 
   let lastError: unknown;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -33,7 +35,9 @@ export async function withRetry<T>(
       lastError = err;
       if (!isRetryable(err)) throw err;
       if (attempt === maxAttempts - 1) break;
-      await sleep(baseDelayMs * 2 ** attempt);
+      const base = baseDelayMs * 2 ** attempt;
+      const delay = jitter ? base + Math.random() * baseDelayMs : base;
+      await sleep(delay);
     }
   }
   throw lastError;
