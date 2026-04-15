@@ -26,6 +26,13 @@ bun test              # full unit + integration suite
 
 Integration tests hit the real Anthropic API (Haiku, costs ~$0.001 per run). Running the full suite once costs well under 1 cent.
 
+## CI
+
+Two workflows live in `.github/workflows/`:
+
+- **`ci.yml`** — runs on every push/PR. Typecheck + `bun test packages/cli packages/runner` (no API key, no secrets). Integration tests skip automatically when `ANTHROPIC_API_KEY` is absent.
+- **`health-check.yml`** — weekly cron (Monday 12:00 UTC) + manual dispatch. Runs the full suite including exercise integration tests against the real API. Requires the repo secret `ANTHROPIC_API_KEY` to be set (Settings → Secrets and variables → Actions). Catches SDK drift or model changes before users do.
+
 ## Try the CLI locally
 
 ```bash
