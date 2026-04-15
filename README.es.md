@@ -8,7 +8,7 @@ Los recursos típicos para aprender AI son o muy básicos ("prompt engineering p
 
 ## Qué vas a aprender
 
-**Track: Foundations** (5 ejercicios, listos)
+**Track 01 — Foundations** (5 ejercicios)
 
 | # | Ejercicio | Concepto |
 |---|-----------|----------|
@@ -18,11 +18,15 @@ Los recursos típicos para aprender AI son o muy básicos ("prompt engineering p
 | 04 | `04-tokens-cost` | Leer `usage`, calcular costo real en USD por llamada |
 | 05 | `05-error-handling` | Helper `withRetry` con exponential backoff, errores retryable vs fatales |
 
-**Próximos tracks** (v2): prompt caching · tool use · RAG · agents · servers MCP.
+**Track 02 — Prompt caching** (5 ejercicios): `cache_control`, métricas de hit, multi-breakpoint, TTL extendido, caching + tools.
+
+**Track 03 — Tool use** (5 ejercicios): definir tools, tool loop, router multi-tool, modos de `tool_choice`, parallel tool use.
+
+**Próximos tracks**: RAG · agents · servers MCP.
 
 ## Quick start
 
-Requiere [Bun](https://bun.com) 1.3+ y una API key de Anthropic (<https://console.claude.com/settings/keys>).
+Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows) y una API key de Anthropic (<https://console.claude.com/settings/keys>).
 
 ```bash
 gh repo clone JcOnSoftware/ai-dev-bootcamp
@@ -30,10 +34,23 @@ cd ai-dev-bootcamp/code
 bun install
 echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
 
-# Configurá locale, mirá los ejercicios disponibles, corré uno:
-bun run packages/cli/src/index.ts init
-bun run packages/cli/src/index.ts list
-bun run packages/cli/src/index.ts verify 01-first-call
+# Forma corta — funciona desde cualquier lado dentro de code/:
+bun run aidev init              # configurá locale (es/en)
+bun run aidev list              # ver ejercicios disponibles
+bun run aidev verify 01-first-call
+```
+
+¿Preferís usar `aidev` pelado sin el prefijo `bun run`? Dos opciones:
+
+```bash
+# Opción A — alias de shell (Mac/Linux/WSL):
+alias aidev="$(pwd)/bin/aidev"
+aidev list
+
+# Opción B — agregar code/bin al PATH:
+export PATH="$(pwd)/bin:$PATH"     # Mac/Linux
+# Windows PowerShell: $env:Path = "$PWD\bin;$env:Path"
+aidev list
 ```
 
 Abrí `packages/exercises/01-foundations/01-first-call/starter.ts` en tu editor e implementá el TODO. Re-corré `verify` hasta que los tests pasen. Leé el enunciado completo en `packages/exercises/01-foundations/01-first-call/{es,en}/exercise.md`.
@@ -43,8 +60,8 @@ Abrí `packages/exercises/01-foundations/01-first-call/starter.ts` en tu editor 
 ¿Querés **ver** la salida del modelo, no solo pasar tests? Usá `aidev run`:
 
 ```bash
-bun run packages/cli/src/index.ts run 01-first-call --solution
-bun run packages/cli/src/index.ts run 03-streaming --solution --stream-live
+bun run aidev run 01-first-call --solution
+bun run aidev run 03-streaming --solution --stream-live
 ```
 
 `--stream-live` imprime los tokens a medida que llegan — así ves el streaming en tiempo real, la misma UX que van a experimentar tus usuarios.
@@ -61,7 +78,8 @@ Los ejercicios vienen en **español e inglés**. El locale por default es `es` (
 
 ## Estado del proyecto
 
-- **v1 shippeado**: track Foundations (5 ejercicios), CLI (`init`, `list`, `verify`, `run`, `progress`), contenido bilingue.
+- **v1 shippeado**: 3 tracks × 5 ejercicios = 15 total (Foundations, Prompt caching, Tool use). CLI (`init`, `list`, `verify`, `run`, `progress`) + contenido bilingue es/en + GitHub Actions CI + health check semanal.
+- **Próximo**: tracks de RAG · agents · MCP. El modelo de distribución queda git-clone-first (rustlings) — los ejercicios SON el repo.
 - **v2 próximo**: más tracks, binario publicado en npm, GitHub Actions opcional para contributors.
 
 Seguí el progreso en [Issues](https://github.com/JcOnSoftware/ai-dev-bootcamp/issues) y en el directorio `openspec/` (artifacts de Spec-Driven Development para cambios grandes).

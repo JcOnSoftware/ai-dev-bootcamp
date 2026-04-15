@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# aidev — thin wrapper around the CLI entrypoint.
+# Works from anywhere: computes the repo path from the symlink-resolved script location.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec bun "$SCRIPT_DIR/../packages/cli/src/index.ts" "$@"

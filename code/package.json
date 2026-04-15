@@ -13,6 +13,7 @@
     "packages/*"
   ],
   "scripts": {
+    "aidev": "bun run packages/cli/src/index.ts",
     "test": "bun test",
     "typecheck": "bun run --filter '*' typecheck"
   },

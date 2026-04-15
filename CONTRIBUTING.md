@@ -36,10 +36,12 @@ Two workflows live in `.github/workflows/`:
 ## Try the CLI locally
 
 ```bash
-bun run packages/cli/src/index.ts list
-bun run packages/cli/src/index.ts verify 01-first-call --solution
-bun run packages/cli/src/index.ts run 03-streaming --solution --stream-live
+bun run aidev list
+bun run aidev verify 01-first-call --solution
+bun run aidev run 03-streaming --solution --stream-live
 ```
+
+The `aidev` npm script lives in `code/package.json` and points to `packages/cli/src/index.ts`. For a bare `aidev` command (no `bun run` prefix), alias `./bin/aidev` or add `code/bin` to your PATH — see README for the one-liner.
 
 ## Adding an exercise
 
