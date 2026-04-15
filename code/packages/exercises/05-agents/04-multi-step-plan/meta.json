@@ -1,0 +1,11 @@
+{
+  "id": "04-multi-step-plan",
+  "track": "05-agents",
+  "title": "Multi-Step Planning",
+  "version": "1.0.0",
+  "valid_until": "2026-12-31",
+  "concepts": ["planning", "system-prompt-engineering", "sub-questions", "multi-step-reasoning", "prompt-design"],
+  "estimated_minutes": 25,
+  "requires": ["05-agents/03-state-management"],
+  "locales": ["es", "en"]
+}
