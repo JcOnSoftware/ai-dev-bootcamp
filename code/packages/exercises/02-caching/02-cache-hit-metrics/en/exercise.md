@@ -23,10 +23,10 @@ Example with Haiku ($1.00/1M input tokens):
 
 ## Your task
 
-1. Implement the helper function `cacheStats(usage: CacheUsage): CacheStats` and export it by name.
+1. Implement the helper function `cacheStats(usage: CacheUsage, model: string): CacheStats` and export it by name. **The `model` parameter is required** — it lets the function work correctly with any model (Haiku, Sonnet, Opus), not just the default.
 2. The function must return an object with 5 fields: `cached`, `created`, `regular`, `savings_pct`, `effective_cost_usd`.
-3. Use `estimateCost` from `cost.ts` to calculate `effective_cost_usd` with the cache-aware formula.
-4. In `run()`: make 2 calls using `LONG_SYSTEM_PROMPT` as a cached system block, apply `cacheStats` to the second call's usage, and return the result.
+3. Use `estimateCost(model, usage)` from `cost.ts` to calculate `effective_cost_usd` with the cache-aware formula. Pass the `model` received as parameter — never hardcode it inside `cacheStats`.
+4. In `run()`: make 2 calls using `LONG_SYSTEM_PROMPT` as a cached system block, apply `cacheStats(response.usage, MODEL)` to the second call's usage, and return the result.
 
 ## How to verify
 
@@ -47,6 +47,7 @@ The tests verify:
 - `stats.savings_pct` is between 0 and 100.
 - `stats.savings_pct > 50` when most tokens are cache reads.
 - `stats.effective_cost_usd` is positive and finite.
+- `stats.effective_cost_usd` scales with model pricing (same usage under Sonnet is more expensive than under Haiku).
 - Integration: `result.calls` has 2 elements, call 2 has `cache_read_input_tokens > 0`.
 - The value returned by `run()` has all 5 fields with `savings_pct > 50`.
 

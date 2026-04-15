@@ -23,7 +23,9 @@ describe("02-cache-hit-metrics", () => {
   // -------- Unit tests for cacheStats (no API calls) --------
 
   describe("cacheStats helper", () => {
-    let cacheStats: (usage: CacheUsage) => CacheStats;
+    let cacheStats: (usage: CacheUsage, model: string) => CacheStats;
+    const HAIKU = "claude-haiku-4-5-20251001";
+    const SONNET = "claude-sonnet-4-5";
 
     beforeAll(async () => {
       // Import the exercise module to grab the named cacheStats export.
@@ -43,7 +45,7 @@ describe("02-cache-hit-metrics", () => {
         cache_creation_input_tokens: 0,
         input_tokens: 50,
         output_tokens: 100,
-      });
+      }, HAIKU);
       expect(stats).toHaveProperty("cached");
       expect(stats).toHaveProperty("created");
       expect(stats).toHaveProperty("regular");
@@ -57,7 +59,7 @@ describe("02-cache-hit-metrics", () => {
         cache_creation_input_tokens: 0,
         input_tokens: 50,
         output_tokens: 100,
-      });
+      }, HAIKU);
       expect(stats.cached).toBe(5000);
     });
 
@@ -67,7 +69,7 @@ describe("02-cache-hit-metrics", () => {
         cache_creation_input_tokens: 4200,
         input_tokens: 50,
         output_tokens: 100,
-      });
+      }, HAIKU);
       expect(stats.created).toBe(4200);
     });
 
@@ -77,7 +79,7 @@ describe("02-cache-hit-metrics", () => {
         cache_creation_input_tokens: 0,
         input_tokens: 50,
         output_tokens: 100,
-      });
+      }, HAIKU);
       expect(stats.savings_pct).toBeGreaterThanOrEqual(0);
       expect(stats.savings_pct).toBeLessThanOrEqual(100);
     });
@@ -89,7 +91,7 @@ describe("02-cache-hit-metrics", () => {
         cache_creation_input_tokens: 0,
         input_tokens: 50,
         output_tokens: 0,
-      });
+      }, HAIKU);
       expect(stats.savings_pct).toBeGreaterThan(50);
     });
 
@@ -99,9 +101,22 @@ describe("02-cache-hit-metrics", () => {
         cache_creation_input_tokens: 0,
         input_tokens: 50,
         output_tokens: 100,
-      });
+      }, HAIKU);
       expect(stats.effective_cost_usd).toBeGreaterThan(0);
       expect(isFinite(stats.effective_cost_usd)).toBe(true);
+    });
+
+    test("effective_cost_usd scales with model pricing", () => {
+      // Same usage, two models. Sonnet is ~3x Haiku on input → cost should differ.
+      const usage = {
+        cache_read_input_tokens: 5000,
+        cache_creation_input_tokens: 0,
+        input_tokens: 50,
+        output_tokens: 100,
+      };
+      const haikuStats = cacheStats(usage, HAIKU);
+      const sonnetStats = cacheStats(usage, SONNET);
+      expect(sonnetStats.effective_cost_usd).toBeGreaterThan(haikuStats.effective_cost_usd);
     });
   });
 

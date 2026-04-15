@@ -33,12 +33,14 @@ export interface CacheStats {
  * Compute cache statistics and effective cost for a single API usage object.
  *
  * @param usage - The usage object from a cached API response.
+ * @param model - Model id (e.g. "claude-haiku-4-5-20251001"); used by
+ *                estimateCost to look up input/output pricing.
  * @returns CacheStats with savings percentage and effective USD cost.
  *
- * Hint: use estimateCost("claude-haiku-4-5-20251001", usage) to get the cost
- * string (format "~$0.0012"), then parseFloat(cost.slice(2)) to get a number.
+ * Hint: use estimateCost(model, usage) to get the cost string
+ * (format "~$0.0012"), then parseFloat(cost.slice(2)) to get a number.
  */
-export function cacheStats(_usage: CacheUsage): CacheStats {
+export function cacheStats(_usage: CacheUsage, _model: string): CacheStats {
   // TODO: implement cacheStats
   throw new Error("TODO: implement cacheStats()");
 }

@@ -29,30 +29,38 @@ export interface CacheStats {
   effective_cost_usd: number;
 }
 
-const MODEL = "claude-haiku-4-5-20251001";
+const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 
 /**
  * Compute cache statistics and effective cost for a single API usage object.
  *
  * Savings percentage formula:
- *   hypothetical_cost = (cached + created + regular) tokens × input_price
- *   actual_cost = effective_cost_usd (from estimateCost with cache multipliers)
- *   savings_pct = ((hypothetical_cost - actual_cost) / hypothetical_cost) × 100
+ *   hypothetical_cost = actual non-cache cost for ALL tokens at full input price
+ *   actual_cost       = effective_cost_usd (cache-aware)
+ *   savings_pct       = ((hypothetical - actual) / hypothetical) × 100
+ *
+ * @param usage - Usage object from a cached API response.
+ * @param model - Model id; used to look up input/output pricing.
  */
-export function cacheStats(usage: CacheUsage): CacheStats {
+export function cacheStats(usage: CacheUsage, model: string): CacheStats {
   const cached = usage.cache_read_input_tokens ?? 0;
   const created = usage.cache_creation_input_tokens ?? 0;
   const regular = usage.input_tokens;
 
   // Effective (actual) cost using cache-aware pricing from cost.ts.
-  const costStr = estimateCost(MODEL, usage as Usage);
+  const costStr = estimateCost(model, usage as Usage);
   const effective_cost_usd = costStr ? parseFloat(costStr.slice(2)) : 0;
 
-  // Hypothetical cost: all tokens at full input price (no cache).
-  // Haiku input price: $1.00 / 1M tokens.
-  const INPUT_PRICE_PER_TOKEN = 1.0 / 1_000_000;
-  const total_tokens = cached + created + regular;
-  const hypothetical_cost = total_tokens * INPUT_PRICE_PER_TOKEN;
+  // Hypothetical cost: all input tokens at full price, no cache multipliers.
+  // We compute it by calling estimateCost with a cache-stripped usage object
+  // summing all tokens as regular input — that way pricing comes from the
+  // same source of truth regardless of which model is passed.
+  const hypotheticalUsage: Usage = {
+    input_tokens: cached + created + regular,
+    output_tokens: usage.output_tokens,
+  };
+  const hypoStr = estimateCost(model, hypotheticalUsage);
+  const hypothetical_cost = hypoStr ? parseFloat(hypoStr.slice(2)) : 0;
 
   const savings_pct =
     hypothetical_cost > 0
@@ -79,7 +87,7 @@ export default async function run(): Promise<CacheStats> {
 
   // Call 1: warms the cache (or reads from an already-warm cache).
   await client.messages.create({
-    model: MODEL,
+    model: DEFAULT_MODEL,
     max_tokens: 256,
     system: [systemBlock],
     messages: [{ role: "user", content: userMessage }],
@@ -87,11 +95,11 @@ export default async function run(): Promise<CacheStats> {
 
   // Call 2: reads from cache — usage shows cache_read_input_tokens > 0.
   const response2 = await client.messages.create({
-    model: MODEL,
+    model: DEFAULT_MODEL,
     max_tokens: 256,
     system: [systemBlock],
     messages: [{ role: "user", content: userMessage }],
   });
 
-  return cacheStats(response2.usage as CacheUsage);
+  return cacheStats(response2.usage as CacheUsage, DEFAULT_MODEL);
 }
