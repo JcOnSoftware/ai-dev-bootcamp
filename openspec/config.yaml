@@ -1,0 +1,31 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Bun + TypeScript + @anthropic-ai/sdk (Claude-first)
+  Architecture: Bun workspaces monorepo — @aidev/runner (SDK harness), @aidev/cli (aidev binary), @aidev/exercises (content)
+  Testing: bun:test (unit + integration); exercise tests hit real Anthropic API via harness monkey-patching
+  Style: strict TS, verbatimModuleSyntax, conventional commits (no Co-Authored-By), bilingual es/en exercise content with default es
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules/packages
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Delta specs for changes to existing capabilities
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale (ADRs inline)
+  tasks:
+    - Hierarchical numbering (1.1, 1.2, ...)
+    - Tests precede implementation under Strict TDD
+    - Keep tasks completable in one session
+  apply:
+    tdd: true
+    test_command: "bun test"
+  verify:
+    test_command: "bun test"
+    build_command: "bunx tsc --noEmit"
+  archive:
+    - Warn before merging destructive deltas
