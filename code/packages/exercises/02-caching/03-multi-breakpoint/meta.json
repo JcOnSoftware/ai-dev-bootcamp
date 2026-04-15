@@ -1,0 +1,12 @@
+{
+  "id": "03-multi-breakpoint",
+  "track": "02-caching",
+  "title": "Multiple Cache Breakpoints",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": ["multi-breakpoint", "cache-breakpoints", "tool-caching", "conversation-history-caching", "4-breakpoint-limit"],
+  "estimated_minutes": 25,
+  "requires": ["02-cache-hit-metrics"],
+  "locales": ["es", "en"],
+  "model_cost_hint": "~$0.003 per run (two Haiku calls with tools, multi-turn)"
+}
