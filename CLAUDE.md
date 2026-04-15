@@ -84,7 +84,7 @@ Every exercise has these files at its root plus one `exercise.md` per declared l
 
 **`locales` field** (required in `meta.json`): non-empty array of `"es" | "en"`. At minimum `["es"]`. Must match the locale subdirs present on disk.
 
-**Canonical doc URLs**: `platform.claude.com/...` — NOT `docs.anthropic.com` (301-redirects).
+**Canonical doc URLs**: `docs.claude.com/...` — NOT `docs.anthropic.com` (301-redirects).
 **Default model in solutions**: Haiku (cost discipline — bootcamp should total ~$2 end-to-end).
 
 ## Harness contract

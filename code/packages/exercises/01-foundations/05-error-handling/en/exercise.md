@@ -35,9 +35,9 @@ Each retry doubles the delay (`baseDelayMs * 2^attempt`). Reason: if the server 
 1. **SDK README — Error handling section** — official list of error classes and how they're thrown:
    → https://github.com/anthropics/anthropic-sdk-typescript#handling-errors
 2. **Messages API reference — errors** — status codes and messages:
-   → https://platform.claude.com/docs/en/api/messages
+   → https://docs.claude.com/en/api/messages
 3. **Rate limits** — account quotas and how to avoid them:
-   → https://platform.claude.com/docs/en/api/rate-limits
+   → https://docs.claude.com/en/api/rate-limits
 
 > Tip: SDK error classes (`RateLimitError`, `AuthenticationError`, etc.) are exported from `@anthropic-ai/sdk` and also as static fields on `Anthropic` (e.g. `Anthropic.RateLimitError`). All extend `APIError` which has a `.status` field with the HTTP code.
 

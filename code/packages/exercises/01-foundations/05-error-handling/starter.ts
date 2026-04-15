@@ -1,7 +1,7 @@
 // Docs:
 //   SDK error handling : https://github.com/anthropics/anthropic-sdk-typescript#handling-errors
-//   Rate limits        : https://platform.claude.com/docs/en/api/rate-limits
-//   API ref            : https://platform.claude.com/docs/en/api/messages
+//   Rate limits        : https://docs.claude.com/en/api/rate-limits
+//   API ref            : https://docs.claude.com/en/api/messages
 
 import Anthropic from "@anthropic-ai/sdk";
 import type { Message } from "@anthropic-ai/sdk/resources/messages/messages";

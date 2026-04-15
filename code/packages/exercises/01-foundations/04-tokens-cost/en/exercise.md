@@ -41,11 +41,11 @@ That's **5x more expensive to generate than to read**. That's not trivia — it 
 ## Docs & references
 
 1. **Models overview** — current price table by model (Opus 4.6, Sonnet 4.6, Haiku 4.5, and legacy):
-   → https://platform.claude.com/docs/en/docs/about-claude/models/overview
+   → https://docs.claude.com/en/docs/about-claude/models/overview
 2. **Messages API reference** — full `usage` object structure:
-   → https://platform.claude.com/docs/en/api/messages
+   → https://docs.claude.com/en/api/messages
 3. **Pricing page** — full detail with batch API discounts and cache rates:
-   → https://platform.claude.com/docs/en/about-claude/pricing
+   → https://docs.claude.com/en/docs/about-claude/pricing
 
 > Tip: prices change. The exercise's values are fixed so tests stay stable, but in production **never hardcode prices** without a review date — it will age.
 

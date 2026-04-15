@@ -47,7 +47,7 @@ Exercises are the primary contribution target. Read **[`docs/EXERCISE-CONTRACT.m
 
 - `starter.ts`, `solution.ts`, `tests.test.ts`, `meta.json` at the exercise root
 - `es/exercise.md` (required) and `en/exercise.md` (required before merge)
-- A `Docs & references` section with canonical `platform.claude.com` URLs
+- A `Docs & references` section with canonical `docs.claude.com` URLs
 
 Open an issue before investing real time, so we can agree on scope.
 

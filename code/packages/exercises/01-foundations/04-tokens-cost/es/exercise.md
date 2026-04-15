@@ -41,11 +41,11 @@ Eso es **5x más caro generar que leer**. No es anecdótico — cambia decisione
 ## Docs & references
 
 1. **Models overview** — tabla actual de precios por modelo (Opus 4.6, Sonnet 4.6, Haiku 4.5, y legacy):
-   → https://platform.claude.com/docs/en/docs/about-claude/models/overview
+   → https://docs.claude.com/en/docs/about-claude/models/overview
 2. **Messages API reference** — estructura completa del objeto `usage`:
-   → https://platform.claude.com/docs/en/api/messages
+   → https://docs.claude.com/en/api/messages
 3. **Pricing page** — detalle completo con batch API discounts y cache rates:
-   → https://platform.claude.com/docs/en/about-claude/pricing
+   → https://docs.claude.com/en/docs/about-claude/pricing
 
 > Tip: los precios cambian. Los valores del ejercicio están fijos para que los tests sean estables, pero en producción **nunca hardcodees precios** sin una fecha de revisión — va a envejecer.
 

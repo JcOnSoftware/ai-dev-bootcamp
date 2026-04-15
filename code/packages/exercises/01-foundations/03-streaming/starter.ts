@@ -1,7 +1,7 @@
 // Docs:
-//   Streaming guide : https://platform.claude.com/docs/en/build-with-claude/streaming
+//   Streaming guide : https://docs.claude.com/en/docs/build-with-claude/streaming
 //   SDK README      : https://github.com/anthropics/anthropic-sdk-typescript
-//   API ref         : https://platform.claude.com/docs/en/api/messages
+//   API ref         : https://docs.claude.com/en/api/messages
 
 import Anthropic from "@anthropic-ai/sdk";
 import type { Message } from "@anthropic-ai/sdk/resources/messages/messages";

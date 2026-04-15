@@ -48,7 +48,7 @@ No project-level agent config (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`) found. 
 - Required files: `exercise.md`, `starter.ts`, `solution.ts`, `tests.test.ts`, `meta.json`
 - `exercise.md` must have 6 sections (see `docs/EXERCISE-CONTRACT.md`)
 - `starter.ts` MUST have a `// Docs:` comment header with canonical URLs
-- Canonical doc URLs: `platform.claude.com/...` (NOT `docs.anthropic.com` — it 301s)
+- Canonical doc URLs: `docs.claude.com/...` (NOT `docs.anthropic.com` — it 301s)
 - Default model in solutions: Claude Haiku (cost discipline)
 
 ### i18n (M3+)

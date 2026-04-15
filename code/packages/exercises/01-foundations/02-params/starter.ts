@@ -1,7 +1,7 @@
 // Docs:
 //   SDK README  : https://github.com/anthropics/anthropic-sdk-typescript
-//   API ref     : https://platform.claude.com/docs/en/api/messages
-//   Model IDs   : https://platform.claude.com/docs/en/docs/about-claude/models/overview
+//   API ref     : https://docs.claude.com/en/api/messages
+//   Model IDs   : https://docs.claude.com/en/docs/about-claude/models/overview
 
 import Anthropic from "@anthropic-ai/sdk";
 import type { Message } from "@anthropic-ai/sdk/resources/messages/messages";

@@ -36,11 +36,11 @@ Both return an iterable with `.finalMessage()` — the method that gives you the
 ## Docs & references
 
 1. **Streaming messages** — official guide with events, examples, patterns:
-   → https://platform.claude.com/docs/en/build-with-claude/streaming
+   → https://docs.claude.com/en/docs/build-with-claude/streaming
 2. **SDK README (TypeScript)** — "Streaming responses" section:
    → https://github.com/anthropics/anthropic-sdk-typescript
 3. **Messages API reference** — `stream: true` parameter:
-   → https://platform.claude.com/docs/en/api/messages
+   → https://docs.claude.com/en/api/messages
 
 > Tip: the stream's iterable implements `AsyncIterable<MessageStreamEvent>`. You can use `for await (const event of stream)` directly.
 

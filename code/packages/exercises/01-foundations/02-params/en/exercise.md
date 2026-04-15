@@ -20,11 +20,11 @@ The three that matter from day one:
 ## Docs & references
 
 1. **Messages API reference** — all params (`temperature`, `top_p`, `top_k`, `stop_sequences`, `system`, etc.):
-   → https://platform.claude.com/docs/en/api/messages
+   → https://docs.claude.com/en/api/messages
 2. **SDK README (TypeScript)** — how to pass multiple params to the call:
    → https://github.com/anthropics/anthropic-sdk-typescript
 3. **Models overview** — each model has its own `max_tokens` ceiling:
-   → https://platform.claude.com/docs/en/docs/about-claude/models/overview
+   → https://docs.claude.com/en/docs/about-claude/models/overview
 
 > Tip: the SDK ships TS types. Hover over the object you pass to `messages.create` — you'll see every optional param typed.
 

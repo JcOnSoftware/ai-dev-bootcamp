@@ -35,9 +35,9 @@ Cada reintento duplica el delay (`baseDelayMs * 2^attempt`). La razón: si el se
 1. **SDK README — Error handling section** — lista oficial de clases de error y cómo se tiran:
    → https://github.com/anthropics/anthropic-sdk-typescript#handling-errors
 2. **Messages API reference — errors** — status codes y mensajes:
-   → https://platform.claude.com/docs/en/api/messages
+   → https://docs.claude.com/en/api/messages
 3. **Rate limits** — cuotas por cuenta y cómo evitarlas:
-   → https://platform.claude.com/docs/en/api/rate-limits
+   → https://docs.claude.com/en/api/rate-limits
 
 > Tip: las clases de error del SDK (`RateLimitError`, `AuthenticationError`, etc.) se exportan desde `@anthropic-ai/sdk` y también como campos estáticos de `Anthropic` (ej: `Anthropic.RateLimitError`). Todas heredan de `APIError` que tiene la propiedad `.status` con el código HTTP.
 

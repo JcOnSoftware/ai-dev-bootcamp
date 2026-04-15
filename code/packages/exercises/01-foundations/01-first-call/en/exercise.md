@@ -17,9 +17,9 @@ Read these in order — they are official and always up to date:
 1. **SDK README (TypeScript)** — how to instantiate the client (`new Anthropic()`) and the first working example:
    → https://github.com/anthropics/anthropic-sdk-typescript
 2. **Messages API reference** — all parameters for `client.messages.create` (`model`, `max_tokens`, `messages`, `system`, etc.):
-   → https://platform.claude.com/docs/en/api/messages
+   → https://docs.claude.com/en/api/messages
 3. **Models overview** — table of model IDs (Opus 4.6, Sonnet 4.6, Haiku 4.5), pricing and tradeoffs:
-   → https://platform.claude.com/docs/en/docs/about-claude/models/overview
+   → https://docs.claude.com/en/docs/about-claude/models/overview
 
 > Tip: the SDK also ships TS types. In your editor, hover over `messages.create` to see the full signature without leaving VS Code.
 

@@ -1,6 +1,6 @@
 // Docs:
-//   Models + pricing : https://platform.claude.com/docs/en/docs/about-claude/models/overview
-//   API ref (usage)  : https://platform.claude.com/docs/en/api/messages
+//   Models + pricing : https://docs.claude.com/en/docs/about-claude/models/overview
+//   API ref (usage)  : https://docs.claude.com/en/api/messages
 //   SDK README       : https://github.com/anthropics/anthropic-sdk-typescript
 
 import Anthropic from "@anthropic-ai/sdk";
