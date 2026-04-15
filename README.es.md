@@ -25,7 +25,7 @@ Los recursos típicos para aprender AI son o muy básicos ("prompt engineering p
 Requiere [Bun](https://bun.com) 1.3+ y una API key de Anthropic (<https://console.claude.com/settings/keys>).
 
 ```bash
-gh repo clone jcyovera/ai-dev-bootcamp
+gh repo clone JcOnSoftware/ai-dev-bootcamp
 cd ai-dev-bootcamp/code
 bun install
 echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
@@ -64,7 +64,7 @@ Los ejercicios vienen en **español e inglés**. El locale por default es `es` (
 - **v1 shippeado**: track Foundations (5 ejercicios), CLI (`init`, `list`, `verify`, `run`, `progress`), contenido bilingue.
 - **v2 próximo**: más tracks, binario publicado en npm, GitHub Actions opcional para contributors.
 
-Seguí el progreso en [Issues](https://github.com/jcyovera/ai-dev-bootcamp/issues) y en el directorio `openspec/` (artifacts de Spec-Driven Development para cambios grandes).
+Seguí el progreso en [Issues](https://github.com/JcOnSoftware/ai-dev-bootcamp/issues) y en el directorio `openspec/` (artifacts de Spec-Driven Development para cambios grandes).
 
 ## Contribuir
 

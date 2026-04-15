@@ -6,7 +6,7 @@ Read this file first when you start a session in this repo.
 
 Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools (Claude API, prompt caching, tool use, RAG, agents, MCP) through **progressive exercises with automated tests against the real API**. Target learner: a 5+ year dev who can program but is new to the AI world.
 
-Repo: https://github.com/jcyovera/ai-dev-bootcamp (PRIVATE — flips to public after M3 complete + Foundations filled).
+Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PRIVATE — flips to public after M3 complete + Foundations filled).
 License: MIT.
 
 ## Stack

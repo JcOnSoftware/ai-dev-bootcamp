@@ -9,7 +9,7 @@ Requirements:
 - An Anthropic API key — get one at <https://console.claude.com/settings/keys>
 
 ```bash
-gh repo clone jcyovera/ai-dev-bootcamp
+gh repo clone JcOnSoftware/ai-dev-bootcamp
 cd ai-dev-bootcamp/code
 bun install
 echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
@@ -73,4 +73,4 @@ Before opening a PR:
 
 ## Questions
 
-Open a [Discussion](https://github.com/jcyovera/ai-dev-bootcamp/discussions) or an issue. I check most days.
+Open a [Discussion](https://github.com/JcOnSoftware/ai-dev-bootcamp/discussions) or an issue. I check most days.
