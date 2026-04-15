@@ -69,4 +69,19 @@ Usá 1h:
   - Cualquier caso donde el mismo prompt se usa > 2 veces en una hora
 ```
 
-La fórmula `breakEvenCalls` es agnóstica al precio y al tamaño del caché — siempre da el mismo resultado porque los multiplicadores son fijos. Esto hace que sea fácil de memorizar: **si vas a leer el caché 2 veces o más dentro de 1 hora, usá TTL extendido**.
+### Sobre los parámetros de `breakEvenCalls`
+
+La firma pide `cacheTokens` y `pricePerMillion`, pero ambos parámetros **se cancelan en el álgebra** — el resultado depende solo de la razón entre los multiplicadores (1.25×, 2×, 0.1×) que son constantes de la API. Si derivás la ecuación sobre papel:
+
+```
+costo(1h + N reads)  ≤  costo(N writes de 5m)
+2.0·T·p + N·0.1·T·p  ≤  N·1.25·T·p
+2.0 + 0.1·N          ≤  1.25·N               ← T y p se cancelan
+N ≥ 2.0 / 1.15 ≈ 1.74    →    ceil = 2
+```
+
+Mantenemos los parámetros en la firma por dos razones:
+1. **Documentación viva**: hace explícito qué variables gobiernan el trade-off, aunque matemáticamente no lo hagan.
+2. **Futuro-proof**: si Anthropic cambia los multiplicadores o los hace dependientes del modelo, la firma ya está lista sin romper el contrato del ejercicio.
+
+Regla memorizable: **si vas a leer el caché 2 veces o más dentro de 1 hora, usá TTL extendido**. Simple.

@@ -69,4 +69,19 @@ Use 1h:
   - Any case where the same prompt is used > 2 times within an hour
 ```
 
-The `breakEvenCalls` formula is price-agnostic and token-count-agnostic — it always returns the same result because the multipliers are fixed. This makes it easy to remember: **if you're going to read the cache 2 or more times within 1 hour, use extended TTL**.
+### About `breakEvenCalls` parameters
+
+The signature asks for `cacheTokens` and `pricePerMillion`, but both parameters **cancel in the algebra** — the result depends only on the ratio between the multipliers (1.25×, 2×, 0.1×), which are API constants. If you derive it on paper:
+
+```
+cost(1h + N reads)  ≤  cost(N × 5m writes)
+2.0·T·p + N·0.1·T·p ≤  N·1.25·T·p
+2.0 + 0.1·N         ≤  1.25·N            ← T and p cancel
+N ≥ 2.0 / 1.15 ≈ 1.74    →    ceil = 2
+```
+
+We keep the parameters in the signature for two reasons:
+1. **Living documentation**: the signature makes explicit which variables govern the trade-off, even if mathematically they don't.
+2. **Future-proof**: if Anthropic changes the multipliers or makes them model-dependent, the signature is already ready without breaking the exercise contract.
+
+Memorable rule: **if you're going to read the cache 2 or more times within 1 hour, use extended TTL**. Simple.
