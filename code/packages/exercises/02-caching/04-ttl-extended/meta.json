@@ -1,0 +1,12 @@
+{
+  "id": "04-ttl-extended",
+  "track": "02-caching",
+  "title": "Extended TTL Caching",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": ["extended-ttl", "1h-cache", "break-even-analysis", "cache-write-cost", "ttl-strategy"],
+  "estimated_minutes": 20,
+  "requires": ["03-multi-breakpoint"],
+  "locales": ["es", "en"],
+  "model_cost_hint": "~$0.002 per run (two Haiku calls with 1h cached system)"
+}
