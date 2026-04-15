@@ -63,6 +63,23 @@ them in the correct order.
 
 ---
 
+## Why these tests assert on the request
+
+The tests in this exercise **do not** assert on `response.stop_reason`. Instead, they check:
+
+1. **`calls[i].request.tool_choice` (the shape sent to the API)** — this verifies that YOUR code passed the correct configuration, independently of how the model responds. It's a **code correctness** check, not a **model behavior** check.
+2. **Absence of `tool_use` content blocks in the response for the `none` case** — instead of asserting `stop_reason === "end_turn"`.
+
+### Why not use `stop_reason`?
+
+`stop_reason` under `tool_choice: none` **should** be `"end_turn"`, but in practice the model sometimes responds with `"stop_sequence"`, `"max_tokens"`, or even `"tool_use"` due to transient glitches. Asserting on that field is **flake-prone** — tests would break on high-load days even though the learner's code is correct.
+
+Instead, **"no `tool_use` blocks in the response"** is the real semantic meaning of `tool_choice: none`, and it can be verified robustly via `response.content.filter(b => b.type === "tool_use").length === 0`.
+
+> **General rule for LLM API tests**: assert on what YOUR code does (the request shape) or on structural response properties (presence/absence of block types), NEVER on non-deterministic metadata fields like `stop_reason`.
+
+---
+
 ## Resources
 
 - [Tool use — Overview](https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview)

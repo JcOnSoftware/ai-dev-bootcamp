@@ -63,6 +63,23 @@ el harness las capture en orden correcto.
 
 ---
 
+## Por qué estos tests assertan sobre el request
+
+Los tests de este ejercicio **no** assertan sobre `response.stop_reason`. En cambio, chequean:
+
+1. **`calls[i].request.tool_choice` (la forma enviada al API)** — así validamos que tu código pasó la configuración correcta, independiente de cómo responda el modelo. Es un chequeo de **corrección de código**, no de **comportamiento del modelo**.
+2. **Ausencia de bloques `tool_use` en `response.content` para el caso `none`** — en vez de assertar `stop_reason === "end_turn"`.
+
+### ¿Por qué no usar `stop_reason`?
+
+`stop_reason` bajo `tool_choice: none` **debería** ser `"end_turn"`, pero en la práctica el modelo a veces responde con `"stop_sequence"`, `"max_tokens"`, o incluso `"tool_use"` por glitches transitorios. Assertear sobre ese campo es **flake-prone** — los tests romperían en días con alta carga del modelo sin que el código del learner tenga bugs.
+
+En cambio, **"no hay bloques `tool_use` en el response"** es el criterio semántico real de `tool_choice: none`, y se puede verificar de forma robusta mirando `response.content.filter(b => b.type === "tool_use").length === 0`.
+
+> **Regla general para tests de API de LLMs**: assertá sobre lo que TU código hace (el request shape) o sobre propiedades estructurales del response (presencia/ausencia de tipos de bloques), NUNCA sobre campos de metadata no-determinísticos como `stop_reason`.
+
+---
+
 ## Recursos
 
 - [Tool use — Overview](https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview)
