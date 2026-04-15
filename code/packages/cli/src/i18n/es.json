@@ -30,6 +30,5 @@
   "run.not_found": "Ejercicio '{id}' no encontrado. Probá: aidev list",
   "run.no_key": "No se encontró API key de Anthropic.",
   "run.no_key_hint": "  Corré 'aidev init' o exportá ANTHROPIC_API_KEY.",
-  "run.error.message": "Error al ejecutar: {message}",
-  "run.error.hint": "  Revisá el código del ejercicio y volvé a intentar."
+  "run.error.message": "Error al ejecutar: {message}"
 }
