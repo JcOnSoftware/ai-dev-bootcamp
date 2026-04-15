@@ -1,0 +1,75 @@
+import { describe, test, expect, beforeAll } from "bun:test";
+import { runUserCode, resolveExerciseFile, type HarnessResult } from "@aidev/runner";
+
+const EXERCISE_FILE = resolveExerciseFile(import.meta.url);
+
+describe("05-caching-with-tools", () => {
+  let result: HarnessResult;
+
+  beforeAll(async () => {
+    if (!process.env["ANTHROPIC_API_KEY"]) {
+      throw new Error("ANTHROPIC_API_KEY not set — integration test hits real API.");
+    }
+    result = await runUserCode(EXERCISE_FILE);
+  }, 45_000); // 45s — multi-turn tool-use conversation
+
+  test("run makes exactly 2 captured API calls", () => {
+    expect(result.calls).toHaveLength(2);
+  });
+
+  test("call 1 request: system has at least one block with cache_control.type === 'ephemeral'", () => {
+    const sys = result.calls[0]!.request.system as {
+      cache_control?: { type: string };
+    }[];
+    expect(Array.isArray(sys)).toBe(true);
+    const hasEphemeral = sys.some((b) => b.cache_control?.type === "ephemeral");
+    expect(hasEphemeral).toBe(true);
+  });
+
+  test("call 1 request: tools array exists and has at least 1 tool", () => {
+    const tools = result.calls[0]!.request.tools;
+    expect(Array.isArray(tools)).toBe(true);
+    expect((tools as unknown[]).length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("call 1 request: last tool has cache_control anywhere on the object", () => {
+    const tools = result.calls[0]!.request.tools as {
+      cache_control?: unknown;
+    }[];
+    const lastTool = tools[tools.length - 1]!;
+    expect(lastTool.cache_control).toBeDefined();
+  });
+
+  test("call 1 response: contains at least one tool_use content block", () => {
+    const toolUseBlock = result.calls[0]!.response.content.find(
+      (b) => b.type === "tool_use",
+    );
+    expect(toolUseBlock).toBeDefined();
+  });
+
+  test("call 2 request: tools array still present with cache_control on last tool", () => {
+    const tools = result.calls[1]!.request.tools as
+      | { cache_control?: unknown }[]
+      | undefined;
+    expect(Array.isArray(tools)).toBe(true);
+    const lastTool = tools![tools!.length - 1]!;
+    expect(lastTool.cache_control).toBeDefined();
+  });
+
+  test("call 2 response: cache_read_input_tokens > 0", () => {
+    const usage = result.calls[1]!.response.usage as {
+      cache_read_input_tokens?: number;
+    };
+    expect((usage.cache_read_input_tokens ?? 0)).toBeGreaterThan(0);
+  });
+
+  test("call 2 response: contains at least one content block", () => {
+    expect(result.calls[1]!.response.content.length).toBeGreaterThan(0);
+  });
+
+  test("both requests use a Haiku model", () => {
+    for (const call of result.calls) {
+      expect(call.request.model).toMatch(/haiku/i);
+    }
+  });
+});

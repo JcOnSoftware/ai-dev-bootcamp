@@ -1,0 +1,12 @@
+{
+  "id": "05-caching-with-tools",
+  "track": "02-caching",
+  "title": "Caching with Tool Use",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": ["tool-use-caching", "multi-turn", "tool-result", "system-plus-tools-cache", "cache-breakpoints"],
+  "estimated_minutes": 30,
+  "requires": ["04-ttl-extended"],
+  "locales": ["es", "en"],
+  "model_cost_hint": "~$0.003 per run (two Haiku calls, tool-use multi-turn)"
+}
