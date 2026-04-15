@@ -23,12 +23,14 @@ describe("02-stop-conditions", () => {
       const result = mod.evaluateStop("end_turn", [{ type: "text" }], 3, 10);
       // goal check is text content based — we test the null path for tool_use here
       // A non-tool_use end_turn with text → either "goal" or "end_turn", both valid
-      expect(["goal", "end_turn"]).toContain(result);
+      expect(result).not.toBeNull();
+      expect(["goal", "end_turn"]).toContain(result as string);
     });
 
     test("returns 'end_turn' when stop_reason is end_turn and no other condition", () => {
       const result = mod.evaluateStop("end_turn", [{ type: "text" }], 1, 10);
-      expect(["goal", "end_turn"]).toContain(result);
+      expect(result).not.toBeNull();
+      expect(["goal", "end_turn"]).toContain(result as string);
     });
 
     test("returns 'max_iterations' when iterations >= maxIterations", () => {
@@ -68,7 +70,7 @@ describe("02-stop-conditions", () => {
 
     test("final stop reason is valid (end_turn or tool_use at max cap)", () => {
       const lastCall = result.calls[result.calls.length - 1]!;
-      expect(["end_turn", "tool_use"]).toContain(lastCall.response.stop_reason);
+      expect(["end_turn", "tool_use"]).toContain(lastCall.response.stop_reason as string);
     });
 
     test("force max_iterations: single iteration run stops at 1", async () => {
