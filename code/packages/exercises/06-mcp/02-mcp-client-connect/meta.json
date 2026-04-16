@@ -1,0 +1,12 @@
+{
+  "id": "02-mcp-client-connect",
+  "track": "06-mcp",
+  "title": "MCP Client Connect",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": ["mcp-client", "tool-discovery", "inmemory-transport", "cleanup-pattern", "stdio-transport"],
+  "estimated_minutes": 20,
+  "requires": ["01-mcp-server-basics"],
+  "locales": ["es", "en"],
+  "model_cost_hint": "$0 (no API calls)"
+}
