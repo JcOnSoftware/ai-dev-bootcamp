@@ -74,16 +74,17 @@ export async function runAgentWithMcpTools(
           toolCalls.push({ name: toolUse.name, input: toolUse.input });
 
           // MCP replaces the local executeTool() — same interface, remote execution
-          const result = await mcpClient.callTool({
+          const mcpResult = await mcpClient.callTool({
             name: toolUse.name,
             arguments: toolUse.input as Record<string, unknown>,
           });
 
-          const text = result.content[0];
+          const mcpContent = mcpResult.content as { type: string; text?: string }[];
+          const firstBlock = mcpContent[0];
           return {
             type: "tool_result" as const,
             tool_use_id: toolUse.id,
-            content: text?.type === "text" ? text.text : JSON.stringify(result.content),
+            content: firstBlock?.type === "text" ? (firstBlock.text ?? "") : JSON.stringify(mcpContent),
           };
         }),
       );

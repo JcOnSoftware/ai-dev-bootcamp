@@ -37,14 +37,15 @@ describe("01-mcp-server-basics", () => {
   });
 
   test("callTool returns the input text", async () => {
-    const result = await client.callTool({
+    const callResult = await client.callTool({
       name: "echo",
       arguments: { text: "hello" },
     });
-    expect(result.content).toHaveLength(1);
-    const block = result.content[0];
+    const content = callResult.content as { type: string; text?: string }[];
+    expect(content).toHaveLength(1);
+    const block = content[0];
     expect(block?.type).toBe("text");
-    if (block?.type === "text") {
+    if (block?.type === "text" && "text" in block) {
       expect(block.text).toBe("hello");
     }
   });

@@ -78,15 +78,16 @@ export async function askClaudeWithMcpTools(
       const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
         toolUseBlocks.map(async (toolUse) => {
           toolCalls.push({ name: toolUse.name, input: toolUse.input });
-          const result = await mcpClient.callTool({
+          const mcpResult = await mcpClient.callTool({
             name: toolUse.name,
             arguments: toolUse.input as Record<string, unknown>,
           });
-          const text = result.content[0];
+          const mcpContent = mcpResult.content as { type: string; text?: string }[];
+          const firstBlock = mcpContent[0];
           return {
             type: "tool_result" as const,
             tool_use_id: toolUse.id,
-            content: text?.type === "text" ? text.text : JSON.stringify(result.content),
+            content: firstBlock?.type === "text" ? (firstBlock.text ?? "") : JSON.stringify(mcpContent),
           };
         }),
       );
