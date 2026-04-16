@@ -1,0 +1,22 @@
+{
+  "id": "01-openai-embeddings",
+  "track": "04-rag",
+  "title": "OpenAI Embeddings",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "embeddings",
+    "text-embedding-3-small",
+    "vector-dimensions"
+  ],
+  "estimated_minutes": 10,
+  "requires": [
+    "05-structured-outputs"
+  ],
+  "model_cost_hint": "~$0.00002 per verify run (text-embedding-3-small)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

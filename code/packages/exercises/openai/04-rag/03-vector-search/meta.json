@@ -1,0 +1,22 @@
+{
+  "id": "03-vector-search",
+  "track": "04-rag",
+  "title": "Vector Search",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "cosine-similarity",
+    "vector-search",
+    "semantic-search"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "02-chunking-strategies"
+  ],
+  "model_cost_hint": "~$0.0001 per verify run (text-embedding-3-small, 6 embeddings)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

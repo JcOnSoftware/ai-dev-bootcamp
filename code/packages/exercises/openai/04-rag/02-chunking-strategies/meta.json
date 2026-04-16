@@ -1,0 +1,22 @@
+{
+  "id": "02-chunking-strategies",
+  "track": "04-rag",
+  "title": "Chunking Strategies",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "chunking",
+    "text-splitting",
+    "overlap"
+  ],
+  "estimated_minutes": 15,
+  "requires": [
+    "01-openai-embeddings"
+  ],
+  "model_cost_hint": "~$0 (no API call — pure algorithm)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}
