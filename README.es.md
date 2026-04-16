@@ -2,41 +2,44 @@
 
 > [🇬🇧 Read this in English →](./README.md)
 
-**CLI estilo rustlings que enseña a devs senior cómo usar Claude con ejercicios progresivos y tests automáticos contra la API real de Anthropic.**
+**Rustlings para devs de AI.** Bootcamp hands-on de AI engineering para developers con experiencia — aprendé Claude con 30 ejercicios progresivos y tests automáticos contra la API real de Anthropic.
+
+**Empezá con API fundamentals. Después aprendé tool use con ejemplos clásicos como calculator y weather. Después escalá a RAG, agents y servers MCP.**
 
 Los recursos típicos para aprender AI son o muy básicos ("prompt engineering para principiantes") o muy abstractos (cursos de 4 horas en video sobre teoría de LLMs). Este proyecto es para lo opuesto: devs con 5+ años de experiencia que saben programar pero todavía no construyeron nada serio con AI. Aprendés **escribiendo código, corriéndolo contra la API real y viendo tests pasar** — no mirando a alguien más tipear.
 
-## Qué vas a aprender
+## El currículum — 6 tracks, 30 ejercicios
 
-**Track 01 — Foundations** (5 ejercicios)
+**Track 01 — Foundations** (5 ejercicios) — primera llamada, parámetros, streaming, tokens & cost, error handling.
 
-| # | Ejercicio | Concepto |
-|---|-----------|----------|
-| 01 | `01-first-call` | Primera llamada a Claude — cliente, modelo, mensajes, forma de la respuesta |
-| 02 | `02-params` | Parámetros: `temperature` para output determinista vs creativo |
-| 03 | `03-streaming` | Streaming responses — iteración de eventos, `finalMessage()`, UX en tiempo real |
-| 04 | `04-tokens-cost` | Leer `usage`, calcular costo real en USD por llamada |
-| 05 | `05-error-handling` | Helper `withRetry` con exponential backoff, errores retryable vs fatales |
+**Track 02 — Prompt caching** (5 ejercicios) — `cache_control`, métricas de hit, multi-breakpoint, TTL extendido, caching + tools.
 
-**Track 02 — Prompt caching** (5 ejercicios): `cache_control`, métricas de hit, multi-breakpoint, TTL extendido, caching + tools.
+**Track 03 — Tool use** (5 ejercicios) — definir tools, tool loop, router multi-tool, modos de `tool_choice`, parallel tool use. Dominio clásico `get_weather` + `calculate`.
 
-**Track 03 — Tool use** (5 ejercicios): definir tools, tool loop, router multi-tool, modos de `tool_choice`, parallel tool use.
+**Track 04 — RAG** (5 ejercicios) — embeddings con Voyage AI, vector search, chunking strategies, pipeline de retrieval end-to-end, citation grounding.
 
-**Próximos tracks**: RAG · agents · servers MCP.
+**Track 05 — Agents** (5 ejercicios) — agent loop DIY (think→act→observe), stop conditions layered, state management, multi-step planning, self-correction.
+
+**Track 06 — MCP** (5 ejercicios) — armá un server MCP, conectá un cliente, exponé recursos + prompt templates, bridge de tools MCP a Claude, agent loop completo sobre tools expuestos vía MCP.
+
+Cada ejercicio tiene un `starter.ts` (TODOs para implementar), un `solution.ts` (referencia), `tests.test.ts` (asserts estructurales contra la API real) y `exercise.md` bilingue (español + inglés).
 
 ## Quick start
 
-Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows) y una API key de Anthropic (<https://console.claude.com/settings/keys>).
+Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows) y una API key de Anthropic (<https://console.claude.com/settings/keys>). El track 04 (RAG) también necesita una key de Voyage AI (<https://dash.voyageai.com/api-keys>) — free tier de 200M tokens/mes.
 
 ```bash
 gh repo clone JcOnSoftware/ai-dev-bootcamp
 cd ai-dev-bootcamp/code
 bun install
-echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
+cat > .env <<EOF
+ANTHROPIC_API_KEY=sk-ant-...
+VOYAGE_API_KEY=pa-...        # solo requerida para el track 04
+EOF
 
 # Forma corta — funciona desde cualquier lado dentro de code/:
 bun run aidev init              # configurá locale (es/en)
-bun run aidev list              # ver ejercicios disponibles
+bun run aidev list              # ver los 30 ejercicios agrupados por track
 bun run aidev verify 01-first-call
 ```
 
@@ -69,7 +72,8 @@ bun run aidev run 03-streaming --solution --stream-live
 ## Costo
 
 Todos los ejercicios corren contra **Claude Haiku** — el tier más barato y rápido.
-- Completar todo Foundations (5 ejercicios × resolver + verificar una vez): **~$0.01 total**.
+- Completar el bootcamp completo (30 ejercicios × resolver + verificar una vez): **bajo $0.10 total**.
+- Los embeddings de Voyage en el track 04: el free tier cubre 100% el uso del learner ($0).
 - Cada `aidev run` imprime los tokens exactos y el costo estimado de esa llamada.
 
 ## Contenido bilingue
@@ -78,9 +82,9 @@ Los ejercicios vienen en **español e inglés**. El locale por default es `es` (
 
 ## Estado del proyecto
 
-- **v1 shippeado**: 3 tracks × 5 ejercicios = 15 total (Foundations, Prompt caching, Tool use). CLI (`init`, `list`, `verify`, `run`, `progress`) + contenido bilingue es/en + GitHub Actions CI + health check semanal.
-- **Próximo**: tracks de RAG · agents · MCP. El modelo de distribución queda git-clone-first (rustlings) — los ejercicios SON el repo.
-- **v2 próximo**: más tracks, binario publicado en npm, GitHub Actions opcional para contributors.
+- **v1 completo**: 6 tracks × 5 ejercicios = 30 total. CLI (`init`, `list`, `verify`, `run`, `progress`) + contenido bilingue es/en + GitHub Actions CI + health check semanal contra APIs reales.
+- **Distribución**: git-clone-first (modelo rustlings) — los ejercicios SON el repo. `git pull` actualiza contenido; `fork + PR` es el canal de contribución.
+- **Caveat de rate limit para el track 04**: el free tier de Voyage es 3 RPM/10K TPM sin método de pago. Correr ejercicios de a uno (~40s aparte). Agregar método de pago desbloquea los límites estándar manteniendo $0 bajo el budget de 200M tokens free.
 
 Seguí el progreso en [Issues](https://github.com/JcOnSoftware/ai-dev-bootcamp/issues) y en el directorio `openspec/` (artifacts de Spec-Driven Development para cambios grandes).
 
