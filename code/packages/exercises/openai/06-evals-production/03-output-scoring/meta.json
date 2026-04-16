@@ -1,0 +1,22 @@
+{
+  "id": "03-output-scoring",
+  "track": "06-evals-production",
+  "title": "Multi-criteria output scoring",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "multi-criteria",
+    "structured-scoring",
+    "quality-metrics"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "02-regression-testing"
+  ],
+  "model_cost_hint": "~$0.0002 per verify run (2 calls, gpt-4.1-nano)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "04-dataset-testing",
+  "track": "06-evals-production",
+  "title": "Dataset-driven batch evaluation",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "dataset-evaluation",
+    "batch-testing",
+    "accuracy-metrics"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "02-regression-testing"
+  ],
+  "model_cost_hint": "~$0.0005 per verify run (5 calls, gpt-4.1-nano)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

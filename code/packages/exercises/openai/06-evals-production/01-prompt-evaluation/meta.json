@@ -1,0 +1,22 @@
+{
+  "id": "01-prompt-evaluation",
+  "track": "06-evals-production",
+  "title": "Prompt evaluation with LLM-as-judge",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "llm-as-judge",
+    "prompt-evaluation",
+    "scoring"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "05-structured-outputs"
+  ],
+  "model_cost_hint": "~$0.0002 per verify run (2 calls, gpt-4.1-nano)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

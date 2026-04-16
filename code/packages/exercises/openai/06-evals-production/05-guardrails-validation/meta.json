@@ -1,0 +1,23 @@
+{
+  "id": "05-guardrails-validation",
+  "track": "06-evals-production",
+  "title": "Input and output guardrails",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "guardrails",
+    "input-validation",
+    "output-validation",
+    "safety"
+  ],
+  "estimated_minutes": 25,
+  "requires": [
+    "01-prompt-evaluation"
+  ],
+  "model_cost_hint": "~$0.0002 per verify run (1-2 calls, blocked inputs don't reach API)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}
