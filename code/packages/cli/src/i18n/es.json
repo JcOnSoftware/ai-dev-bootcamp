@@ -38,6 +38,7 @@
   "open.hint_verify": "  Verificá:          aidev verify {id}",
   "open.hint_run": "  Ver output:        aidev run {id}",
   "open.hint_stream": "  Ver en streaming:  aidev run {id} --stream-live",
+  "open.hint_solution": "  Ver solución:      aidev open {id} --solution",
   "open.select_prompt": "Elegí un ejercicio para abrir",
   "open.not_found": "Ejercicio '{id}' no encontrado. Probá: aidev list",
   "open.no_editor": "No se encontró editor. Exportá $EDITOR o instalá VS Code (command: code).",

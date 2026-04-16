@@ -78,4 +78,7 @@ export async function openAndHint(exercise: Exercise, solution: boolean): Promis
   console.log(pc.dim(t("open.hint_verify", { id })));
   console.log(pc.dim(t("open.hint_run", { id })));
   console.log(pc.dim(t("open.hint_stream", { id })));
+  if (!solution) {
+    console.log(pc.dim(t("open.hint_solution", { id })));
+  }
 }
