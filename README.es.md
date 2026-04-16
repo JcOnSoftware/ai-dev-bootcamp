@@ -48,14 +48,17 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 ### Habilitar el comando `aidev`
 
-Por default, los comandos se corren como `bun run aidev <comando>` desde el directorio `code/`. Para usar `aidev` directamente desde cualquier lugar:
+Corré el script de setup — detecta tu shell (zsh, bash, fish), agrega `aidev` a tu PATH, y lo activa:
 
 ```bash
-# Agregá esta línea a tu ~/.zshrc (o ~/.bashrc):
-export PATH="$HOME/path-to/ai-dev-bootcamp/code/bin:$PATH"
+# Mac / Linux:
+bun run setup
+
+# Windows PowerShell:
+powershell -File bin/setup.ps1
 ```
 
-Después reiniciá la terminal o corré `source ~/.zshrc`. Listo, `aidev` funciona en todos lados.
+Listo. `aidev` funciona desde cualquier lugar. Se puede correr las veces que quieras (es idempotente).
 
 ### Primera ejecución
 

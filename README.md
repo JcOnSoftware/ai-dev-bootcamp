@@ -48,14 +48,17 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 ### Enable the `aidev` command
 
-By default, commands run as `bun run aidev <command>` from the `code/` directory. To use `aidev` directly from anywhere:
+Run the setup script — it detects your shell (zsh, bash, fish), adds `aidev` to your PATH, and sources it:
 
 ```bash
-# Add this line to your ~/.zshrc (or ~/.bashrc):
-export PATH="$HOME/path-to/ai-dev-bootcamp/code/bin:$PATH"
+# Mac / Linux:
+bun run setup
+
+# Windows PowerShell:
+powershell -File bin/setup.ps1
 ```
 
-Then restart your terminal or run `source ~/.zshrc`. After this, `aidev` works everywhere.
+That's it. `aidev` now works from anywhere. Safe to run multiple times.
 
 ### First run
 

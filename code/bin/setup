@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# setup — Adds the aidev CLI to your PATH automatically.
+# Detects your shell (zsh, bash, fish) and appends the PATH export
+# to the correct config file. Safe to run multiple times (idempotent).
+set -euo pipefail
+
+# ── Resolve the absolute path to code/bin/ ──────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN_DIR="$SCRIPT_DIR"
+
+# ── Check if already in PATH ────────────────────────────────────────
+if echo "$PATH" | tr ':' '\n' | grep -qx "$BIN_DIR"; then
+  echo "✓ aidev is already in your PATH."
+  echo "  Try: aidev --help"
+  exit 0
+fi
+
+# ── Detect shell and config file ────────────────────────────────────
+detect_shell_config() {
+  local shell_name
+  shell_name="$(basename "${SHELL:-/bin/bash}")"
+
+  case "$shell_name" in
+    zsh)
+      echo "$HOME/.zshrc"
+      ;;
+    bash)
+      # macOS uses .bash_profile for login shells; Linux uses .bashrc
+      if [[ "$(uname)" == "Darwin" ]]; then
+        # Prefer .bash_profile on macOS, create if needed
+        if [[ -f "$HOME/.bash_profile" ]]; then
+          echo "$HOME/.bash_profile"
+        elif [[ -f "$HOME/.bashrc" ]]; then
+          echo "$HOME/.bashrc"
+        else
+          echo "$HOME/.bash_profile"
+        fi
+      else
+        echo "$HOME/.bashrc"
+      fi
+      ;;
+    fish)
+      echo "$HOME/.config/fish/config.fish"
+      ;;
+    *)
+      # Fallback: try zshrc (most common on macOS), then bashrc
+      if [[ -f "$HOME/.zshrc" ]]; then
+        echo "$HOME/.zshrc"
+      else
+        echo "$HOME/.bashrc"
+      fi
+      ;;
+  esac
+}
+
+CONFIG_FILE="$(detect_shell_config)"
+SHELL_NAME="$(basename "${SHELL:-/bin/bash}")"
+
+echo "Detected shell: $SHELL_NAME"
+echo "Config file:    $CONFIG_FILE"
+echo "Adding:         $BIN_DIR"
+echo ""
+
+# ── Check if the line already exists in the config file ─────────────
+EXPORT_LINE="export PATH=\"$BIN_DIR:\$PATH\""
+FISH_LINE="fish_add_path \"$BIN_DIR\""
+
+if [[ "$SHELL_NAME" == "fish" ]]; then
+  LINE_TO_ADD="$FISH_LINE"
+else
+  LINE_TO_ADD="$EXPORT_LINE"
+fi
+
+if [[ -f "$CONFIG_FILE" ]] && grep -qF "$BIN_DIR" "$CONFIG_FILE"; then
+  echo "✓ PATH entry already exists in $CONFIG_FILE"
+  echo "  Restart your terminal or run: source $CONFIG_FILE"
+  exit 0
+fi
+
+# ── Append to config file ───────────────────────────────────────────
+# Add a comment so the user knows where this came from
+{
+  echo ""
+  echo "# ai-dev-bootcamp CLI"
+  echo "$LINE_TO_ADD"
+} >> "$CONFIG_FILE"
+
+echo "✓ Added to $CONFIG_FILE:"
+echo "  $LINE_TO_ADD"
+echo ""
+
+# ── Apply immediately in the current shell context ──────────────────
+export PATH="$BIN_DIR:$PATH"
+
+# Verify it works
+if command -v aidev &>/dev/null; then
+  echo "✓ aidev is ready! Try: aidev --help"
+else
+  echo "→ Restart your terminal or run:"
+  echo "  source $CONFIG_FILE"
+fi
