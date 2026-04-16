@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { t } from "../i18n/index.ts";
+import { t, initI18n } from "../i18n/index.ts";
 import { paths, readConfig, writeConfig, resetProgress } from "../config.ts";
 import type { SupportedLocale } from "../i18n/types.ts";
 import type { SupportedProvider } from "../provider/types.ts";
@@ -141,6 +141,9 @@ async function runConfigure(): Promise<void> {
     }
     newLocale = selected;
   }
+
+  // Switch i18n immediately so remaining messages use the chosen locale
+  initI18n(newLocale);
 
   const keyField = newProvider === "anthropic" ? "anthropicApiKey" : "openaiApiKey";
   await writeConfig({ ...existing, [keyField]: key, provider: newProvider, locale: newLocale });
