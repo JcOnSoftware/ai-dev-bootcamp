@@ -93,25 +93,31 @@ function patchCompletions(
     const start = performance.now();
     const result = originalCreate.apply(this, args);
 
-    if (request.stream) {
-      // Streaming: result is a Stream<ChatCompletionChunk> (async iterable).
-      // Wrap it in a proxy to capture chunks.
-      if (result && typeof result === "object") {
-        const wrapped = wrapStreamProxy(
-          result,
-          request,
-          start,
-          calls,
-          pendingCaptures,
-          onStreamEvent,
-        );
-        return wrapped;
-      }
-      return result;
-    }
-
-    // Non-streaming: result is a Promise<ChatCompletion>
+    // OpenAI SDK always returns a Promise (APIPromise).
+    // For streaming: it resolves to a Stream (async iterable).
+    // For non-streaming: it resolves to a ChatCompletion.
     if (result && typeof (result as PromiseLike<unknown>).then === "function") {
+      if (request.stream) {
+        // Streaming: intercept the promise, wrap the resolved Stream in a proxy
+        const wrappedPromise = (result as PromiseLike<unknown>).then(
+          (stream) => {
+            if (stream && typeof stream === "object" && Symbol.asyncIterator in stream) {
+              return wrapStreamProxy(
+                stream as object,
+                request,
+                start,
+                calls,
+                pendingCaptures,
+                onStreamEvent,
+              );
+            }
+            return stream;
+          },
+        );
+        return wrappedPromise;
+      }
+
+      // Non-streaming: capture the resolved ChatCompletion
       (result as PromiseLike<unknown>).then(
         (response) => {
           if (isChatCompletion(response)) {

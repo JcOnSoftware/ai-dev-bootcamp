@@ -40,9 +40,9 @@ describe("03-vector-search", () => {
     }
   });
 
-  test("similarity values are between 0 and 1", () => {
+  test("similarity values are between -1 and 1", () => {
     for (const result of userReturn?.results ?? []) {
-      expect(result.similarity).toBeGreaterThanOrEqual(0);
+      expect(result.similarity).toBeGreaterThanOrEqual(-1);
       expect(result.similarity).toBeLessThanOrEqual(1);
     }
   });
