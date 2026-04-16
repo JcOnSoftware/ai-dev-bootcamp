@@ -69,6 +69,11 @@ export async function recordPass(
   await writeJson(progressFile(), progress);
 }
 
+/** Clears all progress (resets the bootcamp to the beginning). */
+export async function resetProgress(): Promise<void> {
+  await writeJson(progressFile(), {});
+}
+
 /** Resolves the Anthropic API key from env first, falling back to the config file. */
 export async function resolveApiKey(): Promise<string | undefined> {
   if (process.env["ANTHROPIC_API_KEY"]) return process.env["ANTHROPIC_API_KEY"];

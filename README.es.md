@@ -26,7 +26,7 @@ Cada ejercicio tiene un `starter.ts` (TODOs para implementar), un `solution.ts` 
 
 ## Quick start
 
-Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows) y una API key de Anthropic (<https://console.claude.com/settings/keys>). El track 04 (RAG) también necesita una key de Voyage AI (<https://dash.voyageai.com/api-keys>) — free tier de 200M tokens/mes.
+Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows), [VS Code](https://code.visualstudio.com/) (para `aidev open` y `aidev next`), y una API key de Anthropic (<https://console.claude.com/settings/keys>). El track 04 (RAG) también necesita una key de Voyage AI (<https://dash.voyageai.com/api-keys>) — free tier de 200M tokens/mes.
 
 ```bash
 gh repo clone JcOnSoftware/ai-dev-bootcamp
@@ -56,7 +56,19 @@ export PATH="$(pwd)/bin:$PATH"     # Mac/Linux
 aidev list
 ```
 
-Abrí `packages/exercises/01-foundations/01-first-call/starter.ts` en tu editor e implementá el TODO. Re-corré `verify` hasta que los tests pasen. Leé el enunciado completo en `packages/exercises/01-foundations/01-first-call/{es,en}/exercise.md`.
+## Trabajar con ejercicios
+
+No hace falta navegar carpetas profundas — la CLI se encarga:
+
+```bash
+bun run aidev open                  # selector interactivo — elegí un ejercicio de la lista
+bun run aidev open 01-first-call    # abrí un ejercicio específico directo en VS Code
+bun run aidev next                  # abrí automáticamente el siguiente ejercicio incompleto
+```
+
+`open` y `next` abren VS Code con dos archivos: `starter.ts` (donde codeás) y `exercise.md` (el enunciado en tu idioma). Implementá los TODOs y corré `verify` hasta que pasen los tests.
+
+> **Soporte de editores**: `aidev open` y `aidev next` usan VS Code por default. Podés cambiarlo con las variables de entorno `$VISUAL` o `$EDITOR`.
 
 ## Modo playground
 
@@ -82,7 +94,7 @@ Los ejercicios vienen en **español e inglés**. El locale por default es `es` (
 
 ## Estado del proyecto
 
-- **v1 completo**: 6 tracks × 5 ejercicios = 30 total. CLI (`init`, `list`, `verify`, `run`, `progress`) + contenido bilingue es/en + GitHub Actions CI + health check semanal contra APIs reales.
+- **v1 completo**: 6 tracks × 5 ejercicios = 30 total. CLI (`init`, `list`, `verify`, `run`, `progress`, `open`, `next`) + contenido bilingue es/en + GitHub Actions CI + health check semanal contra APIs reales.
 - **Distribución**: git-clone-first (modelo rustlings) — los ejercicios SON el repo. `git pull` actualiza contenido; `fork + PR` es el canal de contribución.
 - **Caveat de rate limit para el track 04**: el free tier de Voyage es 3 RPM/10K TPM sin método de pago. Correr ejercicios de a uno (~40s aparte). Agregar método de pago desbloquea los límites estándar manteniendo $0 bajo el budget de 200M tokens free.
 
