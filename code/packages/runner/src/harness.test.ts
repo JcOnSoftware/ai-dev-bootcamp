@@ -11,7 +11,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
 import { runUserCode } from "./harness.ts";
-import type { RunOptions } from "./harness.ts";
+import type { RunOptions } from "./types.ts";
 
 // The test exercise files must live near the runner source so Bun can resolve
 // @anthropic-ai/sdk from packages/runner/node_modules.
@@ -21,7 +21,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // Builds a fake MessageStream object that exposes:
 //  - .on("streamEvent", handler) — registers event listeners
 //  - .finalMessage() — resolves with a fake Message
-//  - .emit(event) — test helper to fire events
+//  - .emit(event: unknown) — test helper to fire events
 //  - [Symbol.asyncIterator] — minimal async iterator for user code
 
 interface FakeStreamEvent {
@@ -183,7 +183,7 @@ describe("RunOptions.onStreamEvent (Phase 4)", () => {
     // This is a TYPE-LEVEL test — if onStreamEvent is not on RunOptions,
     // this line won't compile and bun test will fail to parse.
     const opts: RunOptions = {
-      onStreamEvent: (_event) => {
+      onStreamEvent: (_event: unknown) => {
         // callback — type must be (event: MessageStreamEvent) => void
       },
     };
@@ -220,7 +220,7 @@ describe("RunOptions.onStreamEvent (Phase 4)", () => {
 
     const received: FakeStreamEvent[] = [];
     const opts: RunOptions = {
-      onStreamEvent: (event) => {
+      onStreamEvent: (event: unknown) => {
         received.push(event as FakeStreamEvent);
       },
     };
@@ -248,7 +248,7 @@ describe("RunOptions.onStreamEvent (Phase 4)", () => {
     const restore = injectFakeStream(fakeStream);
 
     const opts: RunOptions = {
-      onStreamEvent: (_e) => {
+      onStreamEvent: (_e: unknown) => {
         /* consume events */
       },
     };
@@ -298,7 +298,7 @@ describe("teeStreamEvents — direct harness integration", () => {
 
     let cbCalled = false;
     const opts: RunOptions = {
-      onStreamEvent: (_e) => {
+      onStreamEvent: (_e: unknown) => {
         cbCalled = true;
         throw new Error("callback error — should be swallowed");
       },

@@ -53,12 +53,15 @@ export const runCommand = new Command("run")
       console.log(pc.dim(t("run.running", { id: exercise.meta.id, target })));
 
       const onStreamEvent = opts.streamLive
-        ? (e: MessageStreamEvent) => {
+        ? (e: unknown) => {
+            // Anthropic stream events have type + delta with text_delta
+            const event = e as { type?: string; delta?: { type?: string; text?: string } };
             if (
-              e.type === "content_block_delta" &&
-              e.delta.type === "text_delta"
+              event.type === "content_block_delta" &&
+              event.delta?.type === "text_delta" &&
+              event.delta?.text
             ) {
-              process.stdout.write(e.delta.text);
+              process.stdout.write(event.delta.text);
             }
           }
         : undefined;

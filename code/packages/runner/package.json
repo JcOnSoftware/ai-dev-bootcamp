@@ -6,7 +6,9 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./harness": "./src/harness.ts"
+    "./harness": "./src/harness.ts",
+    "./harness-anthropic": "./src/harness-anthropic.ts",
+    "./types": "./src/types.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
