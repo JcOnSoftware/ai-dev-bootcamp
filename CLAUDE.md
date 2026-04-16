@@ -6,7 +6,7 @@ Read this file first when you start a session in this repo.
 
 Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools (Claude API, prompt caching, tool use, RAG, agents, MCP) through **progressive exercises with automated tests against the real API**. Target learner: a 5+ year dev who can program but is new to the AI world.
 
-Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PRIVATE — flips to public after M3 complete + Foundations filled).
+Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PRIVATE — ready for public flip).
 License: MIT.
 
 ## Stack
@@ -42,17 +42,13 @@ ai-dev-bootcamp/
 │       │           ├── types.ts   # SupportedLocale = "es" | "en"
 │       │           ├── es.json    # Spanish dictionary (default locale)
 │       │           └── en.json    # English dictionary
-│       └── exercises/             # @aidev/exercises — content
-│           └── 01-foundations/
-│               └── 01-first-call/ # reference exercise (M1)
-│                   ├── es/
-│                   │   └── exercise.md   # Spanish problem statement
-│                   ├── en/
-│                   │   └── exercise.md   # English problem statement
-│                   ├── starter.ts
-│                   ├── solution.ts
-│                   ├── tests.test.ts
-│                   └── meta.json
+│       └── exercises/             # @aidev/exercises — content (30 exercises, all bilingual es+en)
+│           ├── 01-foundations/     # 5 exercises: first-call, params, streaming, tokens-cost, error-handling
+│           ├── 02-caching/        # 5 exercises: basic-caching → caching-with-tools
+│           ├── 03-tool-use/       # 5 exercises: basic-tool → parallel-tools
+│           ├── 04-rag/            # 5 exercises: embeddings-basics → citations-grounding
+│           ├── 05-agents/         # 5 exercises: agent-loop → self-correction
+│           └── 06-mcp/            # 5 exercises: mcp-server-basics → mcp-in-agent-loop
 ├── docs/
 │   ├── PLAN.md                    # original M1 plan (historical)
 │   └── EXERCISE-CONTRACT.md       # REQUIRED READING before touching exercises
@@ -97,8 +93,10 @@ Every exercise has these files at its root plus one `exercise.md` per declared l
 ## CLI (`aidev`)
 
 ```
-aidev init                           # setup API key + locale → ~/.aidev/config.json
-aidev list [--locale es|en]          # list exercises grouped by track (localized strings)
+aidev init                           # setup API key + locale → ~/.aidev/config.json (includes welcome, reset, update)
+aidev list [--locale es|en]          # list exercises grouped by track (interactive picker)
+aidev open [<id>] [--locale es|en]   # open exercise in editor (no arg = interactive picker with progress)
+aidev next [--locale es|en]          # open first incomplete exercise
 aidev verify <id> [--locale es|en]   # run tests; record progress on pass
 aidev verify <id> --solution [--locale es|en]  # run against solution.ts (no progress)
 aidev progress [--locale es|en]      # dashboard with per-track completion
@@ -120,13 +118,19 @@ aidev run <id> [--solution] [--stream-live] [--full] [--locale es|en]  # execute
 
 ## State of play
 
-- **M1 + M2 complete**: harness, first exercise, CLI (init/list/verify/progress), exercise contract.
-- **M3**: i18n runtime + content layer landed; 1 exercise (`01-first-call`) migrated to locale subdirs.
-  - `packages/cli/src/i18n/` module complete (types, dictionaries, `initI18n`/`t`/`getActiveLocale`).
-  - All CLI commands (`init`, `list`, `verify`, `progress`) use `t()` for user-facing strings.
-  - `01-first-call` has `es/exercise.md` + `en/exercise.md`; `meta.json` declares `"locales": ["es", "en"]`.
-  - Active SDD change: `sdd/add-i18n-support/*` in engram (implementation complete, pending verify).
-- **Next**: remaining Foundations exercises (params, streaming, tokens/cost, error handling) + public flip after `en` locale content complete.
+- **v1 COMPLETE**: 30 exercises across 6 tracks, all bilingual (es + en).
+  - **01-foundations** (5): first-call, params, streaming, tokens-cost, error-handling
+  - **02-caching** (5): basic-caching, cache-hit-metrics, multi-breakpoint, ttl-extended, caching-with-tools
+  - **03-tool-use** (5): basic-tool, tool-loop, multiple-tools, tool-choice, parallel-tools
+  - **04-rag** (5): embeddings-basics, vector-search, chunking-strategies, retrieval-pipeline, citations-grounding
+  - **05-agents** (5): agent-loop, stop-conditions, state-management, multi-step-plan, self-correction
+  - **06-mcp** (5): mcp-server-basics, mcp-client-connect, resources-and-prompts, tools-with-mcp, mcp-in-agent-loop
+- **i18n**: implemented, verified, archived (`openspec/changes/archive/2026-04-14-add-i18n-support/`).
+- **CLI**: full command set — init (welcome/reset/update), list (interactive picker), open, next, verify, progress, run.
+- **Next**:
+  - Issue #3: quarterly MODEL_PRICES refresh in cost.ts
+  - Multi-editor support for `aidev open`/`next` (currently VS Code only)
+  - Public flip (all prerequisites met)
 
 ## Persistence references
 
@@ -140,11 +144,10 @@ Engram is the memory backend. Key topics for this project (`project: "new-tool"`
 | `ai-dev-bootcamp/overview` | Project overview memory |
 | `ai-dev-bootcamp/milestone-1`, `milestone-2` | Completed milestones |
 | `ai-dev-bootcamp/exercise-contract` | Pattern for exercise authoring |
-| `sdd/add-i18n-support/proposal` | Change proposal and intent |
-| `sdd/add-i18n-support/spec` | Spec index + runtime/contract delta specs |
-| `sdd/add-i18n-support/design` | Technical design (ADRs, component diagram, module API) |
-| `sdd/add-i18n-support/tasks` | Full task checklist (Phases 1-9) |
-| `sdd/add-i18n-support/apply-progress` | Implementation progress (Batches 1-3) |
+| `sdd/add-i18n-support/*` | Archived — proposal, spec, design, tasks, apply-progress (all complete) |
+| `sdd/add-rag-track/*` | Archived — track 04-rag (5 exercises) |
+| `sdd/add-agents-track/*` | Archived — track 05-agents (5 exercises) |
+| `sdd/add-mcp-track/*` | Archived — track 06-mcp (5 exercises) |
 
 Retrieve full content with `mem_search(query: "<topic>", project: "new-tool")` → `mem_get_observation(id)`.
 
