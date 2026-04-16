@@ -21,7 +21,7 @@ Example directory layout:
 ├── es/
 │   └── exercise.md        ← Spanish problem statement (required)
 ├── en/
-│   └── exercise.md        ← English problem statement (required before public flip)
+│   └── exercise.md        ← English problem statement (required)
 ├── starter.ts
 ├── solution.ts
 ├── tests.test.ts
@@ -96,7 +96,7 @@ Rules:
 - Bump `version` major when the concept being taught changes — this resets learner progress for that exercise.
 - `locales` is **required**. Must be a non-empty array containing at minimum `"es"`. Supported values: `"es"`, `"en"`. Any other value is a contract violation.
 - Each value in `locales` MUST correspond to an existing `<locale>/exercise.md` file, and vice-versa: every `<locale>/` subdir MUST be declared in `locales`. Mismatches cause `aidev` discovery warnings and may exclude the exercise.
-- `"en"` is required before the repo flips to public.
+- `"en"` is required for all exercises (repo is public).
 
 ## Cost discipline
 
