@@ -70,6 +70,7 @@ const fakeExercise = {
     estimated_minutes: 30,
     requires: [],
     locales: ["es" as const],
+    provider: "anthropic" as const,
   },
   dir: "/fake/dir",
   trackSlug: "01-foundations",

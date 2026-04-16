@@ -7,6 +7,7 @@ import pc from "picocolors";
 import { t } from "../i18n/index.ts";
 import { paths, readConfig, writeConfig, resetProgress } from "../config.ts";
 import type { SupportedLocale } from "../i18n/types.ts";
+import type { SupportedProvider } from "../provider/types.ts";
 
 /** Resolves the git repo root (two levels above code/packages/cli/src/). */
 function repoRoot(): string {
@@ -28,8 +29,50 @@ function printWelcomeBanner(): void {
 async function runConfigure(): Promise<void> {
   const existing = await readConfig();
 
-  // --- API key ---
-  if (existing.anthropicApiKey) {
+  // --- Provider ---
+  let newProvider: SupportedProvider = existing.provider ?? "anthropic";
+
+  if (existing.provider) {
+    const overwriteProvider = await p.confirm({
+      message: t("init.provider_exists", { provider: existing.provider }),
+      initialValue: false,
+    });
+    if (p.isCancel(overwriteProvider)) {
+      p.cancel(t("init.cancelled"));
+      return;
+    }
+    if (overwriteProvider) {
+      const selected = await p.select<SupportedProvider>({
+        message: t("init.provider_prompt"),
+        options: [
+          { value: "anthropic" as SupportedProvider, label: "Anthropic (Claude)" },
+          { value: "openai" as SupportedProvider, label: "OpenAI (GPT)" },
+        ],
+      });
+      if (p.isCancel(selected)) {
+        p.cancel(t("init.cancelled"));
+        return;
+      }
+      newProvider = selected;
+    }
+  } else {
+    const selected = await p.select<SupportedProvider>({
+      message: t("init.provider_prompt"),
+      options: [
+        { value: "anthropic" as SupportedProvider, label: "Anthropic (Claude)" },
+        { value: "openai" as SupportedProvider, label: "OpenAI (GPT)" },
+      ],
+    });
+    if (p.isCancel(selected)) {
+      p.cancel(t("init.cancelled"));
+      return;
+    }
+    newProvider = selected;
+  }
+
+  // --- API key (provider-aware validation) ---
+  const existingKey = newProvider === "anthropic" ? existing.anthropicApiKey : existing.openaiApiKey;
+  if (existingKey) {
     const overwrite = await p.confirm({
       message: t("init.key_exists"),
       initialValue: false,
@@ -44,8 +87,11 @@ async function runConfigure(): Promise<void> {
     message: t("init.key_prompt"),
     validate(value) {
       if (!value) return "An API key is required.";
-      if (!value.startsWith("sk-ant-")) {
+      if (newProvider === "anthropic" && !value.startsWith("sk-ant-")) {
         return "That doesn't look like an Anthropic key (expected sk-ant-...).";
+      }
+      if (newProvider === "openai" && !value.startsWith("sk-")) {
+        return "That doesn't look like an OpenAI key (expected sk-...).";
       }
     },
   });
@@ -96,7 +142,8 @@ async function runConfigure(): Promise<void> {
     newLocale = selected;
   }
 
-  await writeConfig({ ...existing, anthropicApiKey: key, locale: newLocale });
+  const keyField = newProvider === "anthropic" ? "anthropicApiKey" : "openaiApiKey";
+  await writeConfig({ ...existing, [keyField]: key, provider: newProvider, locale: newLocale });
   p.outro(
     `${pc.green("✓")} ${t("init.saved", { path: pc.dim(paths.configFile), nextCmd: pc.cyan("aidev list") })}`,
   );
@@ -202,7 +249,7 @@ export const initCommand = new Command("init")
     p.intro(pc.bgCyan(pc.black(t("init.intro"))));
 
     const existing = await readConfig();
-    const isReturningUser = !!existing.anthropicApiKey;
+    const isReturningUser = !!(existing.anthropicApiKey || existing.openaiApiKey);
 
     if (!isReturningUser) {
       // First-time user: go straight to configure

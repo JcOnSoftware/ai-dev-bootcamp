@@ -76,6 +76,7 @@ describe("ExerciseMeta.locales type contract", () => {
       estimated_minutes: 5,
       requires: [],
       locales: ["es"],
+      provider: "anthropic" as const,
     };
     expect(Array.isArray(meta.locales)).toBe(true);
   });
@@ -105,6 +106,7 @@ describe("exerciseDocPath", () => {
         estimated_minutes: 5,
         requires: [],
         locales: ["es", "en"] as SupportedLocale[],
+        provider: "anthropic" as const,
       },
       dir: exDir,
       trackSlug: "track-a",
@@ -132,6 +134,7 @@ describe("exerciseDocPath", () => {
         estimated_minutes: 5,
         requires: [],
         locales: ["es"] as SupportedLocale[],
+      provider: "anthropic" as const,
       },
       dir: exDir,
       trackSlug: "track-a",
@@ -159,6 +162,7 @@ describe("exerciseDocPath", () => {
         estimated_minutes: 5,
         requires: [],
         locales: ["es"] as SupportedLocale[],
+      provider: "anthropic" as const,
       },
       dir: exDir,
       trackSlug: "track-a",
@@ -186,6 +190,7 @@ describe("exerciseDocPath", () => {
         estimated_minutes: 5,
         requires: [],
         locales: ["es"] as SupportedLocale[],
+      provider: "anthropic" as const,
       },
       dir: exDir,
       trackSlug: "track-a",
@@ -244,6 +249,7 @@ describe("isStale", () => {
     estimated_minutes: 5,
     requires: [],
     locales: ["es"] as SupportedLocale[],
+      provider: "anthropic" as const,
   });
 
   test("returns true when valid_until is in the past", async () => {
@@ -292,6 +298,7 @@ describe("Warning dedup via _resetWarnedSet", () => {
         estimated_minutes: 5,
         requires: [],
         locales: ["es"] as SupportedLocale[],
+      provider: "anthropic" as const,
       },
       dir: exDir,
       trackSlug: "track-a",
@@ -338,6 +345,7 @@ describe("Warning dedup via _resetWarnedSet", () => {
         estimated_minutes: 5,
         requires: [],
         locales: ["es"] as SupportedLocale[],
+      provider: "anthropic" as const,
       },
       dir: exDir,
       trackSlug: "track-a",

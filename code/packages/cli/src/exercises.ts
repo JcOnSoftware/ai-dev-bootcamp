@@ -5,6 +5,9 @@ import { fileURLToPath } from "node:url";
 import type { SupportedLocale } from "./i18n/types.ts";
 import { SUPPORTED_LOCALES } from "./i18n/types.ts";
 import { t as _t } from "./i18n/index.ts";
+import type { SupportedProvider } from "./provider/types.ts";
+import { DEFAULT_PROVIDER } from "./provider/types.ts";
+import { getActiveProvider } from "./provider/index.ts";
 
 /**
  * Defensive wrapper around `t()`. If `initI18n` has not been called yet (e.g.
@@ -36,6 +39,7 @@ export interface ExerciseMeta {
   requires: string[];
   model_cost_hint?: string;
   locales: SupportedLocale[];
+  provider: SupportedProvider;
 }
 
 export interface Exercise {
@@ -60,12 +64,20 @@ export function _resetWarnedSet(): void {
   warnedMissingContent = new Set();
 }
 
-/** Locates the exercises root relative to this file. Works in dev and in an installed copy. */
-export function exercisesRoot(): string {
+/** Locates the exercises root for a provider relative to this file. */
+export function exercisesRoot(provider?: SupportedProvider): string {
   const here = dirname(fileURLToPath(import.meta.url));
-  // Provider-scoped: exercises live under exercises/<provider>/
-  // Default to "anthropic" until provider module is wired up
-  return resolve(here, "..", "..", "exercises", "anthropic");
+  const p = provider ?? safeGetProvider();
+  return resolve(here, "..", "..", "exercises", p);
+}
+
+/** Safe provider getter — returns default if singleton not initialized (unit tests). */
+function safeGetProvider(): SupportedProvider {
+  try {
+    return getActiveProvider();
+  } catch {
+    return DEFAULT_PROVIDER;
+  }
 }
 
 export async function listExercises(): Promise<Exercise[]> {
@@ -134,8 +146,11 @@ export async function listExercises(): Promise<Exercise[]> {
         }
       }
 
+      // Default provider to "anthropic" if missing (backward compat)
+      const provider = (typeof meta["provider"] === "string" ? meta["provider"] : DEFAULT_PROVIDER) as SupportedProvider;
+
       exercises.push({
-        meta: meta as ExerciseMeta,
+        meta: { ...meta, provider } as ExerciseMeta,
         dir: exDir,
         trackSlug: trackEntry.name,
         idSlug: exEntry.name,

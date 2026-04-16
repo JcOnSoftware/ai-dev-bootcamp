@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 import { Command } from "commander";
-import { resolveLocale } from "./config.ts";
+import { resolveLocale, resolveProvider } from "./config.ts";
 import { initI18n } from "./i18n/index.ts";
+import { initProvider } from "./provider/index.ts";
 import { initCommand } from "./commands/init.ts";
 import { listCommand } from "./commands/list.ts";
 import { progressCommand } from "./commands/progress.ts";
@@ -16,7 +17,8 @@ program
   .name("aidev")
   .description("Interactive CLI to learn AI tools through progressive exercises.")
   .version("0.0.1")
-  .option("--locale <code>", "Locale override for this invocation (es|en)");
+  .option("--locale <code>", "Locale override for this invocation (es|en)")
+  .option("--provider <name>", "Provider override for this invocation (anthropic|openai)");
 
 // Resolve locale and initialize i18n BEFORE any command action runs.
 // Commander does NOT call preAction for --help / --version built-ins.
@@ -27,6 +29,13 @@ program.hook("preAction", async (thisCommand, actionCommand) => {
     (thisCommand.opts() as Record<string, string | undefined>)["locale"];
   const locale = await resolveLocale(flag);
   initI18n(locale);
+
+  // Provider resolution (mirrors locale pattern)
+  const providerFlag =
+    (actionCommand.opts() as Record<string, string | undefined>)["provider"] ??
+    (thisCommand.opts() as Record<string, string | undefined>)["provider"];
+  const provider = await resolveProvider(providerFlag);
+  initProvider(provider);
 });
 
 program.addCommand(initCommand);

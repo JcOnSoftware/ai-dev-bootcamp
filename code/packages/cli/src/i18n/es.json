@@ -1,6 +1,8 @@
 {
   "init.intro": " ai-dev-bootcamp · init ",
-  "init.key_prompt": "Pegá tu API key de Anthropic (empieza con sk-ant-)",
+  "init.provider_prompt": "¿Con qué proveedor de AI querés empezar?",
+  "init.provider_exists": "Ya tenés configurado el proveedor \"{provider}\". ¿Querés cambiarlo?",
+  "init.key_prompt": "Pegá tu API key",
   "init.locale_prompt": "Elegí el idioma para la CLI y los ejercicios",
   "init.saved": "Guardado en {path}. Siguiente: {nextCmd}",
   "init.key_exists": "Ya hay una API key guardada. ¿Sobreescribir?",
