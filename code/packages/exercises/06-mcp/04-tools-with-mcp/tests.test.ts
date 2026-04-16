@@ -1,7 +1,4 @@
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { createResearchServer } from "../fixtures/research-server.ts";
+import { describe, test, expect, beforeAll } from "bun:test";
 import { runUserCode, resolveExerciseFile } from "@aidev/runner";
 
 const EXERCISE_FILE = resolveExerciseFile(import.meta.url);
