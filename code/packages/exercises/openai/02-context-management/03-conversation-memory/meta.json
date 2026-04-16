@@ -1,0 +1,22 @@
+{
+  "id": "03-conversation-memory",
+  "track": "02-context-management",
+  "title": "Multi-turn conversation memory",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "multi-turn",
+    "conversation-state",
+    "memory"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "02-truncation-strategies"
+  ],
+  "model_cost_hint": "~$0.0003 per verify run",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

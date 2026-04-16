@@ -1,0 +1,22 @@
+{
+  "id": "02-truncation-strategies",
+  "track": "02-context-management",
+  "title": "Truncation strategies for long conversations",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "truncation",
+    "conversation-history",
+    "message-management"
+  ],
+  "estimated_minutes": 15,
+  "requires": [
+    "01-context-window-limits"
+  ],
+  "model_cost_hint": "~$0.0002 per verify run",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}
