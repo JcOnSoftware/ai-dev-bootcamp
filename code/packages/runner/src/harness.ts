@@ -6,8 +6,10 @@
  */
 
 import { runUserCodeAnthropic, type HarnessResultAnthropic } from "./harness-anthropic.ts";
+import { runUserCodeOpenAI, type HarnessResultOpenAI } from "./harness-openai.ts";
 import { HarnessError, type RunOptions } from "./types.ts";
 
+/** Default HarnessResult type — Anthropic for backward compat. Use provider-specific types for narrowing. */
 export type HarnessResult = HarnessResultAnthropic;
 
 export async function runUserCode(
@@ -20,10 +22,7 @@ export async function runUserCode(
     case "anthropic":
       return runUserCodeAnthropic(filePath, options);
     case "openai":
-      // OpenAI harness will be implemented when exercises exist
-      throw new HarnessError(
-        `OpenAI harness not yet implemented. Install exercises first via the OpenAI track SDDs.`,
-      );
+      return runUserCodeOpenAI(filePath, options) as unknown as HarnessResult;
     default:
       throw new HarnessError(`Unsupported provider: ${provider}`);
   }
