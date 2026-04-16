@@ -1,11 +1,9 @@
-import { join } from "node:path";
 import { Command } from "commander";
 import pc from "picocolors";
 import { t } from "../i18n/index.ts";
-import { getActiveLocale } from "../i18n/index.ts";
-import { listExercises, exerciseDocPath } from "../exercises.ts";
+import { listExercises } from "../exercises.ts";
 import { readProgress } from "../config.ts";
-import { openInEditor } from "../editor.ts";
+import { openAndHint } from "../pick.ts";
 
 export const nextCommand = new Command("next")
   .description("Open the next incomplete exercise in your editor.")
@@ -45,12 +43,5 @@ export const nextCommand = new Command("next")
     );
     console.log();
 
-    const locale = getActiveLocale();
-    const docPath = exerciseDocPath(next, locale);
-    const targetPath = join(next.dir, "starter.ts");
-
-    const editor = await openInEditor([targetPath, docPath]);
-
-    console.log(t("open.opening", { editor, target: "starter.ts" }));
-    console.log(pc.dim(t("open.hint", { id: next.meta.id })));
+    await openAndHint(next, false);
   });
