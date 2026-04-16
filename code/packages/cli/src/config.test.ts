@@ -49,10 +49,10 @@ describe("validateLocale", () => {
 describe("resolveLocaleFromConfig", () => {
   // Tests the pure resolution logic given a pre-loaded Config object.
 
-  test("returns default 'es' when no flag, no env, no config.locale", async () => {
+  test("returns default 'en' when no flag, no env, no config.locale", async () => {
     const { resolveLocaleFromConfig } = await import("./config.ts");
     const locale = resolveLocaleFromConfig({}, undefined, undefined);
-    expect(locale).toBe("es");
+    expect(locale).toBe("en");
   });
 
   test("returns config.locale when no flag or env override", async () => {
