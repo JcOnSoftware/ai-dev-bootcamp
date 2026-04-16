@@ -1,0 +1,22 @@
+{
+  "id": "05-structured-outputs",
+  "track": "01-foundations",
+  "title": "Structured outputs with JSON schema",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "structured-outputs",
+    "json-schema",
+    "constrained-decoding"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "03-token-usage-cost"
+  ],
+  "model_cost_hint": "~$0.0001 per verify run",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

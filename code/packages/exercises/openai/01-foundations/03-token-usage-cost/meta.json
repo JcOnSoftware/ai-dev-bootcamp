@@ -1,0 +1,21 @@
+{
+  "id": "03-token-usage-cost",
+  "track": "01-foundations",
+  "title": "Token usage and cost calculation",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "token-counting",
+    "cost-calculation"
+  ],
+  "estimated_minutes": 15,
+  "requires": [
+    "02-model-selection"
+  ],
+  "model_cost_hint": "~$0.0001 per verify run",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "02-model-selection",
+  "track": "01-foundations",
+  "title": "Model selection and comparison",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "model-comparison",
+    "cost-awareness"
+  ],
+  "estimated_minutes": 10,
+  "requires": [
+    "01-first-chat-completion"
+  ],
+  "model_cost_hint": "~$0.0002 per verify run",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}
