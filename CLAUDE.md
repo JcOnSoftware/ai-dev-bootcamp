@@ -6,7 +6,7 @@ Read this file first when you start a session in this repo.
 
 Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools through **progressive exercises with automated tests against real APIs**. Supports **Anthropic (Claude)** and **OpenAI (GPT)** — 60 exercises total (30 per provider). Target learner: a 5+ year dev who can program but is new to the AI world.
 
-Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PRIVATE — ready for public flip).
+Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PUBLIC).
 License: MIT.
 
 ## Stack
@@ -135,11 +135,10 @@ aidev run <id> [--solution] [--stream-live] [--full] [--provider] [--locale]  # 
 - **Multi-provider**: `--provider` flag, `AIDEV_PROVIDER` env, provider selection in init. Provider-scoped exercise directories + harness dispatcher.
 - **i18n**: complete. Default locale: `en`.
 - **CLI**: full command set — init (provider/key/locale + reset/update), list, open (--solution), next, verify, progress, run (--stream-live).
+- **Repo**: PUBLIC. Branch protection active (PR + CI required, 0 approvals for solo dev).
 - **Next**:
   - Issue #3: quarterly MODEL_PRICES refresh in cost.ts
   - Multi-editor support for `aidev open`/`next` (currently VS Code only)
-  - Integration tests for OpenAI exercises against real API
-  - Public flip (all prerequisites met)
 
 ## Persistence references
 
