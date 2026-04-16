@@ -63,7 +63,9 @@ export function _resetWarnedSet(): void {
 /** Locates the exercises root relative to this file. Works in dev and in an installed copy. */
 export function exercisesRoot(): string {
   const here = dirname(fileURLToPath(import.meta.url));
-  return resolve(here, "..", "..", "exercises");
+  // Provider-scoped: exercises live under exercises/<provider>/
+  // Default to "anthropic" until provider module is wired up
+  return resolve(here, "..", "..", "exercises", "anthropic");
 }
 
 export async function listExercises(): Promise<Exercise[]> {

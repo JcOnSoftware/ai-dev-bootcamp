@@ -1,0 +1,22 @@
+{
+  "id": "03-multiple-tools",
+  "track": "03-tool-use",
+  "title": "Multiple Tools",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": [
+    "multiple-tools",
+    "tool-routing",
+    "json-schema-enum"
+  ],
+  "estimated_minutes": 30,
+  "requires": [
+    "02-tool-loop"
+  ],
+  "locales": [
+    "es",
+    "en"
+  ],
+  "model_cost_hint": "haiku",
+  "provider": "anthropic"
+}

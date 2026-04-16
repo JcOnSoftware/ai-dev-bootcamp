@@ -1,0 +1,24 @@
+{
+  "id": "01-mcp-server-basics",
+  "track": "06-mcp",
+  "title": "MCP Server Basics",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": [
+    "mcp-protocol",
+    "mcp-server",
+    "tool-registration",
+    "json-rpc",
+    "inmemory-transport"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "01-first-call"
+  ],
+  "locales": [
+    "es",
+    "en"
+  ],
+  "model_cost_hint": "$0 (no API calls)",
+  "provider": "anthropic"
+}

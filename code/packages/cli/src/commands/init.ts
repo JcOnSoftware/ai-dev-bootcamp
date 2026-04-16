@@ -120,7 +120,7 @@ async function runReset(): Promise<void> {
   // 2. Restore all starter.ts files to their git-committed state
   const root = repoRoot();
   try {
-    execSync("git checkout -- code/packages/exercises/**/starter.ts", {
+    execSync("git checkout -- code/packages/exercises/anthropic/**/starter.ts code/packages/exercises/openai/**/starter.ts", {
       cwd: root,
       stdio: "pipe",
     });

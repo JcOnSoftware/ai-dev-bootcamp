@@ -1,0 +1,23 @@
+{
+  "id": "01-agent-loop",
+  "track": "05-agents",
+  "title": "The Agent Loop",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": [
+    "agent-loop",
+    "think-act-observe",
+    "tool-use",
+    "stop-conditions",
+    "iteration-cap"
+  ],
+  "estimated_minutes": 25,
+  "requires": [
+    "03-tool-use/02-tool-loop"
+  ],
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "anthropic"
+}

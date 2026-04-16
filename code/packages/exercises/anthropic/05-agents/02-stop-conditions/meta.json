@@ -1,0 +1,23 @@
+{
+  "id": "02-stop-conditions",
+  "track": "05-agents",
+  "title": "Stop Conditions",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": [
+    "stop-conditions",
+    "agent-safety",
+    "iteration-cap",
+    "goal-detection",
+    "pure-functions"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "05-agents/01-agent-loop"
+  ],
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "anthropic"
+}

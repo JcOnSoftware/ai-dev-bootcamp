@@ -1,0 +1,23 @@
+{
+  "id": "03-state-management",
+  "track": "05-agents",
+  "title": "State Management",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": [
+    "stateless-api",
+    "conversation-history",
+    "multi-turn",
+    "state-accumulation",
+    "agent-turns"
+  ],
+  "estimated_minutes": 25,
+  "requires": [
+    "05-agents/02-stop-conditions"
+  ],
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "anthropic"
+}

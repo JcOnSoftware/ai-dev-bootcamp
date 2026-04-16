@@ -1,0 +1,23 @@
+{
+  "id": "05-mcp-in-agent-loop",
+  "track": "06-mcp",
+  "title": "MCP in Agent Loop",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": [
+    "mcp-agent",
+    "full-loop",
+    "tool-abstraction",
+    "production-pattern"
+  ],
+  "estimated_minutes": 35,
+  "requires": [
+    "04-tools-with-mcp"
+  ],
+  "locales": [
+    "es",
+    "en"
+  ],
+  "model_cost_hint": "~$0.008 (Haiku 4.5, multi-iteration)",
+  "provider": "anthropic"
+}

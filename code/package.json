@@ -1,6 +1,6 @@
 {
   "name": "ai-dev-bootcamp",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "private": true,
   "description": "Interactive CLI to learn AI tools through progressive exercises with automated tests.",
   "license": "MIT",

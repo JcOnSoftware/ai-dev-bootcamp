@@ -1,0 +1,23 @@
+{
+  "id": "04-tokens-cost",
+  "track": "01-foundations",
+  "title": "Tokens and cost: read usage, compute USD",
+  "version": "1.0.0",
+  "valid_until": "2026-10-01",
+  "concepts": [
+    "usage-object",
+    "input-output-tokens",
+    "cost-calculation",
+    "pricing-per-million"
+  ],
+  "estimated_minutes": 15,
+  "requires": [
+    "01-first-call"
+  ],
+  "model_cost_hint": "~$0.001 per verify run (Haiku)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "anthropic"
+}
