@@ -51,10 +51,12 @@
   "init.action_update": "Actualizar ejercicios (git pull)",
   "init.reset_confirm": "Esto borra todo tu progreso y restaura los starter.ts originales. ¿Continuar?",
   "init.reset_done": "Progreso reseteado. Empezá de nuevo con: aidev next",
+  "init.update_stashing": "→ Guardando cambios locales…",
   "init.update_pulling": "→ Descargando actualizaciones…",
+  "init.update_restored": "→ Cambios locales restaurados.",
+  "init.update_stash_conflict": "⚠ Hubo conflictos al restaurar tus cambios. Corré 'git stash pop' manualmente para resolverlos.",
   "init.update_done": "Ejercicios actualizados a la última versión.",
   "init.update_up_to_date": "Ya tenés la última versión.",
   "init.update_failed": "Error al actualizar. Verificá tu conexión o corré 'git pull' manualmente.",
-  "init.update_no_git": "No se encontró repositorio git. ¿Clonaste el repo correctamente?",
-  "init.update_dirty_confirm": "Tenés cambios sin commitear en archivos starter.ts. El pull podría generar conflictos. ¿Continuar?"
+  "init.update_no_git": "No se encontró repositorio git. ¿Clonaste el repo correctamente?"
 }

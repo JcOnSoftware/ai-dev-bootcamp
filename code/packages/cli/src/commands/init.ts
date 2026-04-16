@@ -143,32 +143,47 @@ async function runUpdate(): Promise<void> {
     return;
   }
 
-  // Check for uncommitted changes to starter files
+  // Stash any local changes before pulling (package.json, starters, etc.)
+  let didStash = false;
   try {
-    const status = execSync("git status --porcelain -- code/packages/exercises/**/starter.ts", {
+    const status = execSync("git status --porcelain", {
       cwd: root,
       stdio: "pipe",
     }).toString().trim();
     if (status) {
-      const proceed = await p.confirm({
-        message: t("init.update_dirty_confirm"),
-        initialValue: false,
+      console.log(pc.dim(t("init.update_stashing")));
+      execSync("git stash push -m 'aidev-update: auto-stash before pull'", {
+        cwd: root,
+        stdio: "pipe",
       });
-      if (p.isCancel(proceed) || !proceed) {
-        p.cancel(t("init.cancelled"));
-        return;
-      }
+      didStash = true;
     }
   } catch {
-    // git status failed — continue anyway
+    // git status/stash failed — try pulling anyway
   }
 
   console.log(pc.dim(t("init.update_pulling")));
   try {
     execSync("git pull --rebase", { cwd: root, stdio: "inherit" });
   } catch {
+    // If pull fails, restore stash before exiting
+    if (didStash) {
+      try {
+        execSync("git stash pop", { cwd: root, stdio: "pipe" });
+      } catch { /* stash pop failed — user can recover manually */ }
+    }
     console.error(pc.red(t("init.update_failed")));
     return;
+  }
+
+  // Restore local changes after successful pull
+  if (didStash) {
+    try {
+      execSync("git stash pop", { cwd: root, stdio: "pipe" });
+      console.log(pc.dim(t("init.update_restored")));
+    } catch {
+      console.warn(pc.yellow(t("init.update_stash_conflict")));
+    }
   }
 
   const afterHash = execSync("git rev-parse HEAD", { cwd: root, stdio: "pipe" }).toString().trim();

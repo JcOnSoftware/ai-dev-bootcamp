@@ -51,10 +51,12 @@
   "init.action_update": "Update exercises (git pull)",
   "init.reset_confirm": "This will erase all your progress and restore original starter.ts files. Continue?",
   "init.reset_done": "Progress reset. Start again with: aidev next",
+  "init.update_stashing": "→ Saving local changes…",
   "init.update_pulling": "→ Pulling updates…",
+  "init.update_restored": "→ Local changes restored.",
+  "init.update_stash_conflict": "⚠ Conflicts while restoring your changes. Run 'git stash pop' manually to resolve them.",
   "init.update_done": "Exercises updated to the latest version.",
   "init.update_up_to_date": "Already up to date.",
   "init.update_failed": "Update failed. Check your connection or run 'git pull' manually.",
-  "init.update_no_git": "No git repository found. Did you clone the repo correctly?",
-  "init.update_dirty_confirm": "You have uncommitted changes in starter.ts files. Pulling may cause conflicts. Continue?"
+  "init.update_no_git": "No git repository found. Did you clone the repo correctly?"
 }
