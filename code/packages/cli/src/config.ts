@@ -133,7 +133,7 @@ export function resolveLocaleFromConfig(
   if (config.locale) {
     return validateLocale(config.locale);
   }
-  return "es";
+  return "en";
 }
 
 /**
