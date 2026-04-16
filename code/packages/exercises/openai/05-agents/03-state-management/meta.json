@@ -1,0 +1,22 @@
+{
+  "id": "03-state-management",
+  "track": "05-agents",
+  "title": "Mantené estado entre iteraciones del agente",
+  "version": "1.0.0",
+  "valid_until": "2026-10-16",
+  "concepts": [
+    "state-management",
+    "agent-state",
+    "tool-state"
+  ],
+  "estimated_minutes": 20,
+  "requires": [
+    "01-planner-executor"
+  ],
+  "model_cost_hint": "~$0.0004 per verify run",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "openai"
+}
