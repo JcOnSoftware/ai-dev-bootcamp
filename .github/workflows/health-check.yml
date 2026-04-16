@@ -8,7 +8,7 @@ on:
 
 jobs:
   health-check:
-    name: Full test suite against real API
+    name: Full test suite against real APIs
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,9 +29,20 @@ jobs:
       - name: Typecheck
         run: bunx tsc --noEmit
 
-      - name: Run full test suite (includes exercises against real API)
+      - name: Run CLI + runner unit tests
+        run: bun test packages/cli packages/runner
+
+      - name: Run Anthropic exercises against real API
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
           AIDEV_TARGET: solution
-        run: bun test
+          AIDEV_PROVIDER: anthropic
+        run: bun test packages/exercises/anthropic
+
+      - name: Run OpenAI exercises against real API
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AIDEV_TARGET: solution
+          AIDEV_PROVIDER: openai
+        run: bun test packages/exercises/openai
