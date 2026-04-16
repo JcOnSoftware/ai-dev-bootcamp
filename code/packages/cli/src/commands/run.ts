@@ -5,6 +5,7 @@ import { runUserCode, type MessageStreamEvent } from "@aidev/runner";
 import { t } from "../i18n/index.ts";
 import { findExercise, isStale } from "../exercises.ts";
 import { resolveApiKey } from "../config.ts";
+import { getActiveProvider } from "../provider/index.ts";
 import { renderSummary } from "../render.ts";
 
 export const runCommand = new Command("run")
@@ -33,7 +34,8 @@ export const runCommand = new Command("run")
         );
       }
 
-      const apiKey = await resolveApiKey();
+      const provider = getActiveProvider();
+      const apiKey = await resolveApiKey(provider);
       if (!apiKey) {
         console.error(
           pc.red(t("run.no_key")) + pc.dim(`\n${t("run.no_key_hint")}`),
@@ -41,7 +43,9 @@ export const runCommand = new Command("run")
         process.exit(1);
       }
 
-      process.env["ANTHROPIC_API_KEY"] = apiKey;
+      const envVarName = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
+      process.env[envVarName] = apiKey;
+      process.env["AIDEV_PROVIDER"] = provider;
       const target = opts.solution ? "solution" : "starter";
       process.env["AIDEV_TARGET"] = target;
       const filePath = join(exercise.dir, `${target}.ts`);

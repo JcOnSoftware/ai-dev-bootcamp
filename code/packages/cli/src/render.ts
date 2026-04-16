@@ -25,6 +25,43 @@ interface SdkMessage {
 import { t } from "./i18n/index.ts";
 import { estimateCost, MODEL_PRICES } from "./cost.ts";
 
+/**
+ * Structural alias for OpenAI ChatCompletion — keeps CLI package free of a
+ * direct `openai` dependency while remaining compatible at runtime.
+ */
+interface SdkChatCompletion {
+  id: string;
+  object: "chat.completion";
+  choices: Array<{
+    index: number;
+    message: {
+      role: "assistant";
+      content: string | null;
+    };
+    finish_reason: string | null;
+  }>;
+  model: string;
+  usage: { prompt_tokens: number; completion_tokens: number };
+}
+
+export function isChatCompletion(v: unknown): v is SdkChatCompletion {
+  return (
+    typeof v === "object" &&
+    v !== null &&
+    "object" in v &&
+    (v as Record<string, unknown>)["object"] === "chat.completion" &&
+    "choices" in v &&
+    Array.isArray((v as Record<string, unknown>)["choices"])
+  );
+}
+
+export function extractTextFromCompletion(msg: SdkChatCompletion): string {
+  return msg.choices
+    .map((c) => c.message.content ?? "")
+    .filter(Boolean)
+    .join("\n");
+}
+
 export interface RenderOptions {
   full: boolean;
   target: "starter" | "solution";
@@ -81,6 +118,9 @@ export function renderReturn(value: unknown, full: boolean): string {
   if (isMessage(value)) {
     return truncate(extractText(value), full);
   }
+  if (isChatCompletion(value)) {
+    return truncate(extractTextFromCompletion(value), full);
+  }
 
   if (
     value !== null &&
@@ -131,13 +171,15 @@ export function renderSummary(
   const model = call?.response.model ?? "unknown";
   lines.push(t("run.summary.model", { model }));
 
-  // Tokens
+  // Tokens — handle both Anthropic (input_tokens) and OpenAI (prompt_tokens) shapes
   if (call) {
-    const { input_tokens, output_tokens } = call.response.usage;
+    const usage = call.response.usage as unknown as Record<string, number>;
+    const input = usage["input_tokens"] ?? usage["prompt_tokens"] ?? 0;
+    const output = usage["output_tokens"] ?? usage["completion_tokens"] ?? 0;
     lines.push(
       t("run.summary.tokens", {
-        input: String(input_tokens),
-        output: String(output_tokens),
+        input: String(input),
+        output: String(output),
       }),
     );
   }

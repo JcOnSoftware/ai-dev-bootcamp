@@ -5,6 +5,7 @@ import pc from "picocolors";
 import { t, getActiveLocale } from "../i18n/index.ts";
 import { findExercise, exerciseDocPath, isStale } from "../exercises.ts";
 import { recordPass, resolveApiKey } from "../config.ts";
+import { getActiveProvider } from "../provider/index.ts";
 
 export const verifyCommand = new Command("verify")
   .description("Run the tests for a given exercise.")
@@ -32,7 +33,8 @@ export const verifyCommand = new Command("verify")
     const docPath = exerciseDocPath(exercise, locale);
     console.log(pc.dim(t("verify.exercise_doc", { path: docPath })));
 
-    const apiKey = await resolveApiKey();
+    const provider = getActiveProvider();
+    const apiKey = await resolveApiKey(provider);
     if (!apiKey) {
       console.error(
         pc.red(t("verify.no_key")) +
@@ -45,18 +47,20 @@ export const verifyCommand = new Command("verify")
     const target = opts.solution ? "solution" : "starter";
     console.log(pc.dim(t("verify.running", { id: exercise.meta.id, target })));
 
+    const envVarName = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
     const child = spawn("bun", ["test", testFile], {
       stdio: "inherit",
       env: {
         ...process.env,
-        ANTHROPIC_API_KEY: apiKey,
+        [envVarName]: apiKey,
         AIDEV_TARGET: target,
+        AIDEV_PROVIDER: provider,
       },
     });
 
     child.on("exit", async (code) => {
       if (code === 0 && target === "starter") {
-        await recordPass(exercise.meta.id, target);
+        await recordPass(exercise.meta.id, target, provider);
         console.log(pc.green(`\n${t("verify.progress_saved", { id: exercise.meta.id })}`));
       }
       process.exit(code ?? 1);

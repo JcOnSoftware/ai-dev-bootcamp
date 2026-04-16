@@ -35,9 +35,16 @@ interface ModelFamily {
 export const MODEL_PRICES: { lastUpdated: string; families: ModelFamily[] } = {
   lastUpdated: "2026-04",
   families: [
-    { match: /haiku/i,  input: 1.0,  output: 5.0  },
-    { match: /sonnet/i, input: 3.0,  output: 15.0 },
-    { match: /opus/i,   input: 15.0, output: 75.0 },
+    // Anthropic
+    { match: /haiku/i,          input: 1.0,   output: 5.0  },
+    { match: /sonnet/i,         input: 3.0,   output: 15.0 },
+    { match: /opus/i,           input: 15.0,  output: 75.0 },
+    // OpenAI
+    { match: /gpt-4\.1-nano/i,  input: 0.10,  output: 0.40  },
+    { match: /gpt-4o-mini/i,    input: 0.15,  output: 0.60  },
+    { match: /gpt-4\.1-mini/i,  input: 0.40,  output: 1.60  },
+    { match: /gpt-4\.1$/i,      input: 2.00,  output: 8.00  },
+    { match: /gpt-4o$/i,        input: 2.50,  output: 10.00 },
   ],
 };
 
