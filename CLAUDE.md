@@ -4,7 +4,7 @@ Read this file first when you start a session in this repo.
 
 ## What this is
 
-Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools (Claude API, prompt caching, tool use, RAG, agents, MCP) through **progressive exercises with automated tests against the real API**. Target learner: a 5+ year dev who can program but is new to the AI world.
+Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools through **progressive exercises with automated tests against real APIs**. Supports **Anthropic (Claude)** and **OpenAI (GPT)** — 60 exercises total (30 per provider). Target learner: a 5+ year dev who can program but is new to the AI world.
 
 Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PRIVATE — ready for public flip).
 License: MIT.
@@ -13,11 +13,13 @@ License: MIT.
 
 - **Runtime**: Bun 1.3+
 - **Language**: TypeScript 5.9 (strict, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, `allowImportingTsExtensions`)
-- **AI SDK**: `@anthropic-ai/sdk ^0.40` (Claude-first; multi-provider later)
+- **AI SDKs**: `@anthropic-ai/sdk ^0.40` + `openai ^4.86` (dual provider)
 - **CLI**: `commander` + `@clack/prompts` + `picocolors`
-  - `@clack/prompts` used in `aidev init` for API key input and locale select (interactive setup).
-- **i18n**: zero-dependency module at `packages/cli/src/i18n/`. Locale resolved once per process in commander's `preAction` hook via `initI18n(locale)`. All CLI strings use `t(key, vars?)`. Supported locales: `es` (default), `en`. Static JSON dictionaries — no runtime JSON loading.
-- **Locale resolution order**: `--locale <flag>` → `AIDEV_LOCALE` env var → `~/.aidev/config.json` → default `"es"`.
+  - `@clack/prompts` used in `aidev init` for provider, API key, and locale selection.
+- **Provider**: singleton at `packages/cli/src/provider/`. Mirrors i18n pattern. Resolved in `preAction` hook via `initProvider(provider)`.
+- **Provider resolution order**: `--provider <flag>` → `AIDEV_PROVIDER` env var → `~/.aidev/config.json` → default `"anthropic"`.
+- **i18n**: zero-dependency module at `packages/cli/src/i18n/`. Locale resolved once per process in commander's `preAction` hook via `initI18n(locale)`. All CLI strings use `t(key, vars?)`. Supported locales: `en` (default), `es`. Static JSON dictionaries — no runtime JSON loading.
+- **Locale resolution order**: `--locale <flag>` → `AIDEV_LOCALE` env var → `~/.aidev/config.json` → default `"en"`.
 - **Monorepo**: Bun workspaces (no Nx/Turbo — YAGNI)
 - **Tests**: `bun:test` built-in, convention `*.test.ts`
 
@@ -29,26 +31,33 @@ ai-dev-bootcamp/
 │   ├── package.json               # Bun workspaces root
 │   ├── tsconfig.json
 │   └── packages/
-│       ├── runner/                # @aidev/runner — harness that intercepts Anthropic SDK
-│       │   └── src/harness.ts     # monkey-patches Messages.prototype.create
+│       ├── runner/                # @aidev/runner — harness that intercepts SDK calls
+│       │   └── src/
+│       │       ├── harness.ts           # dispatcher (routes by AIDEV_PROVIDER)
+│       │       ├── harness-anthropic.ts # monkey-patches Anthropic Messages.prototype
+│       │       ├── harness-openai.ts    # monkey-patches OpenAI Completions.prototype
+│       │       └── types.ts             # shared types (HarnessResult, RunOptions)
 │       ├── cli/                   # @aidev/cli — `aidev` binary
 │       │   └── src/
-│       │       ├── index.ts       # commander entry (--locale root option + preAction hook)
-│       │       ├── commands/      # init, list, verify, progress
-│       │       ├── exercises.ts   # discovery of exercises (locale-aware)
-│       │       ├── config.ts      # ~/.aidev/ persistence (locale field)
+│       │       ├── index.ts       # commander entry (--locale + --provider + preAction hook)
+│       │       ├── commands/      # init, list, verify, progress, open, next, run
+│       │       ├── exercises.ts   # discovery of exercises (provider + locale aware)
+│       │       ├── config.ts      # ~/.aidev/ persistence (provider, locale, API keys)
+│       │       ├── provider/      # provider module (mirrors i18n pattern)
+│       │       │   ├── index.ts   # initProvider(), getActiveProvider()
+│       │       │   └── types.ts   # SupportedProvider = "anthropic" | "openai"
 │       │       └── i18n/          # i18n module
 │       │           ├── index.ts   # initI18n(), t(), getActiveLocale()
 │       │           ├── types.ts   # SupportedLocale = "es" | "en"
-│       │           ├── es.json    # Spanish dictionary (default locale)
-│       │           └── en.json    # English dictionary
-│       └── exercises/             # @aidev/exercises — content (30 exercises, all bilingual es+en)
-│           ├── 01-foundations/     # 5 exercises: first-call, params, streaming, tokens-cost, error-handling
-│           ├── 02-caching/        # 5 exercises: basic-caching → caching-with-tools
-│           ├── 03-tool-use/       # 5 exercises: basic-tool → parallel-tools
-│           ├── 04-rag/            # 5 exercises: embeddings-basics → citations-grounding
-│           ├── 05-agents/         # 5 exercises: agent-loop → self-correction
-│           └── 06-mcp/            # 5 exercises: mcp-server-basics → mcp-in-agent-loop
+│       │           ├── es.json    # Spanish dictionary
+│       │           └── en.json    # English dictionary (default)
+│       └── exercises/             # @aidev/exercises — 60 exercises, all bilingual
+│           ├── anthropic/         # 30 Anthropic exercises
+│           │   ├── 01-foundations/ ├── 02-caching/ ├── 03-tool-use/
+│           │   ├── 04-rag/        ├── 05-agents/  └── 06-mcp/
+│           └── openai/            # 30 OpenAI exercises
+│               ├── 01-foundations/ ├── 02-context-management/ ├── 03-function-calling/
+│               ├── 04-rag/        ├── 05-agents/             └── 06-evals-production/
 ├── docs/
 │   ├── PLAN.md                    # original M1 plan (historical)
 │   └── EXERCISE-CONTRACT.md       # REQUIRED READING before touching exercises
@@ -81,55 +90,55 @@ Every exercise has these files at its root plus one `exercise.md` per declared l
 **`locales` field** (required in `meta.json`): non-empty array of `"es" | "en"`. At minimum `["es"]`. Must match the locale subdirs present on disk.
 
 **Canonical doc URLs**: `docs.claude.com/...` — NOT `docs.anthropic.com` (301-redirects).
-**Default model in solutions**: Haiku (cost discipline — bootcamp should total ~$2 end-to-end).
+**Default model in solutions**: Haiku for Anthropic, gpt-4.1-nano for OpenAI (cost discipline — each provider's bootcamp under ~$0.10).
 
 ## Harness contract
 
 - Exercise exports `default async function run()` — harness imports + invokes.
-- Harness monkey-patches `Anthropic.Messages.prototype.create` to capture `{ request, response }` per call.
+- Harness dispatcher (`harness.ts`) reads `AIDEV_PROVIDER` env and routes to the correct sub-harness:
+  - **Anthropic**: `harness-anthropic.ts` patches `Messages.prototype.create/stream` → captures `CapturedCallAnthropic`
+  - **OpenAI**: `harness-openai.ts` patches `Completions.prototype.create` + streaming proxy → captures `CapturedCallOpenAI`
 - Tests assert on **structure** (model used, tools, params, shape) — NOT on literal LLM text (non-deterministic).
 - `resolveExerciseFile(import.meta.url)` + `AIDEV_TARGET=starter|solution` switches target without file swaps.
 
 ## CLI (`aidev`)
 
 ```
-aidev init                           # setup API key + locale → ~/.aidev/config.json (includes welcome, reset, update)
-aidev list [--locale es|en]          # list exercises grouped by track (interactive picker)
-aidev open [<id>] [--locale es|en]   # open exercise in editor (no arg = interactive picker with progress)
-aidev next [--locale es|en]          # open first incomplete exercise
-aidev verify <id> [--locale es|en]   # run tests; record progress on pass
-aidev verify <id> --solution [--locale es|en]  # run against solution.ts (no progress)
-aidev progress [--locale es|en]      # dashboard with per-track completion
-aidev run <id> [--solution] [--stream-live] [--full] [--locale es|en]  # execute for inspection (no progress recorded)
+aidev init                           # provider + API key + locale → ~/.aidev/config.json (includes welcome, reset, update)
+aidev list [--provider] [--locale]   # list exercises grouped by track (interactive picker)
+aidev open [<id>] [--solution] [--provider] [--locale]  # open exercise in editor (no arg = picker)
+aidev next [--provider] [--locale]   # open first incomplete exercise
+aidev verify <id> [--provider] [--locale]  # run tests; record progress on pass
+aidev verify <id> --solution         # run against solution.ts (no progress)
+aidev progress [--provider] [--locale]  # dashboard with per-track completion
+aidev run <id> [--solution] [--stream-live] [--full] [--provider] [--locale]  # execute for inspection
 ```
 
-`--locale` can be placed before or after the subcommand (`aidev --locale en list` OR `aidev list --locale en`).
+`--locale` and `--provider` can be placed before or after the subcommand.
 
-**Locale env var**: `AIDEV_LOCALE=en aidev list` — overridden by `--locale` flag if both supplied.
-
-**API key resolution**: `process.env.ANTHROPIC_API_KEY` → `~/.aidev/config.json`.
+**Provider resolution**: `--provider` flag → `AIDEV_PROVIDER` env → `config.provider` → default `"anthropic"`.
+**Locale resolution**: `--locale` flag → `AIDEV_LOCALE` env → `config.locale` → default `"en"`.
+**API key resolution**: `resolveApiKey(provider)` → env (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`) → `~/.aidev/config.json`.
 
 ## Testing
 
 - **Strict TDD Mode: ENABLED**
 - Test runner: `bun test` (use `./` prefix if filename doesn't contain `.test`/`.spec`)
-- Integration tests hit real API. Guard `ANTHROPIC_API_KEY` in `beforeAll`.
+- Integration tests hit real API. Guard `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` in `beforeAll` (provider-dependent).
 - Typecheck: `bunx tsc --noEmit` from `code/`
 
 ## State of play
 
-- **v1 COMPLETE**: 30 exercises across 6 tracks, all bilingual (es + en).
-  - **01-foundations** (5): first-call, params, streaming, tokens-cost, error-handling
-  - **02-caching** (5): basic-caching, cache-hit-metrics, multi-breakpoint, ttl-extended, caching-with-tools
-  - **03-tool-use** (5): basic-tool, tool-loop, multiple-tools, tool-choice, parallel-tools
-  - **04-rag** (5): embeddings-basics, vector-search, chunking-strategies, retrieval-pipeline, citations-grounding
-  - **05-agents** (5): agent-loop, stop-conditions, state-management, multi-step-plan, self-correction
-  - **06-mcp** (5): mcp-server-basics, mcp-client-connect, resources-and-prompts, tools-with-mcp, mcp-in-agent-loop
-- **i18n**: implemented, verified, archived (`openspec/changes/archive/2026-04-14-add-i18n-support/`).
-- **CLI**: full command set — init (welcome/reset/update), list (interactive picker), open, next, verify, progress, run.
+- **v2.0 COMPLETE**: 60 exercises across 2 providers, all bilingual (en + es).
+  - **Anthropic** (30): foundations, caching, tool-use, RAG, agents, MCP
+  - **OpenAI** (30): foundations, context-management, function-calling, RAG, agents, evals-production
+- **Multi-provider**: `--provider` flag, `AIDEV_PROVIDER` env, provider selection in init. Provider-scoped exercise directories + harness dispatcher.
+- **i18n**: complete. Default locale: `en`.
+- **CLI**: full command set — init (provider/key/locale + reset/update), list, open (--solution), next, verify, progress, run (--stream-live).
 - **Next**:
   - Issue #3: quarterly MODEL_PRICES refresh in cost.ts
   - Multi-editor support for `aidev open`/`next` (currently VS Code only)
+  - Integration tests for OpenAI exercises against real API
   - Public flip (all prerequisites met)
 
 ## Persistence references
@@ -144,10 +153,11 @@ Engram is the memory backend. Key topics for this project (`project: "new-tool"`
 | `ai-dev-bootcamp/overview` | Project overview memory |
 | `ai-dev-bootcamp/milestone-1`, `milestone-2` | Completed milestones |
 | `ai-dev-bootcamp/exercise-contract` | Pattern for exercise authoring |
-| `sdd/add-i18n-support/*` | Archived — proposal, spec, design, tasks, apply-progress (all complete) |
-| `sdd/add-rag-track/*` | Archived — track 04-rag (5 exercises) |
-| `sdd/add-agents-track/*` | Archived — track 05-agents (5 exercises) |
-| `sdd/add-mcp-track/*` | Archived — track 06-mcp (5 exercises) |
+| `sdd/add-i18n-support/*` | Archived — i18n support (all complete) |
+| `sdd/add-rag-track/*` | Archived — Anthropic track 04-rag |
+| `sdd/add-agents-track/*` | Archived — Anthropic track 05-agents |
+| `sdd/add-mcp-track/*` | Archived — Anthropic track 06-mcp |
+| `sdd/add-openai-provider-support/*` | Archived — multi-provider infra + 30 OpenAI exercises |
 
 Retrieve full content with `mem_search(query: "<topic>", project: "new-tool")` → `mem_get_observation(id)`.
 
