@@ -1,0 +1,12 @@
+{
+  "id": "04-tools-with-mcp",
+  "track": "06-mcp",
+  "title": "Tools with MCP",
+  "version": "1.0.0",
+  "valid_until": "2026-10-15",
+  "concepts": ["mcp-claude-bridge", "tool-format-conversion", "tool-use-loop", "input-schema"],
+  "estimated_minutes": 30,
+  "requires": ["03-resources-and-prompts"],
+  "locales": ["es", "en"],
+  "model_cost_hint": "~$0.005 (Haiku 4.5, 1-2 tool calls)"
+}
