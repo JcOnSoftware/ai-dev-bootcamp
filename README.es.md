@@ -32,54 +32,58 @@ Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows), [VS Code](https://co
 gh repo clone JcOnSoftware/ai-dev-bootcamp
 cd ai-dev-bootcamp/code
 bun install
-cat > .env <<EOF
-ANTHROPIC_API_KEY=sk-ant-...
-VOYAGE_API_KEY=pa-...        # solo requerida para el track 04
-EOF
-
-# Forma corta — funciona desde cualquier lado dentro de code/:
-bun run aidev init              # configurá locale (es/en)
-bun run aidev list              # ver los 30 ejercicios agrupados por track
-bun run aidev verify 01-first-call
 ```
 
-¿Preferís usar `aidev` pelado sin el prefijo `bun run`? Dos opciones:
+Configurá tu API key — elegí **un** método:
 
 ```bash
-# Opción A — alias de shell (Mac/Linux/WSL):
-alias aidev="$(pwd)/bin/aidev"
-aidev list
+# Opción A — archivo env (recomendado):
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
 
-# Opción B — agregar code/bin al PATH:
-export PATH="$(pwd)/bin:$PATH"     # Mac/Linux
-# Windows PowerShell: $env:Path = "$PWD\bin;$env:Path"
-aidev list
+# Opción B — exportar en tu shell:
+export ANTHROPIC_API_KEY=sk-ant-...
+```
+
+> El track 04 (RAG) también necesita una key de Voyage AI (<https://dash.voyageai.com/api-keys>) — agregá `VOYAGE_API_KEY=pa-...` al `.env`.
+
+### Habilitar el comando `aidev`
+
+Por default, los comandos se corren como `bun run aidev <comando>` desde el directorio `code/`. Para usar `aidev` directamente desde cualquier lugar:
+
+```bash
+# Agregá esta línea a tu ~/.zshrc (o ~/.bashrc):
+export PATH="$HOME/path-to/ai-dev-bootcamp/code/bin:$PATH"
+```
+
+Después reiniciá la terminal o corré `source ~/.zshrc`. Listo, `aidev` funciona en todos lados.
+
+### Primera ejecución
+
+```bash
+aidev init                  # pantalla de bienvenida + API key + idioma (es/en)
+aidev list                  # explorá ejercicios → elegí uno → se abre en VS Code
+aidev next                  # saltá al siguiente ejercicio incompleto
 ```
 
 ## Trabajar con ejercicios
 
-No hace falta navegar carpetas profundas — la CLI se encarga:
+No hace falta navegar carpetas profundas — la CLI abre todo por vos:
 
-```bash
-bun run aidev open                  # selector interactivo — elegí un ejercicio de la lista
-bun run aidev open 01-first-call    # abrí un ejercicio específico directo en VS Code
-bun run aidev next                  # abrí automáticamente el siguiente ejercicio incompleto
-```
+| Comando | Qué hace |
+|---------|----------|
+| `aidev list` | Explorá los 30 ejercicios por track, elegí uno y se abre |
+| `aidev open <id>` | Abrí un ejercicio específico en VS Code |
+| `aidev open` | Selector interactivo — navegá y elegí |
+| `aidev next` | Abrí automáticamente el siguiente ejercicio incompleto |
+| `aidev verify <id>` | Corré tests contra tu implementación |
+| `aidev run <id>` | Ejecutá y mirá la salida del modelo (playground) |
+| `aidev run <id> --stream-live` | Mirá los tokens llegar en tiempo real |
+| `aidev progress` | Dashboard de completitud por track |
+| `aidev init` | Reconfigurar, resetear progreso, o actualizar ejercicios |
 
-`open` y `next` abren VS Code con dos archivos: `starter.ts` (donde codeás) y `exercise.md` (el enunciado en tu idioma). Implementá los TODOs y corré `verify` hasta que pasen los tests.
+`open`, `next` y `list` abren VS Code con dos archivos: `starter.ts` (donde codeás) y `exercise.md` (el enunciado en tu idioma). Implementá los TODOs y corré `verify` hasta que pasen los tests.
 
-> **Soporte de editores**: `aidev open` y `aidev next` usan VS Code por default. Podés cambiarlo con las variables de entorno `$VISUAL` o `$EDITOR`.
-
-## Modo playground
-
-¿Querés **ver** la salida del modelo, no solo pasar tests? Usá `aidev run`:
-
-```bash
-bun run aidev run 01-first-call --solution
-bun run aidev run 03-streaming --solution --stream-live
-```
-
-`--stream-live` imprime los tokens a medida que llegan — así ves el streaming en tiempo real, la misma UX que van a experimentar tus usuarios.
+> **Editor**: VS Code (`code`) por default. Cambialo con las variables de entorno `$VISUAL` o `$EDITOR`.
 
 ## Costo
 
