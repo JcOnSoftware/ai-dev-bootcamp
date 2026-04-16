@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { createResearchServer } from "../fixtures/research-server.ts";
-import { mcpToolsToAnthropicFormat } from "../04-tools-with-mcp/solution.ts";
+import { mcpToolsToAnthropicFormat } from "../fixtures/mcp-utils.ts";
 
 const anthropic = new Anthropic();
 
