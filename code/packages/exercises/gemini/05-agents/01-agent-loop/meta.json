@@ -1,0 +1,20 @@
+{
+  "id": "01-agent-loop",
+  "track": "05-agents",
+  "title": "Build the core agent loop",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "agent-loop",
+    "multi-turn-tool-use",
+    "termination"
+  ],
+  "estimated_minutes": 20,
+  "requires": ["03-function-calling/02-tool-response-loop"],
+  "model_cost_hint": "~$0.0005 per verify run (2-3 flash turns)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}
