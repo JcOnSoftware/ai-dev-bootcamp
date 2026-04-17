@@ -1,0 +1,20 @@
+{
+  "id": "05-rag-pipeline",
+  "track": "04-rag",
+  "title": "End-to-end RAG: retrieve then generate",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "rag-pipeline",
+    "grounded-generation",
+    "citations"
+  ],
+  "estimated_minutes": 20,
+  "requires": ["04-rag/04-chunking"],
+  "model_cost_hint": "~$0.0003 per verify run (embeddings + generateContent)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}

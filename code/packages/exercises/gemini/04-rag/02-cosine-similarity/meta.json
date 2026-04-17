@@ -1,0 +1,20 @@
+{
+  "id": "02-cosine-similarity",
+  "track": "04-rag",
+  "title": "Cosine similarity between two embeddings",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "cosine-similarity",
+    "semantic-distance",
+    "embedding-comparison"
+  ],
+  "estimated_minutes": 12,
+  "requires": ["04-rag/01-first-embedding"],
+  "model_cost_hint": "~$0.00008 per verify run (3 embeddings)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}
