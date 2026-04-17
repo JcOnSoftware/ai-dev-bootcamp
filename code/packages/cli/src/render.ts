@@ -62,6 +62,45 @@ export function extractTextFromCompletion(msg: SdkChatCompletion): string {
     .join("\n");
 }
 
+/**
+ * Structural alias for a Gemini `GenerateContentResponse` — keeps CLI package
+ * free of a direct `@google/genai` dependency while staying compatible.
+ */
+interface SdkGeminiResponse {
+  candidates: Array<{
+    content: { parts: Array<{ text?: string }>; role?: string };
+    finishReason?: string;
+  }>;
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+    cachedContentTokenCount?: number;
+    thoughtsTokenCount?: number;
+  };
+  modelVersion?: string;
+}
+
+export function isGeminiResponse(v: unknown): v is SdkGeminiResponse {
+  if (typeof v !== "object" || v === null) return false;
+  const o = v as Record<string, unknown>;
+  // Distinguishing shape: `candidates` array whose entries have `content.parts`
+  // (Anthropic uses `content` as an array of blocks, OpenAI uses `choices`).
+  if (!Array.isArray(o["candidates"])) return false;
+  const first = (o["candidates"] as unknown[])[0];
+  if (!first || typeof first !== "object") return false;
+  const content = (first as Record<string, unknown>)["content"];
+  if (!content || typeof content !== "object") return false;
+  return Array.isArray((content as Record<string, unknown>)["parts"]);
+}
+
+export function extractTextFromGemini(resp: SdkGeminiResponse): string {
+  return resp.candidates
+    .flatMap((c) => c.content.parts.map((p) => p.text ?? ""))
+    .filter(Boolean)
+    .join("");
+}
+
 export interface RenderOptions {
   full: boolean;
   target: "starter" | "solution";
@@ -121,6 +160,9 @@ export function renderReturn(value: unknown, full: boolean): string {
   if (isChatCompletion(value)) {
     return truncate(extractTextFromCompletion(value), full);
   }
+  if (isGeminiResponse(value)) {
+    return truncate(extractTextFromGemini(value), full);
+  }
 
   if (
     value !== null &&
@@ -132,6 +174,9 @@ export function renderReturn(value: unknown, full: boolean): string {
       .map(([k, v]) => {
         if (isMessage(v)) {
           return `--- ${k} ---\n${truncate(extractText(v), full)}`;
+        }
+        if (isGeminiResponse(v)) {
+          return `--- ${k} ---\n${truncate(extractTextFromGemini(v), full)}`;
         }
         if (
           typeof v === "string" ||
@@ -167,15 +212,22 @@ export function renderSummary(
 
   const call = result.lastCall;
 
-  // Model
-  const model = call?.response.model ?? "unknown";
+  // Model — Anthropic/OpenAI expose `model`, Gemini exposes `modelVersion`.
+  const callResp = call?.response as unknown as Record<string, unknown> | undefined;
+  const model = (callResp?.["model"] as string | undefined) ?? (callResp?.["modelVersion"] as string | undefined) ?? "unknown";
   lines.push(t("run.summary.model", { model }));
 
-  // Tokens — handle both Anthropic (input_tokens) and OpenAI (prompt_tokens) shapes
+  // Tokens — handle all three shapes:
+  //   Anthropic: input_tokens / output_tokens (top-level on response.usage)
+  //   OpenAI:    prompt_tokens / completion_tokens (on response.usage)
+  //   Gemini:    promptTokenCount / candidatesTokenCount (on response.usageMetadata)
   if (call) {
-    const usage = call.response.usage as unknown as Record<string, number>;
-    const input = usage["input_tokens"] ?? usage["prompt_tokens"] ?? 0;
-    const output = usage["output_tokens"] ?? usage["completion_tokens"] ?? 0;
+    const usage = (call.response.usage as unknown as Record<string, number>) ?? {};
+    const geminiUsage = (callResp?.["usageMetadata"] as Record<string, number> | undefined) ?? {};
+    const input =
+      usage["input_tokens"] ?? usage["prompt_tokens"] ?? geminiUsage["promptTokenCount"] ?? 0;
+    const output =
+      usage["output_tokens"] ?? usage["completion_tokens"] ?? geminiUsage["candidatesTokenCount"] ?? 0;
     lines.push(
       t("run.summary.tokens", {
         input: String(input),
