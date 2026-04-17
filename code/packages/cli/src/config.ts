@@ -9,6 +9,7 @@ import { SUPPORTED_PROVIDERS, DEFAULT_PROVIDER } from "./provider/types.ts";
 export interface Config {
   anthropicApiKey?: string;
   openaiApiKey?: string;
+  geminiApiKey?: string;
   provider?: SupportedProvider;
   locale?: SupportedLocale;
 }
@@ -94,6 +95,11 @@ export async function resolveApiKey(provider?: SupportedProvider): Promise<strin
     if (process.env["OPENAI_API_KEY"]) return process.env["OPENAI_API_KEY"];
     const config = await readConfig();
     return config.openaiApiKey;
+  }
+  if (p === "gemini") {
+    if (process.env["GEMINI_API_KEY"]) return process.env["GEMINI_API_KEY"];
+    const config = await readConfig();
+    return config.geminiApiKey;
   }
   // anthropic (default)
   if (process.env["ANTHROPIC_API_KEY"]) return process.env["ANTHROPIC_API_KEY"];

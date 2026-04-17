@@ -47,6 +47,7 @@ async function runConfigure(): Promise<void> {
         options: [
           { value: "anthropic" as SupportedProvider, label: "Anthropic (Claude)" },
           { value: "openai" as SupportedProvider, label: "OpenAI (GPT)" },
+          { value: "gemini" as SupportedProvider, label: "Google (Gemini)" },
         ],
       });
       if (p.isCancel(selected)) {
@@ -71,7 +72,10 @@ async function runConfigure(): Promise<void> {
   }
 
   // --- API key (provider-aware validation) ---
-  const existingKey = newProvider === "anthropic" ? existing.anthropicApiKey : existing.openaiApiKey;
+  const existingKey =
+    newProvider === "anthropic" ? existing.anthropicApiKey
+    : newProvider === "openai" ? existing.openaiApiKey
+    : existing.geminiApiKey;
   if (existingKey) {
     const overwrite = await p.confirm({
       message: t("init.key_exists"),
@@ -92,6 +96,9 @@ async function runConfigure(): Promise<void> {
       }
       if (newProvider === "openai" && !value.startsWith("sk-")) {
         return "That doesn't look like an OpenAI key (expected sk-...).";
+      }
+      if (newProvider === "gemini" && !value.startsWith("AIza")) {
+        return "That doesn't look like a Gemini key (expected AIza...). If you're using a GCP service account, ignore this warning.";
       }
     },
   });
@@ -145,7 +152,10 @@ async function runConfigure(): Promise<void> {
   // Switch i18n immediately so remaining messages use the chosen locale
   initI18n(newLocale);
 
-  const keyField = newProvider === "anthropic" ? "anthropicApiKey" : "openaiApiKey";
+  const keyField =
+    newProvider === "anthropic" ? "anthropicApiKey"
+    : newProvider === "openai" ? "openaiApiKey"
+    : "geminiApiKey";
   await writeConfig({ ...existing, [keyField]: key, provider: newProvider, locale: newLocale });
   p.outro(
     `${pc.green("✓")} ${t("init.saved", { path: pc.dim(paths.configFile), nextCmd: pc.cyan("aidev list") })}`,
@@ -170,7 +180,7 @@ async function runReset(): Promise<void> {
   // 2. Restore all starter.ts files to their git-committed state
   const root = repoRoot();
   try {
-    execSync("git checkout -- code/packages/exercises/anthropic/**/starter.ts code/packages/exercises/openai/**/starter.ts", {
+    execSync("git checkout -- code/packages/exercises/anthropic/**/starter.ts code/packages/exercises/openai/**/starter.ts code/packages/exercises/gemini/**/starter.ts", {
       cwd: root,
       stdio: "pipe",
     });
@@ -252,7 +262,7 @@ export const initCommand = new Command("init")
     p.intro(pc.bgCyan(pc.black(t("init.intro"))));
 
     const existing = await readConfig();
-    const isReturningUser = !!(existing.anthropicApiKey || existing.openaiApiKey);
+    const isReturningUser = !!(existing.anthropicApiKey || existing.openaiApiKey || existing.geminiApiKey);
 
     if (!isReturningUser) {
       // First-time user: go straight to configure

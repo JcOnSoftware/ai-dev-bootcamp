@@ -6,6 +6,7 @@ import { t } from "../i18n/index.ts";
 import { findExercise, isStale } from "../exercises.ts";
 import { resolveApiKey } from "../config.ts";
 import { getActiveProvider } from "../provider/index.ts";
+import { PROVIDER_ENV_VAR, PROVIDER_DISPLAY_NAME } from "../provider/types.ts";
 import { renderSummary } from "../render.ts";
 
 export const runCommand = new Command("run")
@@ -35,15 +36,17 @@ export const runCommand = new Command("run")
       }
 
       const provider = getActiveProvider();
+      const envVarName = PROVIDER_ENV_VAR[provider];
+      const providerDisplay = PROVIDER_DISPLAY_NAME[provider];
       const apiKey = await resolveApiKey(provider);
       if (!apiKey) {
         console.error(
-          pc.red(t("run.no_key")) + pc.dim(`\n${t("run.no_key_hint")}`),
+          pc.red(t("run.no_key", { provider: providerDisplay })) +
+            pc.dim(`\n${t("run.no_key_hint", { envVar: envVarName })}`),
         );
         process.exit(1);
       }
 
-      const envVarName = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
       process.env[envVarName] = apiKey;
       process.env["AIDEV_PROVIDER"] = provider;
       const target = opts.solution ? "solution" : "starter";
