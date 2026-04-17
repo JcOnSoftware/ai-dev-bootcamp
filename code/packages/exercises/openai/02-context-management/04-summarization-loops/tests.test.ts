@@ -16,7 +16,7 @@ describe("04-summarization-loops", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     userReturn = raw.userReturn as { summary: string; finalResponse: unknown } | undefined;
-  });
+  }, 60_000);
 
   test("makes at least 3 API calls (2 normal + 1 summarize)", () => {
     expect(calls.length).toBeGreaterThanOrEqual(3);
