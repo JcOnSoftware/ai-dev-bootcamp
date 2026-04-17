@@ -1,8 +1,14 @@
 #!/usr/bin/env bun
 import { Command } from "commander";
+import { loadProjectEnv } from "./env.ts";
 import { resolveLocale, resolveProvider } from "./config.ts";
 import { initI18n } from "./i18n/index.ts";
 import { initProvider } from "./provider/index.ts";
+
+// Load code/.env so integration keys (VOYAGE_API_KEY, future services) and any
+// provider-key overrides in .env are available before commander resolves config.
+// Shell exports win because loadProjectEnv never overwrites existing process.env.
+loadProjectEnv();
 import { initCommand } from "./commands/init.ts";
 import { listCommand } from "./commands/list.ts";
 import { progressCommand } from "./commands/progress.ts";
