@@ -1,0 +1,20 @@
+{
+  "id": "05-structured-output",
+  "track": "01-foundations",
+  "title": "Structured output with responseSchema",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "structured-output",
+    "json-mode",
+    "response-schema"
+  ],
+  "estimated_minutes": 15,
+  "requires": ["01-first-generate"],
+  "model_cost_hint": "~$0.0001 per verify run (gemini-2.5-flash-lite)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}

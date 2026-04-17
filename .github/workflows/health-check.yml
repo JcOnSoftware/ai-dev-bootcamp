@@ -51,6 +51,9 @@ jobs:
           AIDEV_PROVIDER: openai
         run: bun test packages/exercises/openai
 
-      # Gemini exercises land track-by-track in follow-up PRs. Once the first
-      # track exists under packages/exercises/gemini/, add a step mirroring the
-      # Anthropic/OpenAI ones above with AIDEV_PROVIDER=gemini and GEMINI_API_KEY.
+      - name: Run Gemini exercises against real API
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AIDEV_TARGET: solution
+          AIDEV_PROVIDER: gemini
+        run: bun test packages/exercises/gemini
