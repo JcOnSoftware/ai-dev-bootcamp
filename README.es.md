@@ -2,9 +2,9 @@
 
 > [🇬🇧 Read this in English →](./README.md)
 
-**Rustlings para devs de AI.** Bootcamp hands-on de AI engineering para developers con experiencia — aprendé a construir sistemas de AI reales con ejercicios progresivos y tests automáticos contra APIs reales.
+**Rustlings para devs de AI.** Bootcamp hands-on de AI engineering para developers con experiencia — aprendé a construir sistemas de AI reales con 90 ejercicios progresivos y tests automáticos contra APIs reales.
 
-Elegí tu provider: **Anthropic (Claude)**, **OpenAI (GPT)** o **Google (Gemini)**. Anthropic y OpenAI tienen 6 tracks x 5 ejercicios cada uno (60 en total). El soporte de Gemini ya está vivo (v3.0) — los ejercicios van saliendo track por track en PRs siguientes. Todos los ejercicios son bilingues (inglés + español), con tests que validan contra la API real.
+Elegí tu provider: **Anthropic (Claude)**, **OpenAI (GPT)** o **Google (Gemini)**. Cada uno tiene 6 tracks x 5 ejercicios (30 por provider, 90 en total), bilingües (inglés + español), con tests que validan contra la API real.
 
 Los recursos típicos para aprender AI son o muy básicos ("prompt engineering para principiantes") o muy abstractos (cursos de 4 horas en video sobre teoría de LLMs). Este proyecto es para lo opuesto: devs con 5+ años de experiencia que saben programar pero todavía no construyeron nada serio con AI. Aprendés **escribiendo código, corriéndolo contra la API real y viendo tests pasar** — no mirando a alguien más tipear.
 
@@ -32,20 +32,18 @@ Los recursos típicos para aprender AI son o muy básicos ("prompt engineering p
 | **05 — Agents** | Planner-executor, razonamiento multi-step, state management, self-correction, orquestación de tools |
 | **06 — Evals & production** | Evaluación de prompts, regression testing, scoring de outputs, testing con datasets, guardrails & validación |
 
-### Google (Gemini) — soporte de provider activo, ejercicios saliendo
+### Google (Gemini) — 6 tracks, 30 ejercicios
 
-v3.0 shippea la infra multi-provider para Gemini (SDK `@google/genai`, harness con streaming + embeddings, estimación de costo, CLI bilingue). Los ejercicios salen track por track en PRs separados. Tracks planeados:
+| Track | Ejercicios |
+|-------|-----------|
+| **01 — Foundations** | Primera generación, selección de modelo, token usage, streaming, structured output |
+| **02 — Context caching** | Caching implícito, creación/uso/TTL de cache explícito con `ai.caches`, cost savings — track de modo dual único de Gemini |
+| **03 — Function calling** | Declarar tools, cerrar el loop con response, rutear múltiples tools, parallel calls, `toolConfig.mode` (AUTO/ANY/NONE) |
+| **04 — RAG** | `embedContent` (3072 dims), cosine similarity, top-K search, chunking, pipeline completo retrieve-then-generate |
+| **05 — Agents** | Agent loop con MAX_TURNS, chains multi-step, plan-then-execute, memoria de conversación, error recovery |
+| **06 — Advanced features** | `thinkingBudget`, Google Search grounding, code execution, URL context, safety settings |
 
-| Track | Foco |
-|-------|------|
-| **01 — Foundations** | `generateContent`, selección de modelo, token usage, streaming, structured output |
-| **02 — Context caching** | Caching implícito + explícito con `ai.caches` — modo dual único de Gemini |
-| **03 — Function calling** | `functionDeclarations`, tool loops, JSON mode, parallel tools |
-| **04 — RAG** | `embedContent` con `gemini-embedding-001` (3072 dims), cosine similarity, retrieval |
-| **05 — Agents** | Agent loops, razonamiento multi-step, planner-executor, memoria |
-| **06 — Live multimodal** | Live API (audio-to-audio realtime sobre WebSocket) — único de Gemini |
-
-Seguí el progreso en [el board de Issues](https://github.com/JcOnSoftware/ai-dev-bootcamp/issues).
+Nota: algunos ejercicios de track-02 y track-06 requieren una key de Gemini con tier pago (explicit caching, grounding, code execution). El track 01 corre en free tier.
 
 Cada ejercicio tiene un `starter.ts` (TODOs para implementar), un `solution.ts` (referencia), `tests.test.ts` (asserts estructurales contra la API real) y `exercise.md` bilingue (inglés + español).
 
@@ -134,8 +132,8 @@ Los ejercicios usan los modelos más baratos por default:
 
 ## Estado del proyecto
 
-- **v3.0**: Soporte para Gemini (infra). Anthropic + OpenAI con 60 ejercicios shippeados; los ejercicios de Gemini salen track por track en PRs siguientes.
-- **v2.0**: 2 providers x 6 tracks x 5 ejercicios = 60 total. CLI completa + contenido bilingue en/es.
+- **v3.0 COMPLETE**: 3 providers x 6 tracks x 5 ejercicios = **90 total**. Anthropic + OpenAI + Gemini, CLI completa, contenido bilingue en/es.
+- **v2.0**: 2 providers (Anthropic + OpenAI), 60 ejercicios.
 - **Distribución**: git-clone-first (modelo rustlings) — los ejercicios SON el repo.
 
 Seguí el progreso en [Issues](https://github.com/JcOnSoftware/ai-dev-bootcamp/issues).

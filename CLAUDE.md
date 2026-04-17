@@ -4,7 +4,7 @@ Read this file first when you start a session in this repo.
 
 ## What this is
 
-Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools through **progressive exercises with automated tests against real APIs**. Supports **Anthropic (Claude)**, **OpenAI (GPT)**, and **Google (Gemini)**. Anthropic + OpenAI each ship 30 exercises (60 total). Gemini provider infra is live (v3.0) and exercises roll out track-by-track in follow-up PRs. Target learner: a 5+ year dev who can program but is new to the AI world.
+Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools through **progressive exercises with automated tests against real APIs**. Supports **Anthropic (Claude)**, **OpenAI (GPT)**, and **Google (Gemini)** — **90 exercises total** (30 per provider across 6 tracks each). Target learner: a 5+ year dev who can program but is new to the AI world.
 
 Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PUBLIC).
 License: MIT.
@@ -60,9 +60,9 @@ ai-dev-bootcamp/
 │           ├── openai/            # 30 OpenAI exercises
 │           │   ├── 01-foundations/ ├── 02-context-management/ ├── 03-function-calling/
 │           │   ├── 04-rag/        ├── 05-agents/             └── 06-evals-production/
-│           └── gemini/            # infra ready (v3.0); exercises landing track-by-track
-│               # planned: 01-foundations / 02-context-caching / 03-function-calling
-│               #          04-rag / 05-agents / 06-live-multimodal
+│           └── gemini/            # 30 Gemini exercises
+│               ├── 01-foundations/      ├── 02-context-caching/  ├── 03-function-calling/
+│               └── 04-rag/              ├── 05-agents/           └── 06-advanced-features/
 ├── docs/
 │   ├── PLAN.md                    # original M1 plan (historical)
 │   └── EXERCISE-CONTRACT.md       # REQUIRED READING before touching exercises
@@ -135,17 +135,18 @@ aidev run <id> [--solution] [--stream-live] [--full] [--provider] [--locale]  # 
 
 ## State of play
 
-- **v3.0 (current)**: Gemini provider infrastructure live. `@google/genai` SDK wired end-to-end — harness (`harness-gemini.ts`), cost table, render, i18n, init prompt, CI hooks. Exercises roll out track-by-track in follow-up PRs.
-- **v2.0**: 60 exercises across 2 providers, all bilingual (en + es).
+- **v3.0 COMPLETE**: 90 exercises across 3 providers, all bilingual (en + es).
   - **Anthropic** (30): foundations, caching, tool-use, RAG, agents, MCP
   - **OpenAI** (30): foundations, context-management, function-calling, RAG, agents, evals-production
+  - **Gemini** (30): foundations, context-caching, function-calling, RAG, agents, advanced-features
 - **Multi-provider**: `--provider` flag, `AIDEV_PROVIDER` env, provider selection in init. Provider-scoped exercise directories + harness dispatcher.
 - **i18n**: complete. Default locale: `en`.
 - **CLI**: full command set — init (provider/key/locale + reset/update), list, open (--solution), next, verify, progress, run (--stream-live).
 - **Repo**: PUBLIC. Branch protection active (PR + CI required, 0 approvals for solo dev).
+- **Gemini paid-tier reminder**: track 02 explicit-cache exercises + track 06 grounding / code-execution / url-context require a billing-enabled Gemini key. Track 01 and most of the others run on free tier.
 - **Next**:
-  - Gemini exercises — 6 tracks rolling out (01-foundations, 02-context-caching, 03-function-calling, 04-rag, 05-agents, 06-live-multimodal)
-  - LangChain — deferred to post-Gemini as `07-frameworks` track (framework-level, ENCIMA de los SDKs nativos)
+  - LangChain — deferred to post-v3 as `07-frameworks` track (framework-level, ENCIMA de los SDKs nativos)
+  - Gemini Live API — optional future track (audio-to-audio over WebSocket; needs harness extension to capture Session-level calls)
   - Issue #3: quarterly MODEL_PRICES refresh in cost.ts
   - Multi-editor support for `aidev open`/`next` (currently VS Code only)
 
@@ -169,6 +170,8 @@ Engram is the memory backend. Key topics for this project (`project: "new-tool"`
 | `sdd/add-gemini-provider-support/*` | Infra shipped in v3.0 (explore/proposal/specs/design/tasks in engram + `openspec/changes/add-gemini-provider-support/`) |
 | `ai-dev-bootcamp/gemini-harness-strategy` | B0 spike finding: patch `*Internal` methods on `Models.prototype`, not public methods |
 | `ai-dev-bootcamp/roadmap-v3` | Decision: Gemini next, LangChain deferred to post-v3 `07-frameworks` track |
+| `ai-dev-bootcamp/gemini-free-tier-quotas` | Quota caps: 20 requests/day flash-lite, cached-content storage=0 on free tier |
+| `ai-dev-bootcamp/gemini-track-01-foundations` | Shipping notes for track 01 (deps added to @aidev/exercises package) |
 
 Retrieve full content with `mem_search(query: "<topic>", project: "new-tool")` → `mem_get_observation(id)`.
 
