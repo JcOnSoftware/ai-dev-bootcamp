@@ -1,0 +1,20 @@
+{
+  "id": "05-cache-cost-savings",
+  "track": "02-context-caching",
+  "title": "Measuring cache cost savings",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "explicit-caching",
+    "cost-modeling",
+    "cache-roi"
+  ],
+  "estimated_minutes": 15,
+  "requires": ["02-context-caching/03-use-cached-content"],
+  "model_cost_hint": "~$0.0006 per verify run (paid tier required; 3 calls against cache)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "04-cache-ttl-update",
+  "track": "02-context-caching",
+  "title": "Updating a cache's TTL",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "cache-ttl",
+    "caches-update",
+    "cache-lifecycle"
+  ],
+  "estimated_minutes": 12,
+  "requires": ["02-context-caching/02-create-explicit-cache"],
+  "model_cost_hint": "~$0.0001 per verify run (paid tier required; no generateContent calls)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}
