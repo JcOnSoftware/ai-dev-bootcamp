@@ -1,0 +1,20 @@
+{
+  "id": "05-safety-settings",
+  "track": "06-advanced-features",
+  "title": "Configure safety thresholds per request",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "safety-settings",
+    "harm-categories",
+    "block-thresholds"
+  ],
+  "estimated_minutes": 15,
+  "requires": ["01-foundations/01-first-generate"],
+  "model_cost_hint": "~$0.0002 per verify run (flash-lite)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}
