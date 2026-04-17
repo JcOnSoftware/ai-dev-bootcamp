@@ -7,6 +7,7 @@
 
 import { runUserCodeAnthropic, type HarnessResultAnthropic } from "./harness-anthropic.ts";
 import { runUserCodeOpenAI, type HarnessResultOpenAI } from "./harness-openai.ts";
+import { runUserCodeGemini, type HarnessResultGemini } from "./harness-gemini.ts";
 import { HarnessError, type RunOptions } from "./types.ts";
 
 /** Default HarnessResult type — Anthropic for backward compat. Use provider-specific types for narrowing. */
@@ -23,6 +24,8 @@ export async function runUserCode(
       return runUserCodeAnthropic(filePath, options);
     case "openai":
       return runUserCodeOpenAI(filePath, options) as unknown as HarnessResult;
+    case "gemini":
+      return runUserCodeGemini(filePath, options) as unknown as HarnessResult;
     default:
       throw new HarnessError(`Unsupported provider: ${provider}`);
   }

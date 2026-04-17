@@ -4,7 +4,7 @@ Read this file first when you start a session in this repo.
 
 ## What this is
 
-Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools through **progressive exercises with automated tests against real APIs**. Supports **Anthropic (Claude)** and **OpenAI (GPT)** — 60 exercises total (30 per provider). Target learner: a 5+ year dev who can program but is new to the AI world.
+Open source, rustlings-style CLI that teaches **senior devs** how to use AI tools through **progressive exercises with automated tests against real APIs**. Supports **Anthropic (Claude)**, **OpenAI (GPT)**, and **Google (Gemini)**. Anthropic + OpenAI each ship 30 exercises (60 total). Gemini provider infra is live (v3.0) and exercises roll out track-by-track in follow-up PRs. Target learner: a 5+ year dev who can program but is new to the AI world.
 
 Repo: https://github.com/JcOnSoftware/ai-dev-bootcamp (PUBLIC).
 License: MIT.
@@ -13,11 +13,12 @@ License: MIT.
 
 - **Runtime**: Bun 1.3+
 - **Language**: TypeScript 5.9 (strict, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, `allowImportingTsExtensions`)
-- **AI SDKs**: `@anthropic-ai/sdk ^0.40` + `openai ^4.86` (dual provider)
+- **AI SDKs**: `@anthropic-ai/sdk ^0.40` + `openai ^4.86` + `@google/genai ^1.48` (tri provider)
 - **CLI**: `commander` + `@clack/prompts` + `picocolors`
   - `@clack/prompts` used in `aidev init` for provider, API key, and locale selection.
 - **Provider**: singleton at `packages/cli/src/provider/`. Mirrors i18n pattern. Resolved in `preAction` hook via `initProvider(provider)`.
 - **Provider resolution order**: `--provider <flag>` → `AIDEV_PROVIDER` env var → `~/.aidev/config.json` → default `"anthropic"`.
+- **Provider env vars + display names** live in `provider/types.ts` as `PROVIDER_ENV_VAR` and `PROVIDER_DISPLAY_NAME` records — use these instead of ad-hoc ternaries.
 - **i18n**: zero-dependency module at `packages/cli/src/i18n/`. Locale resolved once per process in commander's `preAction` hook via `initI18n(locale)`. All CLI strings use `t(key, vars?)`. Supported locales: `en` (default), `es`. Static JSON dictionaries — no runtime JSON loading.
 - **Locale resolution order**: `--locale <flag>` → `AIDEV_LOCALE` env var → `~/.aidev/config.json` → default `"en"`.
 - **Monorepo**: Bun workspaces (no Nx/Turbo — YAGNI)
@@ -36,6 +37,7 @@ ai-dev-bootcamp/
 │       │       ├── harness.ts           # dispatcher (routes by AIDEV_PROVIDER)
 │       │       ├── harness-anthropic.ts # monkey-patches Anthropic Messages.prototype
 │       │       ├── harness-openai.ts    # monkey-patches OpenAI Completions.prototype
+│       │       ├── harness-gemini.ts    # monkey-patches Gemini Models.prototype *Internal
 │       │       └── types.ts             # shared types (HarnessResult, RunOptions)
 │       ├── cli/                   # @aidev/cli — `aidev` binary
 │       │   └── src/
@@ -45,7 +47,7 @@ ai-dev-bootcamp/
 │       │       ├── config.ts      # ~/.aidev/ persistence (provider, locale, API keys)
 │       │       ├── provider/      # provider module (mirrors i18n pattern)
 │       │       │   ├── index.ts   # initProvider(), getActiveProvider()
-│       │       │   └── types.ts   # SupportedProvider = "anthropic" | "openai"
+│       │       │   └── types.ts   # SupportedProvider = "anthropic" | "openai" | "gemini"
 │       │       └── i18n/          # i18n module
 │       │           ├── index.ts   # initI18n(), t(), getActiveLocale()
 │       │           ├── types.ts   # SupportedLocale = "es" | "en"
@@ -55,9 +57,12 @@ ai-dev-bootcamp/
 │           ├── anthropic/         # 30 Anthropic exercises
 │           │   ├── 01-foundations/ ├── 02-caching/ ├── 03-tool-use/
 │           │   ├── 04-rag/        ├── 05-agents/  └── 06-mcp/
-│           └── openai/            # 30 OpenAI exercises
-│               ├── 01-foundations/ ├── 02-context-management/ ├── 03-function-calling/
-│               ├── 04-rag/        ├── 05-agents/             └── 06-evals-production/
+│           ├── openai/            # 30 OpenAI exercises
+│           │   ├── 01-foundations/ ├── 02-context-management/ ├── 03-function-calling/
+│           │   ├── 04-rag/        ├── 05-agents/             └── 06-evals-production/
+│           └── gemini/            # infra ready (v3.0); exercises landing track-by-track
+│               # planned: 01-foundations / 02-context-caching / 03-function-calling
+│               #          04-rag / 05-agents / 06-live-multimodal
 ├── docs/
 │   ├── PLAN.md                    # original M1 plan (historical)
 │   └── EXERCISE-CONTRACT.md       # REQUIRED READING before touching exercises
@@ -98,6 +103,7 @@ Every exercise has these files at its root plus one `exercise.md` per declared l
 - Harness dispatcher (`harness.ts`) reads `AIDEV_PROVIDER` env and routes to the correct sub-harness:
   - **Anthropic**: `harness-anthropic.ts` patches `Messages.prototype.create/stream` → captures `CapturedCallAnthropic`
   - **OpenAI**: `harness-openai.ts` patches `Completions.prototype.create` + streaming proxy → captures `CapturedCallOpenAI`
+  - **Gemini**: `harness-gemini.ts` patches `Models.prototype.*Internal` (`generateContentInternal`, `generateContentStreamInternal`, `embedContentInternal`) → captures `CapturedCallGemini`. **Gotcha**: Gemini public methods (`generateContent`, etc.) are instance-level bindings — patching the prototype for those names has no effect. Patch the `*Internal` variants that the public wrappers delegate to.
 - Tests assert on **structure** (model used, tools, params, shape) — NOT on literal LLM text (non-deterministic).
 - `resolveExerciseFile(import.meta.url)` + `AIDEV_TARGET=starter|solution` switches target without file swaps.
 
@@ -118,18 +124,19 @@ aidev run <id> [--solution] [--stream-live] [--full] [--provider] [--locale]  # 
 
 **Provider resolution**: `--provider` flag → `AIDEV_PROVIDER` env → `config.provider` → default `"anthropic"`.
 **Locale resolution**: `--locale` flag → `AIDEV_LOCALE` env → `config.locale` → default `"en"`.
-**API key resolution**: `resolveApiKey(provider)` → env (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`) → `~/.aidev/config.json`.
+**API key resolution**: `resolveApiKey(provider)` → env (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GEMINI_API_KEY`) → `~/.aidev/config.json`.
 
 ## Testing
 
 - **Strict TDD Mode: ENABLED**
 - Test runner: `bun test` (use `./` prefix if filename doesn't contain `.test`/`.spec`)
-- Integration tests hit real API. Guard `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` in `beforeAll` (provider-dependent).
+- Integration tests hit real API. Guard `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GEMINI_API_KEY` in `beforeAll` (provider-dependent).
 - Typecheck: `bunx tsc --noEmit` from `code/`
 
 ## State of play
 
-- **v2.0 COMPLETE**: 60 exercises across 2 providers, all bilingual (en + es).
+- **v3.0 (current)**: Gemini provider infrastructure live. `@google/genai` SDK wired end-to-end — harness (`harness-gemini.ts`), cost table, render, i18n, init prompt, CI hooks. Exercises roll out track-by-track in follow-up PRs.
+- **v2.0**: 60 exercises across 2 providers, all bilingual (en + es).
   - **Anthropic** (30): foundations, caching, tool-use, RAG, agents, MCP
   - **OpenAI** (30): foundations, context-management, function-calling, RAG, agents, evals-production
 - **Multi-provider**: `--provider` flag, `AIDEV_PROVIDER` env, provider selection in init. Provider-scoped exercise directories + harness dispatcher.
@@ -137,6 +144,8 @@ aidev run <id> [--solution] [--stream-live] [--full] [--provider] [--locale]  # 
 - **CLI**: full command set — init (provider/key/locale + reset/update), list, open (--solution), next, verify, progress, run (--stream-live).
 - **Repo**: PUBLIC. Branch protection active (PR + CI required, 0 approvals for solo dev).
 - **Next**:
+  - Gemini exercises — 6 tracks rolling out (01-foundations, 02-context-caching, 03-function-calling, 04-rag, 05-agents, 06-live-multimodal)
+  - LangChain — deferred to post-Gemini as `07-frameworks` track (framework-level, ENCIMA de los SDKs nativos)
   - Issue #3: quarterly MODEL_PRICES refresh in cost.ts
   - Multi-editor support for `aidev open`/`next` (currently VS Code only)
 
@@ -157,6 +166,9 @@ Engram is the memory backend. Key topics for this project (`project: "new-tool"`
 | `sdd/add-agents-track/*` | Archived — Anthropic track 05-agents |
 | `sdd/add-mcp-track/*` | Archived — Anthropic track 06-mcp |
 | `sdd/add-openai-provider-support/*` | Archived — multi-provider infra + 30 OpenAI exercises |
+| `sdd/add-gemini-provider-support/*` | Infra shipped in v3.0 (explore/proposal/specs/design/tasks in engram + `openspec/changes/add-gemini-provider-support/`) |
+| `ai-dev-bootcamp/gemini-harness-strategy` | B0 spike finding: patch `*Internal` methods on `Models.prototype`, not public methods |
+| `ai-dev-bootcamp/roadmap-v3` | Decision: Gemini next, LangChain deferred to post-v3 `07-frameworks` track |
 
 Retrieve full content with `mem_search(query: "<topic>", project: "new-tool")` → `mem_get_observation(id)`.
 

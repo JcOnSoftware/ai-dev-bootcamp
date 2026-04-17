@@ -36,17 +36,50 @@ export const MODEL_PRICES: { lastUpdated: string; families: ModelFamily[] } = {
   lastUpdated: "2026-04",
   families: [
     // Anthropic
-    { match: /haiku/i,          input: 1.0,   output: 5.0  },
-    { match: /sonnet/i,         input: 3.0,   output: 15.0 },
-    { match: /opus/i,           input: 15.0,  output: 75.0 },
+    { match: /haiku/i,                    input: 1.0,   output: 5.0   },
+    { match: /sonnet/i,                   input: 3.0,   output: 15.0  },
+    { match: /opus/i,                     input: 15.0,  output: 75.0  },
     // OpenAI
-    { match: /gpt-4\.1-nano/i,  input: 0.10,  output: 0.40  },
-    { match: /gpt-4o-mini/i,    input: 0.15,  output: 0.60  },
-    { match: /gpt-4\.1-mini/i,  input: 0.40,  output: 1.60  },
-    { match: /gpt-4\.1$/i,      input: 2.00,  output: 8.00  },
-    { match: /gpt-4o$/i,        input: 2.50,  output: 10.00 },
+    { match: /gpt-4\.1-nano/i,            input: 0.10,  output: 0.40  },
+    { match: /gpt-4o-mini/i,              input: 0.15,  output: 0.60  },
+    { match: /gpt-4\.1-mini/i,            input: 0.40,  output: 1.60  },
+    { match: /gpt-4\.1$/i,                input: 2.00,  output: 8.00  },
+    { match: /gpt-4o$/i,                  input: 2.50,  output: 10.00 },
+    // Google (Gemini)
+    { match: /gemini-2\.5-flash-lite/i,   input: 0.10,  output: 0.40  },
+    { match: /gemini-2\.5-flash$/i,       input: 0.30,  output: 2.50  },
+    { match: /gemini-2\.5-pro/i,          input: 1.25,  output: 10.00 },
+    { match: /gemini-embedding/i,         input: 0.15,  output: 0    },
   ],
 };
+
+/** Raw usage shape returned by @google/genai — camelCase. Normalized to our `Usage`. */
+export interface GeminiUsageMetadata {
+  promptTokenCount?: number;
+  candidatesTokenCount?: number;
+  totalTokenCount?: number;
+  /** Tokens served from implicit or explicit cache — priced at cache-read rate. */
+  cachedContentTokenCount?: number;
+  /** Thinking tokens (for reasoning models) — billed as output. */
+  thoughtsTokenCount?: number;
+}
+
+/**
+ * Converts Gemini's camelCase `usageMetadata` into our shared `Usage` type so
+ * `estimateCost()` works uniformly across providers.
+ *
+ * - `output_tokens` includes `thoughtsTokenCount` (they are billed as output).
+ * - `cache_read_input_tokens` maps to Gemini's `cachedContentTokenCount`.
+ * - Gemini does not charge cache-write separately; implicit caching is free.
+ */
+export function normalizeGeminiUsage(u: GeminiUsageMetadata | undefined | null): Usage {
+  if (!u) return { input_tokens: 0, output_tokens: 0 };
+  return {
+    input_tokens: u.promptTokenCount ?? 0,
+    output_tokens: (u.candidatesTokenCount ?? 0) + (u.thoughtsTokenCount ?? 0),
+    cache_read_input_tokens: u.cachedContentTokenCount ?? 0,
+  };
+}
 
 /**
  * Cache pricing multipliers relative to the standard input price.

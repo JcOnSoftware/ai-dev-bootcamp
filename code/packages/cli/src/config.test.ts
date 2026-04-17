@@ -141,6 +141,47 @@ describe("writeConfig / readConfig — locale field round-trip", () => {
   });
 });
 
+describe("resolveApiKey (gemini branch)", () => {
+  let origGeminiKey: string | undefined;
+  let origAnthropicKey: string | undefined;
+  let origOpenaiKey: string | undefined;
+
+  beforeEach(() => {
+    origGeminiKey = process.env["GEMINI_API_KEY"];
+    origAnthropicKey = process.env["ANTHROPIC_API_KEY"];
+    origOpenaiKey = process.env["OPENAI_API_KEY"];
+    delete process.env["GEMINI_API_KEY"];
+    delete process.env["ANTHROPIC_API_KEY"];
+    delete process.env["OPENAI_API_KEY"];
+  });
+
+  afterEach(() => {
+    if (origGeminiKey !== undefined) process.env["GEMINI_API_KEY"] = origGeminiKey;
+    else delete process.env["GEMINI_API_KEY"];
+    if (origAnthropicKey !== undefined) process.env["ANTHROPIC_API_KEY"] = origAnthropicKey;
+    else delete process.env["ANTHROPIC_API_KEY"];
+    if (origOpenaiKey !== undefined) process.env["OPENAI_API_KEY"] = origOpenaiKey;
+    else delete process.env["OPENAI_API_KEY"];
+  });
+
+  test("returns GEMINI_API_KEY when set and provider is gemini", async () => {
+    process.env["GEMINI_API_KEY"] = "AIzaTestGeminiKey";
+    const { resolveApiKey } = await import("./config.ts");
+    const key = await resolveApiKey("gemini");
+    expect(key).toBe("AIzaTestGeminiKey");
+  });
+
+  test("gemini branch ignores ANTHROPIC_API_KEY and OPENAI_API_KEY", async () => {
+    process.env["ANTHROPIC_API_KEY"] = "sk-ant-should-ignore";
+    process.env["OPENAI_API_KEY"] = "sk-should-ignore";
+    const { resolveApiKey } = await import("./config.ts");
+    const key = await resolveApiKey("gemini");
+    // Without GEMINI_API_KEY and no config.geminiApiKey, must return undefined
+    // (NOT fall back to anthropic or openai keys).
+    expect(key).toBeUndefined();
+  });
+});
+
 describe("resolveLocale (async — env var path)", () => {
   let origEnvLocale: string | undefined;
 

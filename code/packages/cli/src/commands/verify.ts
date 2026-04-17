@@ -6,6 +6,7 @@ import { t, getActiveLocale } from "../i18n/index.ts";
 import { findExercise, exerciseDocPath, isStale } from "../exercises.ts";
 import { recordPass, resolveApiKey } from "../config.ts";
 import { getActiveProvider } from "../provider/index.ts";
+import { PROVIDER_ENV_VAR, PROVIDER_DISPLAY_NAME } from "../provider/types.ts";
 
 export const verifyCommand = new Command("verify")
   .description("Run the tests for a given exercise.")
@@ -34,11 +35,13 @@ export const verifyCommand = new Command("verify")
     console.log(pc.dim(t("verify.exercise_doc", { path: docPath })));
 
     const provider = getActiveProvider();
+    const envVarName = PROVIDER_ENV_VAR[provider];
+    const providerDisplay = PROVIDER_DISPLAY_NAME[provider];
     const apiKey = await resolveApiKey(provider);
     if (!apiKey) {
       console.error(
-        pc.red(t("verify.no_key")) +
-          pc.dim(`\n${t("verify.no_key_hint")}`),
+        pc.red(t("verify.no_key", { provider: providerDisplay })) +
+          pc.dim(`\n${t("verify.no_key_hint", { envVar: envVarName })}`),
       );
       process.exit(1);
     }
@@ -47,7 +50,6 @@ export const verifyCommand = new Command("verify")
     const target = opts.solution ? "solution" : "starter";
     console.log(pc.dim(t("verify.running", { id: exercise.meta.id, target })));
 
-    const envVarName = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
     const child = spawn("bun", ["test", testFile], {
       stdio: "inherit",
       env: {
