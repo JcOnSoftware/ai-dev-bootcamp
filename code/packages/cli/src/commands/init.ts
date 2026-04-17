@@ -63,6 +63,7 @@ async function runConfigure(): Promise<void> {
       options: [
         { value: "anthropic" as SupportedProvider, label: "Anthropic (Claude)" },
         { value: "openai" as SupportedProvider, label: "OpenAI (GPT)" },
+        { value: "gemini" as SupportedProvider, label: "Google (Gemini)" },
       ],
     });
     if (p.isCancel(selected)) {

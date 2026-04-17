@@ -24,7 +24,7 @@ program
   .description("Interactive CLI to learn AI tools through progressive exercises.")
   .version("0.0.1")
   .option("--locale <code>", "Locale override for this invocation (es|en)")
-  .option("--provider <name>", "Provider override for this invocation (anthropic|openai)");
+  .option("--provider <name>", "Provider override for this invocation (anthropic|openai|gemini)");
 
 // Resolve locale and initialize i18n BEFORE any command action runs.
 // Commander does NOT call preAction for --help / --version built-ins.
