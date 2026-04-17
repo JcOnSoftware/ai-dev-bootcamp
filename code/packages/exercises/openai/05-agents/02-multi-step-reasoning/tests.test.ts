@@ -18,7 +18,7 @@ describe("02-multi-step-reasoning", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { totalCalls: number; finalAnswer: string } | undefined;
-  });
+  }, 60_000);
 
   test("makes at least 3 API calls (multi-step reasoning requires multiple tool rounds)", () => {
     expect(calls.length).toBeGreaterThanOrEqual(3);
