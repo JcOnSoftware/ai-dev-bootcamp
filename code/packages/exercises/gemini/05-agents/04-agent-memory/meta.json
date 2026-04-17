@@ -1,0 +1,20 @@
+{
+  "id": "04-agent-memory",
+  "track": "05-agents",
+  "title": "Carry conversation memory across user turns",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "conversation-memory",
+    "contents-history",
+    "multi-user-turn"
+  ],
+  "estimated_minutes": 18,
+  "requires": ["05-agents/02-multi-step-task"],
+  "model_cost_hint": "~$0.001 per verify run (4+ flash turns)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}
