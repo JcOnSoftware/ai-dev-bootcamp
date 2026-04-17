@@ -1,0 +1,20 @@
+{
+  "id": "01-first-embedding",
+  "track": "04-rag",
+  "title": "Your first embedding",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "embeddings",
+    "gemini-embedding-001",
+    "vector-dimensions"
+  ],
+  "estimated_minutes": 10,
+  "requires": ["01-foundations/01-first-generate"],
+  "model_cost_hint": "~$0.00005 per verify run (gemini-embedding-001)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}
