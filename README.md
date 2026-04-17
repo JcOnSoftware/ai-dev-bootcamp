@@ -2,13 +2,13 @@
 
 > [🇪🇸 Leé esto en español →](./README.es.md)
 
-**Rustlings for AI devs.** A hands-on AI engineering bootcamp for experienced developers — learn to build real AI systems through 60 progressive exercises with automated tests against real APIs.
+**Rustlings for AI devs.** A hands-on AI engineering bootcamp for experienced developers — learn to build real AI systems through progressive exercises with automated tests against real APIs.
 
-Choose your provider: **Anthropic (Claude)** or **OpenAI (GPT)**. Each has 6 tracks × 5 exercises, bilingual (English + Spanish), with tests that validate against the real API.
+Choose your provider: **Anthropic (Claude)**, **OpenAI (GPT)**, or **Google (Gemini)**. Anthropic and OpenAI have 6 tracks × 5 exercises each (60 exercises total). Gemini provider support is live (v3.0) — exercises are landing track-by-track in follow-up PRs. All exercises are bilingual (English + Spanish), with tests that validate against the real API.
 
 Most AI learning resources are either too basic ("prompt engineering for beginners") or too abstract (4-hour video courses on LLM theory). This is for the opposite audience: devs with 5+ years of experience who can code, but haven't built anything serious with AI yet. You learn by **writing code, running it against the real API, and watching tests go green** — not by watching someone else type.
 
-## The curriculum — 2 providers, 60 exercises
+## The curriculum — 3 providers supported
 
 ### Anthropic (Claude) — 6 tracks, 30 exercises
 
@@ -32,6 +32,21 @@ Most AI learning resources are either too basic ("prompt engineering for beginne
 | **05 — Agents** | Planner-executor, multi-step reasoning, state management, self-correction, tool orchestration |
 | **06 — Evals & production** | Prompt evaluation, regression testing, output scoring, dataset testing, guardrails & validation |
 
+### Google (Gemini) — provider support live, exercises rolling out
+
+v3.0 ships multi-provider infrastructure for Gemini (`@google/genai` SDK, streaming + embeddings harness, cost estimation, bilingual CLI). Exercises land track-by-track as separate PRs. Planned tracks:
+
+| Track | Focus |
+|-------|-------|
+| **01 — Foundations** | `generateContent`, model selection, token usage, streaming, structured output |
+| **02 — Context caching** | Implicit caching + explicit `ai.caches` — Gemini-unique dual mode |
+| **03 — Function calling** | `functionDeclarations`, tool loops, JSON mode, parallel tools |
+| **04 — RAG** | `embedContent` with `gemini-embedding-001` (3072-dim), cosine similarity, retrieval |
+| **05 — Agents** | Agent loops, multi-step reasoning, planner-executor, memory |
+| **06 — Live multimodal** | Live API (audio-to-audio realtime over WebSocket) — Gemini-unique |
+
+Track progress in [the Issues board](https://github.com/JcOnSoftware/ai-dev-bootcamp/issues).
+
 Each exercise has a `starter.ts` (TODOs to implement), a `solution.ts` (reference), `tests.test.ts` (structural assertions against the real API), and bilingual `exercise.md` (English + Spanish).
 
 ## Quick start
@@ -41,6 +56,7 @@ Requires [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows) and [VS Code](https:/
 **API key** — you need one depending on your chosen provider:
 - **Anthropic**: <https://console.claude.com/settings/keys>
 - **OpenAI**: <https://platform.openai.com/api-keys>
+- **Google (Gemini)**: <https://aistudio.google.com/apikey>
 
 > Anthropic Track 04 (RAG) also needs a free Voyage AI key from <https://dash.voyageai.com/api-keys> — 200M tokens/month free tier.
 
@@ -59,9 +75,13 @@ echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
 # OpenAI:
 echo "OPENAI_API_KEY=sk-..." > .env
 
+# Google (Gemini):
+echo "GEMINI_API_KEY=AIza..." > .env
+
 # Or export in your shell:
 export ANTHROPIC_API_KEY=sk-ant-...
 export OPENAI_API_KEY=sk-...
+export GEMINI_API_KEY=AIza...
 ```
 
 ### Enable the `aidev` command
@@ -97,7 +117,7 @@ aidev next                  # jump to your next incomplete exercise
 | `aidev progress` | Dashboard with completion per track |
 | `aidev init` | Reconfigure, reset progress, or update exercises |
 
-**Provider flag**: add `--provider anthropic` or `--provider openai` to any command to override your default.
+**Provider flag**: add `--provider anthropic`, `--provider openai`, or `--provider gemini` to any command to override your default.
 
 **Locale flag**: add `--locale es` or `--locale en` to any command.
 
@@ -108,11 +128,13 @@ aidev next                  # jump to your next incomplete exercise
 Exercises use the cheapest models by default:
 - **Anthropic**: Claude Haiku — full bootcamp well under $0.10
 - **OpenAI**: gpt-4.1-nano — full bootcamp well under $0.10
+- **Google (Gemini)**: gemini-2.5-flash-lite — same tier ($0.10 in / $0.40 out per 1M tokens)
 - Voyage embeddings (Anthropic Track 04): free tier covers learner usage ($0)
 - Every `aidev run` prints exact tokens and cost estimate
 
 ## Project status
 
+- **v3.0**: Gemini provider support (infra). Anthropic + OpenAI shipping 60 exercises; Gemini exercises land track-by-track in follow-up PRs.
 - **v2.0**: 2 providers × 6 tracks × 5 exercises = 60 total. Full CLI + bilingual en/es content.
 - **Distribution**: git-clone-first (rustlings model) — the exercises ARE the repo.
 
