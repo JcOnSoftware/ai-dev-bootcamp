@@ -32,6 +32,7 @@
       "dependencies": {
         "@aidev/runner": "workspace:*",
         "@anthropic-ai/sdk": "^0.40.0",
+        "@google/genai": "^1.48.0",
         "openai": "^4.86.0",
       },
     },

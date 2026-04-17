@@ -1,0 +1,20 @@
+{
+  "id": "02-model-selection",
+  "track": "01-foundations",
+  "title": "Choosing the right Gemini model",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "model-selection",
+    "cost-tradeoffs",
+    "flash-vs-flash-lite"
+  ],
+  "estimated_minutes": 12,
+  "requires": ["01-first-generate"],
+  "model_cost_hint": "~$0.0002 per verify run (flash-lite + flash)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}

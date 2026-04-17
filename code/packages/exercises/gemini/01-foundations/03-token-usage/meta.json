@@ -1,0 +1,20 @@
+{
+  "id": "03-token-usage",
+  "track": "01-foundations",
+  "title": "Reading token usage and estimating cost",
+  "version": "1.0.0",
+  "valid_until": "2026-10-17",
+  "concepts": [
+    "usage-metadata",
+    "token-counting",
+    "cost-estimation"
+  ],
+  "estimated_minutes": 10,
+  "requires": ["01-first-generate"],
+  "model_cost_hint": "~$0.0001 per verify run (gemini-2.5-flash-lite)",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "provider": "gemini"
+}
