@@ -3,6 +3,7 @@
   "init.provider_prompt": "¿Con qué proveedor de AI querés empezar?",
   "init.provider_exists": "Ya tenés configurado el proveedor \"{provider}\". ¿Querés cambiarlo?",
   "init.key_prompt": "Pegá tu API key",
+  "init.key_detected_in_env": "Detecté {envVar} en el entorno — salteo el prompt de API key.",
   "init.locale_prompt": "Elegí el idioma para la CLI y los ejercicios",
   "init.saved": "Guardado en {path}. Siguiente: {nextCmd}",
   "init.key_exists": "Ya hay una API key guardada. ¿Sobreescribir?",

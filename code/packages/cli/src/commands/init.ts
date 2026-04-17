@@ -8,6 +8,7 @@ import { t, initI18n } from "../i18n/index.ts";
 import { paths, readConfig, writeConfig, resetProgress } from "../config.ts";
 import type { SupportedLocale } from "../i18n/types.ts";
 import type { SupportedProvider } from "../provider/types.ts";
+import { PROVIDER_ENV_VAR } from "../provider/types.ts";
 
 /** Resolves the git repo root (two levels above code/packages/cli/src/). */
 function repoRoot(): string {
@@ -72,40 +73,53 @@ async function runConfigure(): Promise<void> {
   }
 
   // --- API key (provider-aware validation) ---
-  const existingKey =
-    newProvider === "anthropic" ? existing.anthropicApiKey
-    : newProvider === "openai" ? existing.openaiApiKey
-    : existing.geminiApiKey;
-  if (existingKey) {
-    const overwrite = await p.confirm({
-      message: t("init.key_exists"),
-      initialValue: false,
+  // If the provider's key is already in process.env (from shell export or
+  // code/.env loaded at CLI startup), skip the prompt entirely. The env path
+  // wins over config.json at resolve time, so writing to config would be dead
+  // weight — and the user clearly already set it where they wanted it.
+  const envVar = PROVIDER_ENV_VAR[newProvider];
+  const keyFromEnv = process.env[envVar];
+  let key: string | undefined;
+
+  if (keyFromEnv) {
+    console.log(`  ${pc.green("✓")} ${t("init.key_detected_in_env", { envVar })}`);
+  } else {
+    const existingKey =
+      newProvider === "anthropic" ? existing.anthropicApiKey
+      : newProvider === "openai" ? existing.openaiApiKey
+      : existing.geminiApiKey;
+    if (existingKey) {
+      const overwrite = await p.confirm({
+        message: t("init.key_exists"),
+        initialValue: false,
+      });
+      if (p.isCancel(overwrite) || !overwrite) {
+        p.cancel(t("init.cancelled"));
+        return;
+      }
+    }
+
+    const entered = await p.password({
+      message: t("init.key_prompt"),
+      validate(value) {
+        if (!value) return "An API key is required.";
+        if (newProvider === "anthropic" && !value.startsWith("sk-ant-")) {
+          return "That doesn't look like an Anthropic key (expected sk-ant-...).";
+        }
+        if (newProvider === "openai" && !value.startsWith("sk-")) {
+          return "That doesn't look like an OpenAI key (expected sk-...).";
+        }
+        if (newProvider === "gemini" && !value.startsWith("AIza")) {
+          return "That doesn't look like a Gemini key (expected AIza...). If you're using a GCP service account, ignore this warning.";
+        }
+      },
     });
-    if (p.isCancel(overwrite) || !overwrite) {
+
+    if (p.isCancel(entered)) {
       p.cancel(t("init.cancelled"));
       return;
     }
-  }
-
-  const key = await p.password({
-    message: t("init.key_prompt"),
-    validate(value) {
-      if (!value) return "An API key is required.";
-      if (newProvider === "anthropic" && !value.startsWith("sk-ant-")) {
-        return "That doesn't look like an Anthropic key (expected sk-ant-...).";
-      }
-      if (newProvider === "openai" && !value.startsWith("sk-")) {
-        return "That doesn't look like an OpenAI key (expected sk-...).";
-      }
-      if (newProvider === "gemini" && !value.startsWith("AIza")) {
-        return "That doesn't look like a Gemini key (expected AIza...). If you're using a GCP service account, ignore this warning.";
-      }
-    },
-  });
-
-  if (p.isCancel(key)) {
-    p.cancel(t("init.cancelled"));
-    return;
+    key = entered;
   }
 
   // --- Locale ---
@@ -156,7 +170,11 @@ async function runConfigure(): Promise<void> {
     newProvider === "anthropic" ? "anthropicApiKey"
     : newProvider === "openai" ? "openaiApiKey"
     : "geminiApiKey";
-  await writeConfig({ ...existing, [keyField]: key, provider: newProvider, locale: newLocale });
+  const nextConfig: typeof existing = { ...existing, provider: newProvider, locale: newLocale };
+  if (key !== undefined) {
+    nextConfig[keyField] = key;
+  }
+  await writeConfig(nextConfig);
   p.outro(
     `${pc.green("✓")} ${t("init.saved", { path: pc.dim(paths.configFile), nextCmd: pc.cyan("aidev list") })}`,
   );
