@@ -124,7 +124,22 @@ aidev run <id> [--solution] [--stream-live] [--full] [--provider] [--locale]  # 
 
 **Provider resolution**: `--provider` flag → `AIDEV_PROVIDER` env → `config.provider` → default `"anthropic"`.
 **Locale resolution**: `--locale` flag → `AIDEV_LOCALE` env → `config.locale` → default `"en"`.
-**API key resolution**: `resolveApiKey(provider)` → env (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GEMINI_API_KEY`) → `~/.aidev/config.json`.
+**API key resolution**: `process.env` (shell) → `code/.env` (loaded at CLI startup by `loadProjectEnv()` in `env.ts`) → `~/.aidev/config.json`.
+
+## API key policy
+
+All API keys — LLM provider (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`) and integrations (`VOYAGE_API_KEY`, future services) — resolve in the same order:
+
+1. `process.env` (shell export)
+2. `code/.env` (auto-loaded at CLI startup via `env.ts` → `loadProjectEnv()`; never overwrites existing `process.env` entries)
+3. `~/.aidev/config.json` (written by `aidev init`)
+
+Conventions for *where each key lives by default* (both stores work for any key — this is about default home, not enforcement):
+
+- **LLM provider keys**: `aidev init` → `config.json`. Provides interactive UX with prefix validation. `init` detects keys already present in `process.env` and skips the prompt when so.
+- **Integration keys**: `code/.env`. Document the env var in the track's README and in the exercise's `meta.json.requires` field. Do NOT extend `aidev init` to collect them — the target audience is senior devs who can edit a `.env`.
+
+Tests and exercise code read `process.env.*` directly. They don't care which of the three sources populated it.
 
 ## Testing
 

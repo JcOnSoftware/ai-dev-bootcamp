@@ -13,13 +13,17 @@ Requirements:
 gh repo clone JcOnSoftware/ai-dev-bootcamp
 cd ai-dev-bootcamp/code
 bun install
-cat > .env <<EOF
-ANTHROPIC_API_KEY=sk-ant-...
-VOYAGE_API_KEY=pa-...
-EOF
 ```
 
-> **Rate limits on Voyage free tier**: 3 requests per minute without a payment method. Running the full `04-rag` track integration suite in parallel will 429. Run exercises one at a time (`bun test packages/exercises/04-rag/01-embeddings-basics/`, wait ~40s, next one). Adding a payment method unlocks standard limits and costs $0 as long as you stay under the 200M free-tier tokens.
+Configure your provider key via `aidev init` (interactive, validates prefix, stored in `~/.aidev/config.json`). Add the Voyage key — required for the Anthropic `04-rag` track — to `code/.env`:
+
+```bash
+echo "VOYAGE_API_KEY=pa-..." >> .env
+```
+
+> **Why two stores?** LLM provider keys go through `aidev init` → `config.json` (one key active at a time, nice UX). External integration keys go in `code/.env` (you add them by hand when a track needs them). Resolution order: `process.env` > `code/.env` > `config.json`.
+
+> **Rate limits on Voyage free tier**: 3 requests per minute without a payment method. Running the full `04-rag` track integration suite in parallel will 429. Run exercises one at a time (`bun test packages/exercises/anthropic/04-rag/01-embeddings-basics/`, wait ~40s, next one). Adding a payment method unlocks standard limits and costs $0 as long as you stay under the 200M free-tier tokens.
 
 > All `bun` / `bunx` commands MUST run from `code/` — not the repo root. Otherwise `bunx tsc` prints help instead of typechecking.
 

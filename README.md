@@ -51,7 +51,7 @@ Each exercise has a `starter.ts` (TODOs to implement), a `solution.ts` (referenc
 
 Requires [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows) and [VS Code](https://code.visualstudio.com/) (for `aidev open` and `aidev next`).
 
-**API key** — you need one depending on your chosen provider:
+**API keys** — get one for the provider you pick:
 - **Anthropic**: <https://console.claude.com/settings/keys>
 - **OpenAI**: <https://platform.openai.com/api-keys>
 - **Google (Gemini)**: <https://aistudio.google.com/apikey>
@@ -64,23 +64,27 @@ cd ai-dev-bootcamp/code
 bun install
 ```
 
-Set up your API key — pick **one** method:
+### How keys are resolved
+
+All keys resolve in this order (first match wins):
+
+1. **`process.env`** — whatever is exported in your shell
+2. **`code/.env`** — auto-loaded by the CLI at startup (no matter where you run `aidev` from)
+3. **`~/.aidev/config.json`** — written by `aidev init`
+
+Use whichever fits. Typical setup:
 
 ```bash
-# Anthropic:
-echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
-
-# OpenAI:
-echo "OPENAI_API_KEY=sk-..." > .env
-
-# Google (Gemini):
-echo "GEMINI_API_KEY=AIza..." > .env
-
-# Or export in your shell:
-export ANTHROPIC_API_KEY=sk-ant-...
-export OPENAI_API_KEY=sk-...
-export GEMINI_API_KEY=AIza...
+aidev init              # picks provider + stores LLM key in ~/.aidev/config.json
 ```
+
+If you're going to do the Anthropic RAG track (`04-rag`), add a Voyage key — `.env` is the easiest place:
+
+```bash
+echo "VOYAGE_API_KEY=pa-..." >> .env
+```
+
+**Convention**: LLM provider keys go through `aidev init` → `config.json`. External integration keys (Voyage today, future services tomorrow) go in `code/.env`. Both stores work for any key — the convention is about where each one *lives by default*. `aidev init` detects keys already present in your environment and skips the prompt for them, so set it once and forget about it.
 
 ### Enable the `aidev` command
 
