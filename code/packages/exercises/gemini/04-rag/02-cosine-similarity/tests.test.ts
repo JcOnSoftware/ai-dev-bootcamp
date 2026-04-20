@@ -21,7 +21,7 @@ describe("02-cosine-similarity", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as SimilarityReport | undefined;
-  }, 30_000);
+  }, 90_000);
 
   test("makes at least one embedContent call", () => {
     const embeds = calls.filter((c) => c.method === "embedContent");

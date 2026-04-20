@@ -24,7 +24,7 @@ describe("02-create-explicit-cache", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as CacheCreated | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("does not call generateContent (this exercise is about caches only)", () => {
     // Harness only patches generateContent/Stream/embed. A caches.create call

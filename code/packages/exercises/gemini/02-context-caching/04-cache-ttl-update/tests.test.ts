@@ -23,7 +23,7 @@ describe("04-cache-ttl-update", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as TtlReport | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("does not call generateContent (this exercise is about cache lifecycle only)", () => {
     const generate = calls.filter(

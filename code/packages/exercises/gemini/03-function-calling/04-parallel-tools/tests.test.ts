@@ -21,7 +21,7 @@ describe("04-parallel-tools", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as ParallelResult | undefined;
-  }, 30_000);
+  }, 90_000);
 
   test("makes exactly one API call", () => {
     expect(calls).toHaveLength(1);

@@ -24,7 +24,7 @@ describe("04-url-context", () => {
     calls = raw.calls as unknown as CapturedCallGemini[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as UrlContextResult | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("request includes the built-in urlContext tool", () => {
     const config = lastCall?.request["config"] as Record<string, unknown> | undefined;

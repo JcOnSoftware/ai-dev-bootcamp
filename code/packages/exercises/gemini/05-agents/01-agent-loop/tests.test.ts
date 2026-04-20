@@ -22,7 +22,7 @@ describe("01-agent-loop", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as AgentResult | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("makes at least 2 generateContent calls (loop ran multiple turns)", () => {
     const gen = calls.filter((c) => c.method === "generateContent");

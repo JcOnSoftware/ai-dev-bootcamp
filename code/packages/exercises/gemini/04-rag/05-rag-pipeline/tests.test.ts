@@ -21,7 +21,7 @@ describe("05-rag-pipeline", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as RagAnswer | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("makes at least 2 embedContent calls (corpus + query) AND 1 generateContent call", () => {
     const embeds = calls.filter((c) => c.method === "embedContent");
