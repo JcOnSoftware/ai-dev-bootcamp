@@ -22,7 +22,7 @@ describe("04-chunking", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as Chunk[] | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("makes at least 2 embedContent calls (chunks + query)", () => {
     const embeds = calls.filter((c) => c.method === "embedContent");

@@ -23,7 +23,7 @@ describe("02-tool-response-loop", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as LoopResult | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("makes exactly two generateContent calls (turn 1 + turn 2)", () => {
     expect(calls).toHaveLength(2);

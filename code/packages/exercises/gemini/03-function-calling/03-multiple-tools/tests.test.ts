@@ -23,7 +23,7 @@ describe("03-multiple-tools", () => {
     calls = raw.calls as unknown as CapturedCallGemini[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as RouterResult | undefined;
-  }, 30_000);
+  }, 90_000);
 
   test("makes exactly one API call", () => {
     expect(calls).toHaveLength(1);

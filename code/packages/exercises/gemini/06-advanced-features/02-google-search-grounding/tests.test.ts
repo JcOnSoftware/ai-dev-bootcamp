@@ -24,7 +24,7 @@ describe("02-google-search-grounding", () => {
     calls = raw.calls as unknown as CapturedCallGemini[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as GroundedAnswer | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("makes exactly one generateContent call", () => {
     expect(calls.filter((c) => c.method === "generateContent")).toHaveLength(1);

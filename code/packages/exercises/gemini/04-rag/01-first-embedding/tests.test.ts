@@ -24,7 +24,7 @@ describe("01-first-embedding", () => {
     calls = raw.calls as unknown as CapturedCallGemini[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as EmbeddingResult | undefined;
-  }, 30_000);
+  }, 90_000);
 
   test("makes exactly one embedContent call", () => {
     expect(calls).toHaveLength(1);

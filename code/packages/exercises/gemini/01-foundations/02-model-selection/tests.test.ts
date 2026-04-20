@@ -16,7 +16,7 @@ describe("02-model-selection", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as { flashLite: unknown; flash: unknown } | undefined;
-  }, 30_000);
+  }, 90_000);
 
   test("makes exactly two API calls", () => {
     expect(calls).toHaveLength(2);

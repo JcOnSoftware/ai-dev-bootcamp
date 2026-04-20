@@ -21,7 +21,7 @@ describe("05-tool-modes", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallGemini[];
     userReturn = raw.userReturn as ModesResult | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("makes exactly two API calls (AUTO + ANY)", () => {
     expect(calls).toHaveLength(2);

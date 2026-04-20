@@ -54,15 +54,20 @@ export interface HarnessResultGemini {
 }
 
 /**
- * Gemini's backend returns 503 UNAVAILABLE on model-capacity spikes and 429
- * on quota. Neither indicates a bug in the learner's code, so the harness
- * retries the whole exercise run (fresh import, fresh patches) up to 3 times
- * with exponential backoff. Non-transient errors (bad request, auth, etc.)
- * propagate immediately.
+ * Gemini's backend returns 503 UNAVAILABLE on model-capacity spikes, 500 on
+ * server-side glitches, and 429 RESOURCE_EXHAUSTED on per-minute/per-day
+ * quota. None indicates a bug in the learner's code, so the harness retries
+ * the whole exercise run (fresh import, fresh patches) up to 3 times.
+ *
+ * 5xx uses a short backoff (spikes clear in seconds). 429 uses a much longer
+ * backoff so we clear the per-minute rate window (~60s) before retrying.
+ * Non-transient errors (400 bad request, 401/403 auth) propagate immediately.
  */
-function isTransientGeminiError(err: unknown): boolean {
+function transientBackoffMs(err: unknown, attempt: number): number | null {
   const status = (err as { status?: number } | null | undefined)?.status;
-  return status === 503 || status === 429 || status === 500;
+  if (status === 503 || status === 500) return 1000 * 2 ** (attempt - 1); // 1s, 2s
+  if (status === 429) return 15_000 * attempt; // 15s, 30s — clears per-minute quota window
+  return null;
 }
 
 export async function runUserCodeGemini(
@@ -105,8 +110,9 @@ export async function runUserCodeGemini(
       };
     } catch (err) {
       lastError = err;
-      if (attempt < MAX_ATTEMPTS && isTransientGeminiError(err)) {
-        await new Promise((r) => setTimeout(r, 1000 * 2 ** (attempt - 1)));
+      const backoff = transientBackoffMs(err, attempt);
+      if (attempt < MAX_ATTEMPTS && backoff !== null) {
+        await new Promise((r) => setTimeout(r, backoff));
         continue;
       }
       throw err;

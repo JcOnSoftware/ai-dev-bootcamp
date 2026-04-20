@@ -24,7 +24,7 @@ describe("01-thinking-budget", () => {
     calls = raw.calls as unknown as CapturedCallGemini[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as ThinkingReport | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("makes exactly one generateContent call", () => {
     expect(calls.filter((c) => c.method === "generateContent")).toHaveLength(1);

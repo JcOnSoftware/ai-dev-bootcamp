@@ -24,7 +24,7 @@ describe("03-code-execution", () => {
     calls = raw.calls as unknown as CapturedCallGemini[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as CodeExecResult | undefined;
-  }, 60_000);
+  }, 120_000);
 
   test("request includes the built-in codeExecution tool", () => {
     const config = lastCall?.request["config"] as Record<string, unknown> | undefined;
