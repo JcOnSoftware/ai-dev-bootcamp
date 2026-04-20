@@ -19,24 +19,35 @@ describe("01-implicit-cache", () => {
     if (!process.env["GEMINI_API_KEY"]) {
       throw new Error("GEMINI_API_KEY not set — the exercise hits the real API.");
     }
-    // Pre-warm Gemini's implicit cache for this exact prefix so the learner's
-    // two same-prefix calls reliably show `cachedContentTokenCount > 0`.
-    // Without warmup, the FIRST time this prefix is seen it is not yet cached
-    // server-side, and depending on timing the learner's second call may or
-    // may not land on a warm cache. This is a test-harness concern, not a
-    // concept the learner needs to understand.
+    // Gemini's implicit cache is opportunistic server-side: even with a large
+    // shared prefix, Google may decline to cache on any given call. We warm
+    // the cache first, then retry the user code up to 3 times until we see
+    // a cache hit. If all 3 attempts miss, we accept the last result and let
+    // the assertions report the genuine miss.
     const ai = new GoogleGenAI({ apiKey: process.env["GEMINI_API_KEY"] });
-    await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `${longDoc}\n\nQuestion: warmup question.`,
-      config: { maxOutputTokens: 16 },
-    });
+    const warmup = async (tag: string) => {
+      await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: `${longDoc}\n\nQuestion: warmup ${tag}.`,
+        config: { maxOutputTokens: 16 },
+      });
+    };
+    await warmup("initial");
 
     process.env["AIDEV_PROVIDER"] = "gemini";
-    const raw = await runUserCode(EXERCISE_FILE);
-    calls = raw.calls as unknown as CapturedCallGemini[];
-    userReturn = raw.userReturn as ImplicitCacheResult | undefined;
-  }, 60_000);
+    const MAX_ATTEMPTS = 3;
+    let raw: Awaited<ReturnType<typeof runUserCode>> | undefined;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      raw = await runUserCode(EXERCISE_FILE);
+      const cached =
+        (raw.userReturn as ImplicitCacheResult | undefined)?.secondUsage
+          ?.cachedContentTokenCount ?? 0;
+      if (cached > 0) break;
+      if (attempt < MAX_ATTEMPTS) await warmup(`retry-${attempt}`);
+    }
+    calls = raw!.calls as unknown as CapturedCallGemini[];
+    userReturn = raw!.userReturn as ImplicitCacheResult | undefined;
+  }, 120_000);
 
   test("makes exactly two API calls", () => {
     expect(calls).toHaveLength(2);
