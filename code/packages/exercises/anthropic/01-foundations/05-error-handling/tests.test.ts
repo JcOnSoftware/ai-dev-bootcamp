@@ -29,7 +29,7 @@ describe("05-error-handling", () => {
       withRetry: typeof withRetry;
     };
     withRetry = mod.withRetry;
-  });
+  }, 60_000);
 
   // -------- Unit tests for withRetry (no API calls) --------
 

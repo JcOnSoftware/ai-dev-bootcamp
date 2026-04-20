@@ -25,7 +25,7 @@ describe("05-guardrails-validation", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { results: GuardrailResult[] } | undefined;
-  });
+  }, 60_000);
 
   test("returns results array with 3 entries", () => {
     expect(userReturn).toBeDefined();

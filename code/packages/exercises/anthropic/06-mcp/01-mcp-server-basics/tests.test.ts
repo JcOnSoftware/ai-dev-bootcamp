@@ -20,7 +20,7 @@ describe("01-mcp-server-basics", () => {
 
     client = new Client({ name: "test-client", version: "1.0.0" });
     await client.connect(clientTransport);
-  });
+  }, 60_000);
 
   afterAll(async () => {
     await client.close();

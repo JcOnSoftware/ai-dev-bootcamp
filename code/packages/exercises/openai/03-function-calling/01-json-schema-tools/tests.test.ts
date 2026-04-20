@@ -16,7 +16,7 @@ describe("01-json-schema-tools", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
-  });
+  }, 60_000);
 
   test("makes exactly one API call", () => {
     expect(calls).toHaveLength(1);

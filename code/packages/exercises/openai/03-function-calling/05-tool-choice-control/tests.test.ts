@@ -18,7 +18,7 @@ describe("05-tool-choice-control", () => {
     userReturn = raw.userReturn as
       | { autoResult: unknown; requiredResult: unknown; noneResult: unknown }
       | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly three API calls", () => {
     expect(calls).toHaveLength(3);

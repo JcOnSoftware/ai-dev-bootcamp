@@ -26,7 +26,7 @@ describe("03-output-scoring", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { answer: string; scores: Scores } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly 2 API calls", () => {
     expect(calls).toHaveLength(2);

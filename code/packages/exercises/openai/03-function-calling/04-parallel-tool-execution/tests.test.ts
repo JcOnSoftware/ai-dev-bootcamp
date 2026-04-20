@@ -18,7 +18,7 @@ describe("04-parallel-tool-execution", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { toolCallCount: number; response: unknown } | undefined;
-  });
+  }, 60_000);
 
   test("makes at least two API calls", () => {
     expect(calls.length).toBeGreaterThanOrEqual(2);

@@ -22,7 +22,7 @@ describe("04-self-correction", () => {
     userReturn = raw.userReturn as
       | { results: Array<{ result?: number; error?: string }>; hadError: boolean }
       | undefined;
-  });
+  }, 60_000);
 
   test("makes at least 2 API calls", () => {
     expect(calls.length).toBeGreaterThanOrEqual(2);

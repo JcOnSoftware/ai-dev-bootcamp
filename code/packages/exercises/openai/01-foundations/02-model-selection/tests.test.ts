@@ -16,7 +16,7 @@ describe("02-model-selection", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     userReturn = raw.userReturn as { nano: unknown; mini: unknown } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly two API calls", () => {
     expect(calls).toHaveLength(2);

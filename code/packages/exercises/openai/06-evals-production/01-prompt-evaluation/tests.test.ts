@@ -18,7 +18,7 @@ describe("01-prompt-evaluation", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { output: string; score: number; reasoning: string } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly two API calls", () => {
     expect(calls).toHaveLength(2);

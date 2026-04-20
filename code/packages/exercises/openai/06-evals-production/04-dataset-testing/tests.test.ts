@@ -28,7 +28,7 @@ describe("04-dataset-testing", () => {
       failed: number;
       accuracy: number;
     } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly 5 API calls (one per dataset entry)", () => {
     expect(calls).toHaveLength(5);

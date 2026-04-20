@@ -18,7 +18,7 @@ describe("02-truncation-strategies", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { originalCount: number; truncatedCount: number; response: unknown } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly one API call", () => {
     expect(calls).toHaveLength(1);

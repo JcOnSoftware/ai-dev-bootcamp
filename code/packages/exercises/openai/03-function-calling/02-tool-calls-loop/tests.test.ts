@@ -16,7 +16,7 @@ describe("02-tool-calls-loop", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
-  });
+  }, 60_000);
 
   test("makes exactly two API calls", () => {
     expect(calls).toHaveLength(2);

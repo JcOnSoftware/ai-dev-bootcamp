@@ -24,7 +24,7 @@ describe("02-regression-testing", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { results: TestResult[]; passRate: number } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly 3 API calls (one per test case)", () => {
     expect(calls).toHaveLength(3);

@@ -18,7 +18,7 @@ describe("03-token-usage-cost", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { response: unknown; cost: unknown } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly one API call", () => {
     expect(calls).toHaveLength(1);

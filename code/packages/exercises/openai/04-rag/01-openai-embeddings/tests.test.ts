@@ -21,7 +21,7 @@ describe("01-openai-embeddings", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     userReturn = raw.userReturn as typeof userReturn;
-  });
+  }, 60_000);
 
   test("embeddings API calls are not captured by harness (embedding, not chat)", () => {
     // The harness only intercepts chat.completions.create — embedding calls go through

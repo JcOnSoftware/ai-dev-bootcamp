@@ -18,7 +18,7 @@ describe("05-citations-grounding", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { answer: string; citations: string[] } | undefined;
-  });
+  }, 60_000);
 
   test("makes at least 1 chat completion call", () => {
     expect(calls.length).toBeGreaterThanOrEqual(1);

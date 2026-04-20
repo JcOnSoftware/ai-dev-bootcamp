@@ -30,7 +30,7 @@ describe("02-mcp-client-connect", () => {
     });
 
     result = { tools: toolsResult.tools, searchResult };
-  });
+  }, 60_000);
 
   afterAll(async () => {
     if (cleanup) await cleanup();

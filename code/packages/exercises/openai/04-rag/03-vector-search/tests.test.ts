@@ -16,7 +16,7 @@ describe("03-vector-search", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     userReturn = raw.userReturn as { query: string; results: { text: string; similarity: number }[] } | undefined;
-  });
+  }, 60_000);
 
   test("embedding calls not captured by harness (only chat.completions is patched)", () => {
     expect(calls.length).toBe(0);

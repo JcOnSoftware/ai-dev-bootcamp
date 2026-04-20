@@ -16,7 +16,7 @@ describe("03-multi-tool-routing", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
-  });
+  }, 60_000);
 
   test("makes at least two API calls", () => {
     expect(calls.length).toBeGreaterThanOrEqual(2);

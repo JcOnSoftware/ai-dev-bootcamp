@@ -18,7 +18,7 @@ describe("04-streaming-deltas", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { chunks: unknown; fullText: unknown } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly one API call", () => {
     expect(calls).toHaveLength(1);

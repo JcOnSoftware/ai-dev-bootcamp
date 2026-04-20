@@ -29,7 +29,7 @@ describe("05-tool-orchestration", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as typeof userReturn;
-  });
+  }, 60_000);
 
   test("makes at least 3 API calls", () => {
     expect(calls.length).toBeGreaterThanOrEqual(3);

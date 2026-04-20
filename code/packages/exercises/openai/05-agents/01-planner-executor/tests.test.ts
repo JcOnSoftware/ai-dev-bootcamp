@@ -18,7 +18,7 @@ describe("01-planner-executor", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { steps: number; finalAnswer: string } | undefined;
-  });
+  }, 60_000);
 
   test("makes at least 2 API calls (loop had at least one tool round-trip)", () => {
     expect(calls.length).toBeGreaterThanOrEqual(2);

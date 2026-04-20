@@ -16,7 +16,7 @@ describe("02-chunking-strategies", () => {
     const raw = await runUserCode(EXERCISE_FILE);
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     userReturn = raw.userReturn as { chunks: string[]; chunkCount: number } | undefined;
-  });
+  }, 60_000);
 
   test("makes no API calls (pure algorithm)", () => {
     expect(calls).toHaveLength(0);

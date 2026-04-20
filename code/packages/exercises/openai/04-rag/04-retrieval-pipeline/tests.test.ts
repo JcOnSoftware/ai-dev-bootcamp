@@ -18,7 +18,7 @@ describe("04-retrieval-pipeline", () => {
     calls = raw.calls as unknown as CapturedCallOpenAI[];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { query: string; context: string[]; answer: string } | undefined;
-  });
+  }, 60_000);
 
   test("makes at least 1 chat completion call", () => {
     expect(calls.length).toBeGreaterThanOrEqual(1);

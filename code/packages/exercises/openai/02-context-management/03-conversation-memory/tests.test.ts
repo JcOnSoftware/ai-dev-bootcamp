@@ -20,7 +20,7 @@ describe("03-conversation-memory", () => {
     firstCall = calls[0];
     lastCall = calls[calls.length - 1];
     userReturn = raw.userReturn as { turns: number; finalResponse: unknown } | undefined;
-  });
+  }, 60_000);
 
   test("makes exactly 3 API calls (one per turn)", () => {
     expect(calls).toHaveLength(3);
