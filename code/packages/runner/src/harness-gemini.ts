@@ -53,43 +53,69 @@ export interface HarnessResultGemini {
   userReturn: unknown;
 }
 
+/**
+ * Gemini's backend returns 503 UNAVAILABLE on model-capacity spikes and 429
+ * on quota. Neither indicates a bug in the learner's code, so the harness
+ * retries the whole exercise run (fresh import, fresh patches) up to 3 times
+ * with exponential backoff. Non-transient errors (bad request, auth, etc.)
+ * propagate immediately.
+ */
+function isTransientGeminiError(err: unknown): boolean {
+  const status = (err as { status?: number } | null | undefined)?.status;
+  return status === 503 || status === 429 || status === 500;
+}
+
 export async function runUserCodeGemini(
   filePath: string,
   options: RunOptions = {},
 ): Promise<HarnessResultGemini> {
-  const calls: CapturedCallGemini[] = [];
-  const pendingCaptures: Promise<void>[] = [];
-  const restore = patchModels(calls, pendingCaptures, options.onStreamEvent);
+  const MAX_ATTEMPTS = 3;
+  let lastError: unknown;
 
-  try {
-    const absolutePath = resolve(filePath);
-    const moduleUrl = `${pathToFileURL(absolutePath).href}?t=${Date.now()}`;
-    const mod = (await import(moduleUrl)) as Record<string, unknown>;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const calls: CapturedCallGemini[] = [];
+    const pendingCaptures: Promise<void>[] = [];
+    const restore = patchModels(calls, pendingCaptures, options.onStreamEvent);
 
-    const entryName = options.entry ?? "default";
-    const entry = mod[entryName];
-    if (typeof entry !== "function") {
-      throw new HarnessError(
-        `Exercise at ${filePath} must export ${
-          entryName === "default" ? "a default async function" : `function '${entryName}'`
-        }, got ${typeof entry}.`,
-      );
+    try {
+      const absolutePath = resolve(filePath);
+      const moduleUrl = `${pathToFileURL(absolutePath).href}?t=${Date.now()}`;
+      const mod = (await import(moduleUrl)) as Record<string, unknown>;
+
+      const entryName = options.entry ?? "default";
+      const entry = mod[entryName];
+      if (typeof entry !== "function") {
+        throw new HarnessError(
+          `Exercise at ${filePath} must export ${
+            entryName === "default" ? "a default async function" : `function '${entryName}'`
+          }, got ${typeof entry}.`,
+        );
+      }
+
+      const userReturn = await (entry as () => unknown | Promise<unknown>)();
+
+      if (pendingCaptures.length > 0) {
+        await Promise.all(pendingCaptures);
+      }
+
+      return {
+        calls,
+        lastCall: calls[calls.length - 1],
+        userReturn,
+      };
+    } catch (err) {
+      lastError = err;
+      if (attempt < MAX_ATTEMPTS && isTransientGeminiError(err)) {
+        await new Promise((r) => setTimeout(r, 1000 * 2 ** (attempt - 1)));
+        continue;
+      }
+      throw err;
+    } finally {
+      restore();
     }
-
-    const userReturn = await (entry as () => unknown | Promise<unknown>)();
-
-    if (pendingCaptures.length > 0) {
-      await Promise.all(pendingCaptures);
-    }
-
-    return {
-      calls,
-      lastCall: calls[calls.length - 1],
-      userReturn,
-    };
-  } finally {
-    restore();
   }
+
+  throw lastError ?? new HarnessError("runUserCodeGemini: unreachable");
 }
 
 /**
