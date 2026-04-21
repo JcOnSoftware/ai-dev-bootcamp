@@ -43,6 +43,7 @@
   "open.select_prompt": "Pick an exercise to open",
   "open.not_found": "Exercise '{id}' not found. Try: aidev list",
   "open.no_editor": "No editor found. Export $EDITOR or install VS Code (command: code).",
+  "open.editor_failed": "Failed to launch '{editor}'. Is it installed and in PATH?",
   "next.found": "→ Next: {id} ({title})",
   "next.track_progress": "  Track: {track} ({done}/{total} completed)",
   "next.all_done": "You completed all exercises! Congratulations.",
@@ -62,5 +63,11 @@
   "init.update_done": "Exercises updated to the latest version.",
   "init.update_up_to_date": "Already up to date.",
   "init.update_failed": "Update failed. Check your connection or run 'git pull' manually.",
-  "init.update_no_git": "No git repository found. Did you clone the repo correctly?"
+  "init.update_no_git": "No git repository found. Did you clone the repo correctly?",
+  "init.editor_prompt": "Which editor do you use?",
+  "init.editor_custom_prompt": "Enter the binary name (e.g. vim, subl)",
+  "init.editor_custom_empty": "Binary name cannot be empty",
+  "init.editor_saved": "Editor saved: {editor}",
+  "init.editor_not_in_path": "Warning: '{editor}' is not in your PATH. Install it before running `aidev open`.",
+  "init.editor_exists": "An editor is already saved: {editor}. Change it?"
 }

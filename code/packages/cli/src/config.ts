@@ -12,6 +12,7 @@ export interface Config {
   geminiApiKey?: string;
   provider?: SupportedProvider;
   locale?: SupportedLocale;
+  editor?: string;
 }
 
 export interface ProgressEntry {

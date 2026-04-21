@@ -15,7 +15,7 @@ License: MIT.
 - **Language**: TypeScript 5.9 (strict, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, `allowImportingTsExtensions`)
 - **AI SDKs**: `@anthropic-ai/sdk ^0.40` + `openai ^4.86` + `@google/genai ^1.48` (tri provider)
 - **CLI**: `commander` + `@clack/prompts` + `picocolors`
-  - `@clack/prompts` used in `aidev init` for provider, API key, and locale selection.
+  - `@clack/prompts` used in `aidev init` for provider, API key, locale, and editor selection.
 - **Provider**: singleton at `packages/cli/src/provider/`. Mirrors i18n pattern. Resolved in `preAction` hook via `initProvider(provider)`.
 - **Provider resolution order**: `--provider <flag>` → `AIDEV_PROVIDER` env var → `~/.aidev/config.json` → default `"anthropic"`.
 - **Provider env vars + display names** live in `provider/types.ts` as `PROVIDER_ENV_VAR` and `PROVIDER_DISPLAY_NAME` records — use these instead of ad-hoc ternaries.
@@ -110,7 +110,7 @@ Every exercise has these files at its root plus one `exercise.md` per declared l
 ## CLI (`aidev`)
 
 ```
-aidev init                           # provider + API key + locale → ~/.aidev/config.json (includes welcome, reset, update)
+aidev init                           # provider + API key + locale + editor → ~/.aidev/config.json (includes welcome, reset, update)
 aidev list [--provider] [--locale]   # list exercises grouped by track (interactive picker)
 aidev open [<id>] [--solution] [--provider] [--locale]  # open exercise in editor (no arg = picker)
 aidev next [--provider] [--locale]   # open first incomplete exercise
@@ -156,14 +156,14 @@ Tests and exercise code read `process.env.*` directly. They don't care which of 
   - **Gemini** (30): foundations, context-caching, function-calling, RAG, agents, advanced-features
 - **Multi-provider**: `--provider` flag, `AIDEV_PROVIDER` env, provider selection in init. Provider-scoped exercise directories + harness dispatcher.
 - **i18n**: complete. Default locale: `en`.
-- **CLI**: full command set — init (provider/key/locale + reset/update), list, open (--solution), next, verify, progress, run (--stream-live).
+- **CLI**: full command set — init (provider/key/locale/editor + reset/update), list, open (--solution, --editor), next (--editor), verify, progress, run (--stream-live).
+- **Multi-editor**: `--editor` flag, `AIDEV_EDITOR` env, editor selection in `aidev init`. 7 curated editors + custom fallback. Resolution order: `--editor` → `AIDEV_EDITOR` → `$VISUAL` → `$EDITOR` → `config.editor` → `"code"`.
 - **Repo**: PUBLIC. Branch protection active (PR + CI required, 0 approvals for solo dev).
 - **Gemini paid-tier reminder**: track 02 explicit-cache exercises + track 06 grounding / code-execution / url-context require a billing-enabled Gemini key. Track 01 and most of the others run on free tier.
 - **Next**:
-  - LangChain — deferred to post-v3 as `07-frameworks` track (framework-level, ENCIMA de los SDKs nativos)
   - Gemini Live API — optional future track (audio-to-audio over WebSocket; needs harness extension to capture Session-level calls)
   - Issue #3: quarterly MODEL_PRICES refresh in cost.ts
-  - Multi-editor support for `aidev open`/`next` (currently VS Code only)
+  - Link `langchain-bootcamp` sister repo in README once that bootcamp ships (tracked in a separate session — NOT a pending track here)
 
 ## Persistence references
 
