@@ -113,6 +113,42 @@ describe("progress command — locale-aware output", () => {
   });
 });
 
+describe("editor — --editor flag and AIDEV_EDITOR env", () => {
+  test("aidev --help mentions --editor option", async () => {
+    const { exitCode, stdout } = await runCli(["--help"]);
+    expect(exitCode).toBe(0);
+    expect(stdout).toContain("--editor");
+  });
+
+  test("aidev open --help shows --editor option", async () => {
+    const { exitCode, stdout } = await runCli(["open", "--help"]);
+    expect(exitCode).toBe(0);
+    expect(stdout).toContain("--editor");
+  });
+
+  test("aidev next --help shows --editor option", async () => {
+    const { exitCode, stdout } = await runCli(["next", "--help"]);
+    expect(exitCode).toBe(0);
+    expect(stdout).toContain("--editor");
+  });
+
+  test("AIDEV_EDITOR env is respected (reflected in open.opening output)", async () => {
+    // We pass --locale en so the opening message is predictable.
+    // aidev open without a valid exercise id will fail, but we can test by checking
+    // the 'opening' line which prints the editor name after resolution.
+    // Since aidev open on a nonexistent ID exits 1, use a known exercise ID.
+    // However exercises require API keys for verify — open just opens the file.
+    // The exit code may not be 0 if exercise not found, check the output.
+    const { stdout, stderr } = await runCli(
+      ["open", "01-first-call", "--locale", "en"],
+      { AIDEV_EDITOR: "my-custom-editor", HOME: "/tmp/aidev-test-no-home" },
+    );
+    const combined = stdout + stderr;
+    // The opening message includes the editor name.
+    expect(combined).toContain("my-custom-editor");
+  });
+});
+
 describe("verify command — exercise.md path line", () => {
   test("aidev verify 01-first-call --locale en prints EN exercise doc path", async () => {
     // No ANTHROPIC_API_KEY → verify will fail on API key check, but the doc path

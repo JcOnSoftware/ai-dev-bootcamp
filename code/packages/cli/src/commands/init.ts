@@ -9,6 +9,7 @@ import { paths, readConfig, writeConfig, resetProgress } from "../config.ts";
 import type { SupportedLocale } from "../i18n/types.ts";
 import type { SupportedProvider } from "../provider/types.ts";
 import { PROVIDER_ENV_VAR } from "../provider/types.ts";
+import { SUGGESTED_EDITORS, isEditorInPath } from "../editor.ts";
 
 /** Resolves the git repo root (two levels above code/packages/cli/src/). */
 function repoRoot(): string {
@@ -25,6 +26,67 @@ function printWelcomeBanner(): void {
   console.log();
   console.log(`  ${pc.dim(t("init.stats"))}`);
   console.log();
+}
+
+/**
+ * Prompts the user to select or type an editor binary.
+ * Shows 7 curated editors + a "Custom..." option.
+ * If the chosen binary is not in PATH, warns but allows saving.
+ * Returns the selected binary string, or undefined if cancelled.
+ */
+async function selectEditor(current?: string): Promise<string | undefined> {
+  const CUSTOM_VALUE = "__custom__";
+
+  if (current) {
+    const overwrite = await p.confirm({
+      message: t("init.editor_exists", { editor: current }),
+      initialValue: false,
+    });
+    if (p.isCancel(overwrite)) {
+      p.cancel(t("init.cancelled"));
+      return undefined;
+    }
+    if (!overwrite) return current;
+  }
+
+  const options = [
+    ...SUGGESTED_EDITORS.map((e) => ({ value: e.binary, label: e.label })),
+    { value: CUSTOM_VALUE, label: "Other / Custom..." },
+  ];
+
+  const selected = await p.select<string>({
+    message: t("init.editor_prompt"),
+    options,
+  });
+
+  if (p.isCancel(selected)) {
+    p.cancel(t("init.cancelled"));
+    return undefined;
+  }
+
+  let binary: string;
+  if (selected === CUSTOM_VALUE) {
+    const entered = await p.text({
+      message: t("init.editor_custom_prompt"),
+      validate(value) {
+        if (!value || value.trim() === "") return t("init.editor_custom_empty");
+      },
+    });
+    if (p.isCancel(entered)) {
+      p.cancel(t("init.cancelled"));
+      return undefined;
+    }
+    binary = entered.trim();
+  } else {
+    binary = selected;
+  }
+
+  const inPath = await isEditorInPath(binary);
+  if (!inPath) {
+    p.log.warn(t("init.editor_not_in_path", { editor: binary }));
+  }
+
+  return binary;
 }
 
 async function runConfigure(): Promise<void> {
@@ -167,11 +229,18 @@ async function runConfigure(): Promise<void> {
   // Switch i18n immediately so remaining messages use the chosen locale
   initI18n(newLocale);
 
+  // --- Editor ---
+  const newEditor = await selectEditor(existing.editor);
+  if (newEditor === undefined) {
+    // selectEditor already called p.cancel(); bail out cleanly.
+    return;
+  }
+
   const keyField =
     newProvider === "anthropic" ? "anthropicApiKey"
     : newProvider === "openai" ? "openaiApiKey"
     : "geminiApiKey";
-  const nextConfig: typeof existing = { ...existing, provider: newProvider, locale: newLocale };
+  const nextConfig: typeof existing = { ...existing, provider: newProvider, locale: newLocale, editor: newEditor };
   if (key !== undefined) {
     nextConfig[keyField] = key;
   }

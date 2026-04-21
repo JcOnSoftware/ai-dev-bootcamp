@@ -9,6 +9,7 @@ export const openCommand = new Command("open")
   .argument("[id]", "Exercise ID (e.g. 01-first-call). Omit to pick from list.")
   .option("--solution", "Open solution.ts instead of starter.ts")
   .option("--locale <code>", "Locale override for this invocation (es|en)")
+  .option("-e, --editor <binary>", "Editor binary to use (e.g. cursor, zed, nvim)")
   .action(async (id: string | undefined, opts: { solution?: boolean }) => {
     if (id) {
       const exercise = await findExercise(id);

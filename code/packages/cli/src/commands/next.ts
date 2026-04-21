@@ -8,6 +8,7 @@ import { openAndHint } from "../pick.ts";
 export const nextCommand = new Command("next")
   .description("Open the next incomplete exercise in your editor.")
   .option("--locale <code>", "Locale override for this invocation (es|en)")
+  .option("-e, --editor <binary>", "Editor binary to use (e.g. cursor, zed, nvim)")
   .action(async () => {
     const [exercises, progress] = await Promise.all([
       listExercises(),

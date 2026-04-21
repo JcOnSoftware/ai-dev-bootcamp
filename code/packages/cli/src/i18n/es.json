@@ -43,6 +43,7 @@
   "open.select_prompt": "Elegí un ejercicio para abrir",
   "open.not_found": "Ejercicio '{id}' no encontrado. Probá: aidev list",
   "open.no_editor": "No se encontró editor. Exportá $EDITOR o instalá VS Code (command: code).",
+  "open.editor_failed": "No se pudo abrir '{editor}'. ¿Está instalado y en el PATH?",
   "next.found": "→ Siguiente: {id} ({title})",
   "next.track_progress": "  Track: {track} ({done}/{total} completados)",
   "next.all_done": "¡Completaste todos los ejercicios! Felicitaciones.",
@@ -62,5 +63,11 @@
   "init.update_done": "Ejercicios actualizados a la última versión.",
   "init.update_up_to_date": "Ya tenés la última versión.",
   "init.update_failed": "Error al actualizar. Verificá tu conexión o corré 'git pull' manualmente.",
-  "init.update_no_git": "No se encontró repositorio git. ¿Clonaste el repo correctamente?"
+  "init.update_no_git": "No se encontró repositorio git. ¿Clonaste el repo correctamente?",
+  "init.editor_prompt": "¿Qué editor usás?",
+  "init.editor_custom_prompt": "Ingresá el nombre del binario (ej. vim, subl)",
+  "init.editor_custom_empty": "El nombre del binario no puede estar vacío",
+  "init.editor_saved": "Editor guardado: {editor}",
+  "init.editor_not_in_path": "Advertencia: '{editor}' no está en tu PATH. Instalalo antes de usar `aidev open`.",
+  "init.editor_exists": "Ya hay un editor guardado: {editor}. ¿Querés cambiarlo?"
 }

@@ -49,7 +49,7 @@ Cada ejercicio tiene un `starter.ts` (TODOs para implementar), un `solution.ts` 
 
 ## Quick start
 
-Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows) y [VS Code](https://code.visualstudio.com/) (para `aidev open` y `aidev next`).
+Requiere [Bun](https://bun.com) 1.3+ (Mac, Linux, Windows). Cualquier editor funciona — ver [Editores soportados](#editores-soportados).
 
 **API keys** — sacate una del provider que vayas a usar:
 - **Anthropic**: <https://console.claude.com/settings/keys>
@@ -123,7 +123,31 @@ aidev next                  # saltá al siguiente ejercicio incompleto
 
 **Flag de idioma**: agregá `--locale es` o `--locale en` a cualquier comando.
 
-> **Editor**: VS Code (`code`) por default. Cambialo con las variables de entorno `$VISUAL` o `$EDITOR`.
+**Flag de editor**: agregá `--editor <binario>` a `open` o `next` para un override puntual (ej. `aidev open 01-first-call --editor zed`).
+
+## Editores soportados
+
+`aidev open` y `aidev next` abren los ejercicios en tu editor. Configuralo una vez con `aidev init` y persiste entre sesiones.
+
+| Editor | Binario |
+|--------|---------|
+| VS Code | `code` |
+| Cursor | `cursor` |
+| Windsurf | `windsurf` |
+| Antigravity | `antigravity` |
+| Zed | `zed` |
+| Neovim | `nvim` |
+| WebStorm | `webstorm` |
+| Custom | cualquier nombre de binario |
+
+**Orden de resolución** (gana el primero que aplique):
+
+1. Flag `--editor <binario>`
+2. Variable de entorno `AIDEV_EDITOR`
+3. Variable de entorno `$VISUAL`
+4. Variable de entorno `$EDITOR`
+5. Campo `editor` en `~/.aidev/config.json` (seteado por `aidev init`)
+6. Default: `code` (VS Code)
 
 ## Costo
 

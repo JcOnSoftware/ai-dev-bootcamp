@@ -24,7 +24,8 @@ program
   .description("Interactive CLI to learn AI tools through progressive exercises.")
   .version("0.0.1")
   .option("--locale <code>", "Locale override for this invocation (es|en)")
-  .option("--provider <name>", "Provider override for this invocation (anthropic|openai|gemini)");
+  .option("--provider <name>", "Provider override for this invocation (anthropic|openai|gemini)")
+  .option("-e, --editor <binary>", "Editor binary to use (e.g. cursor, zed, nvim). Overrides AIDEV_EDITOR env and config.");
 
 // Resolve locale and initialize i18n BEFORE any command action runs.
 // Commander does NOT call preAction for --help / --version built-ins.
@@ -42,6 +43,15 @@ program.hook("preAction", async (thisCommand, actionCommand) => {
     (thisCommand.opts() as Record<string, string | undefined>)["provider"];
   const provider = await resolveProvider(providerFlag);
   initProvider(provider);
+
+  // Editor resolution: --editor flag (root or per-command) → set AIDEV_EDITOR so
+  // resolveEditor() picks it up via the env chain. No new module needed.
+  const editorFlag =
+    (actionCommand.opts() as Record<string, string | undefined>)["editor"] ??
+    (thisCommand.opts() as Record<string, string | undefined>)["editor"];
+  if (editorFlag) {
+    process.env["AIDEV_EDITOR"] = editorFlag;
+  }
 });
 
 program.addCommand(initCommand);
