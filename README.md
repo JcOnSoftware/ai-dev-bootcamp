@@ -166,6 +166,12 @@ Exercises use the cheapest models by default:
 
 Follow progress in [Issues](https://github.com/JcOnSoftware/ai-dev-bootcamp/issues).
 
+## Sister project
+
+**[langchain-bootcamp](https://github.com/JcOnSoftware/langchain-bootcamp)** — Same hands-on style, framework-level. Learn LangChain (TypeScript) through 30 progressive exercises
+ across 6 tracks: composition, RAG, agents, LangGraph, advanced patterns, and observability. Provider-agnostic curriculum (Anthropic · OpenAI · Gemini), choose at `lcdev init`.
+
+
 ## Contributing
 
 New exercises, bug fixes, translations — all welcome. See **[CONTRIBUTING.md](./CONTRIBUTING.md)** for setup, tests, commit conventions, and how to author a new exercise per the contract.
