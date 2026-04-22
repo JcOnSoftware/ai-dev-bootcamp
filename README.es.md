@@ -1,5 +1,7 @@
 # ai-dev-bootcamp
 
+[![CI](https://github.com/JcOnSoftware/ai-dev-bootcamp/actions/workflows/ci.yml/badge.svg)](https://github.com/JcOnSoftware/ai-dev-bootcamp/actions/workflows/ci.yml)
+
 > [🇬🇧 Read this in English →](./README.md)
 
 **Rustlings para devs de AI.** Bootcamp hands-on de AI engineering para developers con experiencia — aprendé a construir sistemas de AI reales con 90 ejercicios progresivos y tests automáticos contra APIs reales.
